@@ -56,7 +56,7 @@ async function streamBackgroundTest(){
 		"backgroundType": "image",
 		"backgroundEffectEnabled": true,
 		"blurValue": "",
-		"virtualSource": "./src/utils/images/background-1.jpg"
+		"virtualSource": "./static/js/images/background-1.jpg"
 	}
 	backgroundEffect.setVirtualBackground(virtualBackgroundOption)
 	localVideo.srcObject = await backgroundEffect.startEffect(localStream)
