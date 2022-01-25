@@ -33,7 +33,7 @@ function getDecryptData(){
 /**
  * video虚拟背景测试
  */
-async function streamBackgroundTest(){
+async function streamBackgroundTest(res){
 	let localVideo = document.getElementById('videw1')
 	if(!StreamBackgroundEffect){
 		localVideo.style.display = 'block'
@@ -47,10 +47,23 @@ async function streamBackgroundTest(){
 	}
 
 	let backgroundEffect = await new StreamBackgroundEffect()
-	let localStream = await navigator.mediaDevices.getUserMedia({
-		audio: false,
-		video: true
-	})
+    let constraints
+    if(res){
+        constraints = {
+            audio: false,
+            video: {
+                facingMode: {
+                    exact: "environment"
+                }
+            }
+        };
+    }else{
+       constraints = {
+           audio: false,
+           video: true
+       }; 
+    } 
+	let localStream = await navigator.mediaDevices.getUserMedia(constraints)
 
 	let virtualBackgroundOption =  {
 		"backgroundType": "image",
