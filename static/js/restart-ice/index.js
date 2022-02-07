@@ -8,7 +8,7 @@
 
 'use strict';
 
-// const startButton = document.getElementById('startButton');
+
 // const callButton = document.getElementById('callButton');
 // const restartButton = document.getElementById('restartButton');
 // const hangupButton = document.getElementById('hangupButton');
@@ -28,12 +28,14 @@ console.log(localVideo)
 
 
 let localStream;
+let localStream1;
 let pc1;
 let pc2;
 const offerOptions = {
   offerToReceiveAudio: 1,
   offerToReceiveVideo: 1
 };
+
 
 function getName(pc) {
   return (pc === pc1) ? 'pc1' : 'pc2';
@@ -256,10 +258,33 @@ function hangup() {
   // callButton.disabled = false;
 }
 
+function Switch(constraints){
+    navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess, handleError);
+}
 
+function handleSuccess(stream) {
+	localStream1 = stream;
+    localVideo = document.getElementById('local');
+    localVideo.srcObject = localStream1;
+    let videoTrack = localStream1.getVideoTracks()[0];
+    var sender = pc1.getSenders().find(function(s) {
+    	console.log(s)
+        return s.track.kind == videoTrack.kind;
+    });
+    console.log('found sender:', sender);
+    sender.replaceTrack(videoTrack);
+	stream.getVideoTracks()[0].addEventListener('ended', () => {
+        errorMsg('The user has ended sharing the screen');
+	});
+}
+
+function handleError(error) {
+	console.log(`getDisplayMedia error: ${error.name}`, error);
+}
 
 export default {
     start,
     restart,
-    candidatePair
+    candidatePair,
+    Switch
 }
