@@ -23,14 +23,15 @@ let candidatePair = []
 let startTime;
 let localVideo;
 let remoteVideo;
-
-console.log(localVideo)
+let remoteVideo1;
 
 
 let localStream;
 let localStream1;
 let pc1;
 let pc2;
+let pc11;
+let pc22;
 const offerOptions = {
   offerToReceiveAudio: 1,
   offerToReceiveVideo: 1
@@ -44,6 +45,9 @@ function getName(pc) {
 function getOtherPc(pc) {
   return (pc === pc1) ? pc2 : pc1;
 }
+function getOtherPc1(pc) {
+  return (pc === pc11) ? pc22 : pc11;
+}
 
 function gotStream(stream) {
   console.log('Received local stream');
@@ -52,10 +56,18 @@ function gotStream(stream) {
   call()
 }
 
+function gotStream1(stream) {
+  console.log('Received local stream');
+  //localVideo.srcObject = stream;
+  localStream1 = stream;
+  call1(stream)
+}
+
 function start() {
   console.log('Requesting local stream');
   localVideo = document.getElementById('local');
   remoteVideo = document.getElementById('remote');
+  remoteVideo1 = document.getElementById('remoteVideo1');
   localVideo.addEventListener('loadedmetadata', function() {
     console.log(`Local video videoWidth: ${this.videoWidth}px,  videoHeight: ${this.videoHeight}px`);
   });
@@ -88,10 +100,19 @@ function start() {
       .catch(e => alert(`getUserMedia() error: ${e}`));
 }
 
+function start1() {
+  navigator.mediaDevices
+      .getDisplayMedia()
+      .then(gotStream1)
+      .catch(e => alert(`getUserMedia() error: ${e}`));
+}
+
 // Simulate an ice restart.
 function restart() {
   // restartButton.disabled = true;
   offerOptions.iceRestart = true;
+  console.log(pc2.getTransceivers())
+  console.log(pc2.getRemoteStreams())
   console.log('pc1 createOffer restart');
   pc1.createOffer(offerOptions).then(onCreateOfferSuccess, onCreateSessionDescriptionError);
 }
@@ -133,6 +154,44 @@ function call() {
   pc1.createOffer(offerOptions).then(onCreateOfferSuccess, onCreateSessionDescriptionError);
 }
 
+function call1(stream) {
+    localStream1 = stream;
+  // callButton.disabled = true;
+  // hangupButton.disabled = false;
+  console.log('Starting call');
+  // startTime = window.performance.now();
+  // const videoTracks = localStream.getVideoTracks();
+  // const audioTracks = localStream.getAudioTracks();
+  // if (videoTracks.length > 0) {
+  //   console.log(`Using video device: ${videoTracks[0].label}`);
+  // }
+  // if (audioTracks.length > 0) {
+  //   console.log(`Using audio device: ${audioTracks[0].label}`);
+  // }
+  const servers = null;
+  pc11 = window.pc11 = new RTCPeerConnection(servers);
+  // console.log('Created local peer connection object pc1');
+  pc11.onicecandidate = e => onIceCandidate1(pc11, e);
+  pc22 = window.pc22 = new RTCPeerConnection(servers);
+  // console.log('Created remote peer connection object pc2');
+  pc22.onicecandidate = e => onIceCandidate1(pc22, e);
+  pc11.oniceconnectionstatechange = e => {
+    onIceStateChange(pc11, e);
+    if (pc11 && pc11.iceConnectionState === 'connected') {
+      // restartButton.disabled = false;
+    }
+  };
+  pc22.oniceconnectionstatechange = e => onIceStateChange(pc22, e);
+  pc22.ontrack = gotRemoteStream1;
+
+  localStream1.getTracks().forEach(track => pc11.addTrack(track, localStream1)
+  );
+  console.log('Added local stream to pc1');
+
+  console.log('pc1 createOffer start');
+  pc11.createOffer(offerOptions).then(onCreateOfferSuccess1, onCreateSessionDescriptionError);
+}
+
 function onCreateSessionDescriptionError(error) {
   console.log(`Failed to create session description: ${error.toString()}`);
 }
@@ -150,6 +209,19 @@ function onCreateOfferSuccess(desc) {
   pc2.createAnswer().then(onCreateAnswerSuccess, onCreateSessionDescriptionError);
 }
 
+function onCreateOfferSuccess1(desc) {
+  // console.log(`Offer from pc1\n${desc.sdp}`);
+  // console.log('pc1 setLocalDescription start');
+  pc11.setLocalDescription(desc).then(() => onSetLocalSuccess(pc11), onSetSessionDescriptionError);
+  // console.log('pc2 setRemoteDescription start');
+  pc22.setRemoteDescription(desc).then(() => onSetRemoteSuccess(pc22), onSetSessionDescriptionError);
+  //console.log('pc2 createAnswer start');
+  // Since the 'remote' side has no media stream we need
+  // to pass in the right constraints in order for it to
+  // accept the incoming offer of audio and video.
+  pc22.createAnswer().then(onCreateAnswerSuccess1, onCreateSessionDescriptionError);
+}
+
 function onSetLocalSuccess(pc) {
   console.log(`${getName(pc)} setLocalDescription complete`);
 }
@@ -165,7 +237,16 @@ function onSetSessionDescriptionError(error) {
 function gotRemoteStream(e) {
   if (remoteVideo.srcObject !== e.streams[0]) {
     remoteVideo.srcObject = e.streams[0];
+    console.log(e.streams[0])
     console.log('pc2 received remote stream');
+  }
+}
+
+function gotRemoteStream1(e) {
+  if (remoteVideo1.srcObject !== e.streams[0]) {
+    remoteVideo1.srcObject = e.streams[0];
+    //console.log(e.streams[0])
+    console.log('pc22 received remote stream');
   }
 }
 
@@ -177,8 +258,23 @@ function onCreateAnswerSuccess(desc) {
   pc1.setRemoteDescription(desc).then(() => onSetRemoteSuccess(pc1), onSetSessionDescriptionError);
 }
 
+function onCreateAnswerSuccess1(desc) {
+  //console.log(`Answer from pc2:\n${desc.sdp}`);
+  //console.log('pc2 setLocalDescription start');
+  pc22.setLocalDescription(desc).then(() => onSetLocalSuccess(pc22), onSetSessionDescriptionError);
+  //console.log('pc1 setRemoteDescription start');
+  pc11.setRemoteDescription(desc).then(() => onSetRemoteSuccess(pc11), onSetSessionDescriptionError);
+}
+
 function onIceCandidate(pc, event) {
   getOtherPc(pc)
+      .addIceCandidate(event.candidate)
+      .then(() => onAddIceCandidateSuccess(pc), err => onAddIceCandidateError(pc, err));
+  //console.log(`${getName(pc)} ICE candidate:\n${event.candidate ? event.candidate.candidate : '(null)'}`);
+}
+
+function onIceCandidate1(pc, event) {
+  getOtherPc1(pc)
       .addIceCandidate(event.candidate)
       .then(() => onAddIceCandidateSuccess(pc), err => onAddIceCandidateError(pc, err));
   //console.log(`${getName(pc)} ICE candidate:\n${event.candidate ? event.candidate.candidate : '(null)'}`);
@@ -282,9 +378,32 @@ function handleError(error) {
 	console.log(`getDisplayMedia error: ${error.name}`, error);
 }
 
+function upgrade() {
+  navigator.mediaDevices
+      .getUserMedia({video: true})
+      .then(stream => {
+        const videoTracks = stream.getVideoTracks();
+        if (videoTracks.length > 0) {
+          console.log(`Using video device: ${videoTracks[0].label}`);
+        }
+        localStream.addTrack(videoTracks[0]);
+        localVideo.srcObject = null;
+        localVideo.srcObject = localStream;
+        pc1.addTrack(videoTracks[0], localStream);
+        return pc1.createOffer();
+      })
+      .then(offer => pc1.setLocalDescription(offer))
+      .then(() => pc2.setRemoteDescription(pc1.localDescription))
+      .then(() => pc2.createAnswer())
+      .then(answer => pc2.setLocalDescription(answer))
+      .then(() => pc1.setRemoteDescription(pc2.localDescription));
+}
+
 export default {
     start,
+    start1,
     restart,
     candidatePair,
-    Switch
+    Switch,
+    upgrade
 }
