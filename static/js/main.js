@@ -34,15 +34,15 @@ function getDecryptData(){
  * video虚拟背景测试
  */
 async function streamBackgroundTest(res){
-	let localVideo = document.getElementById('videw1')
+	let LocalVideo = document.getElementById('videw1')
 	if(!StreamBackgroundEffect){
-		localVideo.style.display = 'block'
+		LocalVideo.style.display = 'block'
 		return
 	}
-	localVideo.onloadedmetadata = function (){
-		console.log('current res: '+ localVideo.videoWidth + '*' + localVideo.videoHeight)
-		if(localVideo.videoWidth && localVideo.videoHeight){
-			console.warn('如果video成功显示视频并带有虚拟背景的效果，说明支持虚拟背景设置，否则不支持')
+	LocalVideo.onloadedmetadata = function (){
+		console.log('current res: '+ LocalVideo.videoWidth + '*' + LocalVideo.videoHeight)
+		if(LocalVideo.videoWidth && LocalVideo.videoHeight){
+			console.log('如果video成功显示视频并带有虚拟背景的效果，说明支持虚拟背景设置，否则不支持')
             return 'ok'
 		}else{
             return 'no'
@@ -64,8 +64,8 @@ async function streamBackgroundTest(res){
        constraints = {
            audio: false,
            video: true
-       }; 
-    } 
+       };
+    }
 	let localStream = await navigator.mediaDevices.getUserMedia(constraints)
 
 	let virtualBackgroundOption =  {
@@ -75,8 +75,8 @@ async function streamBackgroundTest(res){
 		"virtualSource": "./static/js/images/background-1.jpg"
 	}
 	backgroundEffect.setVirtualBackground(virtualBackgroundOption)
-	localVideo.srcObject = await backgroundEffect.startEffect(localStream)
-	localVideo.style.display = 'block'
+	LocalVideo.srcObject = await backgroundEffect.startEffect(localStream)
+	LocalVideo.style.display = 'block'
 }
 
 /**

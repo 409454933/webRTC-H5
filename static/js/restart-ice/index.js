@@ -370,9 +370,9 @@ function Switch(constraints){
 }
 
 function handleSuccess(stream) {
-	localStream1 = stream;
+	localStream = stream;
     localVideo = document.getElementById('local');
-    localVideo.srcObject = localStream1;
+    localVideo.srcObject = localStream;
     let videoTrack = localStream1.getVideoTracks()[0];
     var sender = pc1.getSenders().find(function(s) {
     	console.log(s)
