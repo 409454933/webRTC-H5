@@ -43,7 +43,10 @@ async function streamBackgroundTest(res){
 		console.log('current res: '+ localVideo.videoWidth + '*' + localVideo.videoHeight)
 		if(localVideo.videoWidth && localVideo.videoHeight){
 			console.warn('如果video成功显示视频并带有虚拟背景的效果，说明支持虚拟背景设置，否则不支持')
-		}
+            return 'ok'
+		}else{
+            return 'no'
+        }
 	}
 
 	let backgroundEffect = await new StreamBackgroundEffect()

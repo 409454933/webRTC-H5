@@ -58,9 +58,20 @@ function gotStream(stream) {
 
 function gotStream1(stream) {
   console.log('Received local stream');
-  //localVideo.srcObject = stream;
+  // console.log(pc2.getRemoteStreams())
+  // remoteVideo = pc2.getRemoteStreams()[0]
+  // remoteVideo1 = pc2.getRemoteStreams()[1]
+  // localVideo.srcObject = stream;
   localStream1 = stream;
   call1(stream)
+  // let track = stream.getVideoTracks()[0]
+  // pc1.getTransceivers()[1].sender.replaceTrack(track)
+  //     .then(function () {
+  //         console.log('use replaceTrack to add stream ')
+  //     })
+  //     .catch(function (error) {
+  //         console.log(error)
+  //     })
 }
 
 function start() {
@@ -93,8 +104,8 @@ function start() {
   };
   navigator.mediaDevices
       .getUserMedia({
-        audio: false,
-        video: true
+        audio: true,
+        video: false
       })
       .then(gotStream)
       .catch(e => alert(`getUserMedia() error: ${e}`));
@@ -345,10 +356,10 @@ function checkStats(pc) {
 
 function hangup() {
   console.log('Ending call');
-  pc1.close();
-  pc2.close();
-  pc1 = null;
-  pc2 = null;
+  pc11.close();
+  pc22.close();
+  pc11 = null;
+  pc22 = null;
   // hangupButton.disabled = true;
   // restartButton.disabled = true;
   // callButton.disabled = false;
@@ -378,18 +389,22 @@ function handleError(error) {
 	console.log(`getDisplayMedia error: ${error.name}`, error);
 }
 
-function upgrade() {
+function upgrade(res) {
   navigator.mediaDevices
-      .getUserMedia({video: true})
+      .getUserMedia(res)
       .then(stream => {
-        const videoTracks = stream.getVideoTracks();
-        if (videoTracks.length > 0) {
-          console.log(`Using video device: ${videoTracks[0].label}`);
-        }
-        localStream.addTrack(videoTracks[0]);
-        localVideo.srcObject = null;
-        localVideo.srcObject = localStream;
-        pc1.addTrack(videoTracks[0], localStream);
+        // const videoTracks = stream.getVideoTracks();
+        // if (videoTracks.length > 0) {
+        //   console.log(`Using video device: ${videoTracks[0].label}`);
+        // }
+        // localStream.addTrack(videoTracks[0]);
+        // localVideo.srcObject = null;
+        // localVideo.srcObject = localStream;
+        //pc1.addTrack(videoTracks[0], localStream);
+        console.log(stream.getVideoTracks())
+        localVideo.srcObject = stream;
+        localStream = stream
+        stream.getTracks().forEach(track => pc1.addTrack(track, stream))
         return pc1.createOffer();
       })
       .then(offer => pc1.setLocalDescription(offer))
@@ -399,11 +414,25 @@ function upgrade() {
       .then(() => pc1.setRemoteDescription(pc2.localDescription));
 }
 
+function streamMuteSwitch(res){
+    for(let i in localStream.getAudioTracks()){
+        if(res){
+            localStream.getAudioTracks()[i].enabled = true
+            // localStream.getVideoTracks()[i].enabled = true
+        }else{
+            localStream.getAudioTracks()[i].enabled = false
+            // localStream.getVideoTracks()[i].enabled = false
+        }
+    }
+    console.log(localStream.getAudioTracks())
+}
 export default {
     start,
     start1,
     restart,
     candidatePair,
     Switch,
-    upgrade
+    upgrade,
+    streamMuteSwitch,
+    hangup,
 }
