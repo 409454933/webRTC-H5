@@ -373,7 +373,7 @@ function handleSuccess(stream) {
 	localStream = stream;
     localVideo = document.getElementById('local');
     localVideo.srcObject = localStream;
-    let videoTrack = localStream1.getVideoTracks()[0];
+    let videoTrack = localStream.getVideoTracks()[0];
     var sender = pc1.getSenders().find(function(s) {
     	console.log(s)
         return s.track.kind == videoTrack.kind;
