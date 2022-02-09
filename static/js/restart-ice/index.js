@@ -194,7 +194,7 @@ function call1(stream) {
   };
   pc22.oniceconnectionstatechange = e => onIceStateChange(pc22, e);
   pc22.ontrack = gotRemoteStream1;
-
+  localStream1.onremovetrack = removetrack
   localStream1.getTracks().forEach(track => pc11.addTrack(track, localStream1)
   );
   console.log('Added local stream to pc1');
@@ -259,6 +259,10 @@ function gotRemoteStream1(e) {
     //console.log(e.streams[0])
     console.log('pc22 received remote stream');
   }
+}
+
+function removetrack(e){
+    console.log('265' + e)
 }
 
 function onCreateAnswerSuccess(desc) {
@@ -380,9 +384,9 @@ function handleSuccess(stream) {
     });
     console.log('found sender:', sender);
     sender.replaceTrack(videoTrack);
-	stream.getVideoTracks()[0].addEventListener('ended', () => {
-        errorMsg('The user has ended sharing the screen');
-	});
+	// stream.getVideoTracks()[0].addEventListener('ended', () => {
+ //        errorMsg('The user has ended sharing the screen');
+	// });
 }
 
 function handleError(error) {
