@@ -245,7 +245,18 @@ function onSetSessionDescriptionError(error) {
 function gotRemoteStream(e) {
   if (remoteVideo.srcObject !== e.streams[0]) {
     remoteVideo.srcObject = e.streams[0];
-    console.log(e.streams[0])
+    console.log(localStorage.getItem('audio'))
+    for(let i in localStream.getAudioTracks()){
+        if(localStorage.getItem('audio') == 'true'){
+            localStream.getAudioTracks()[i].enabled = true
+            // localStream.getVideoTracks()[i].enabled = true
+        }else{
+            console.log('关掉声音')
+            localStream.getAudioTracks()[i].enabled = false
+            // localStream.getVideoTracks()[i].enabled = false
+        }
+    }
+    console.log(localStream.getAudioTracks())
     console.log('pc2 received remote stream');
   }
 }
@@ -361,9 +372,14 @@ function hangup() {
   pc22.close();
   pc11 = null;
   pc22 = null;
-  // hangupButton.disabled = true;
-  // restartButton.disabled = true;
-  // callButton.disabled = false;
+}
+
+function hangup1() {
+  console.log('Ending call');
+  pc1.close();
+  pc2.close();
+  pc1 = null;
+  pc2 = null;
 }
 
 function Switch(constraints){
@@ -455,4 +471,5 @@ export default {
     upgrade,
     streamMuteSwitch,
     hangup,
+    hangup1
 }
