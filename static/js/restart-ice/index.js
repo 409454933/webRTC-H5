@@ -74,7 +74,7 @@ function gotStream1(stream) {
   //     })
 }
 
-function start() {
+function start(res) {
   console.log('Requesting local stream');
   localVideo = document.getElementById('local');
   remoteVideo = document.getElementById('remote');
@@ -103,10 +103,7 @@ function start() {
     }
   };
   navigator.mediaDevices
-      .getUserMedia({
-        audio: true,
-        video: false
-      })
+      .getUserMedia(res)
       .then(gotStream)
       .catch(e => alert(`getUserMedia() error: ${e}`));
 }
@@ -371,12 +368,18 @@ function hangup() {
 
 function Switch(constraints){
     navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess, handleError);
+    // if(constraints.video.facingMode){
+    //     navigator.mediaDevices.getDisplayMedia().then(handleSuccess, handleError);
+    // }else{
+    //     navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess, handleError);
+    // }
 }
 
 function handleSuccess(stream) {
 	localStream = stream;
     localVideo = document.getElementById('local');
     localVideo.srcObject = localStream;
+    console.log(localStream.getVideoTracks())
     let videoTrack = localStream.getVideoTracks()[0];
     var sender = pc1.getSenders().find(function(s) {
     	console.log(s)
@@ -394,28 +397,41 @@ function handleError(error) {
 }
 
 function upgrade(res) {
-  navigator.mediaDevices
-      .getUserMedia(res)
-      .then(stream => {
-        // const videoTracks = stream.getVideoTracks();
-        // if (videoTracks.length > 0) {
-        //   console.log(`Using video device: ${videoTracks[0].label}`);
-        // }
-        // localStream.addTrack(videoTracks[0]);
-        // localVideo.srcObject = null;
-        // localVideo.srcObject = localStream;
-        //pc1.addTrack(videoTracks[0], localStream);
-        console.log(stream.getVideoTracks())
-        localVideo.srcObject = stream;
-        localStream = stream
-        stream.getTracks().forEach(track => pc1.addTrack(track, stream))
-        return pc1.createOffer();
-      })
-      .then(offer => pc1.setLocalDescription(offer))
-      .then(() => pc2.setRemoteDescription(pc1.localDescription))
-      .then(() => pc2.createAnswer())
-      .then(answer => pc2.setLocalDescription(answer))
-      .then(() => pc1.setRemoteDescription(pc2.localDescription));
+    pc1.close();
+    pc2.close();
+    pc1 = null;
+    pc2 = null;
+    start(res)
+  //   const videoTracks = localStream.getVideoTracks();
+  //   videoTracks.forEach(videoTrack => {
+  //       videoTrack.stop();
+  //       localStream.removeTrack(videoTrack);
+  //   });
+  //   localVideo.srcObject = null;
+  //   localVideo.srcObject = localStream;
+  // navigator.mediaDevices
+  //     .getUserMedia(res)
+  //     .then(stream => {
+  //       // const videoTracks = stream.getVideoTracks();
+  //       // if (videoTracks.length > 0) {
+  //       //   console.log(`Using video device: ${videoTracks[0].label}`);
+  //       // }
+  //       // localStream.addTrack(videoTracks[0]);
+  //       // localVideo.srcObject = null;
+  //       // localVideo.srcObject = localStream;
+  //       //pc1.addTrack(videoTracks[0], localStream);
+  //       console.log(stream.getVideoTracks())
+  //       localVideo.srcObject = stream;
+  //       localStream = stream
+  //       stream.getTracks().forEach(track => pc1.addTrack(track, stream))
+  //       console.log(pc1.getLocalStreams())
+  //       return pc1.createOffer();
+  //     })
+  //     .then(offer => pc1.setLocalDescription(offer))
+  //     .then(() => pc2.setRemoteDescription(pc1.localDescription))
+  //     .then(() => pc2.createAnswer())
+  //     .then(answer => pc2.setLocalDescription(answer))
+  //     .then(() => pc1.setRemoteDescription(pc2.localDescription));
 }
 
 function streamMuteSwitch(res){
