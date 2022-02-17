@@ -1,7 +1,846 @@
-<!DOCTYPE html><html><head><meta charset=utf-8><title>H5 测试</title><meta name=viewport content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"><link href=./static/css/app.7e61e6185a442f0da7f10ca47811d324.css rel=stylesheet></head><style>body .el-table th.gutter{
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
 
-        display: table-cell!important;
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge">
+		<title>WebRTC 测试页</title>
+		<link rel="icon" href="data:,">
+		<link rel="stylesheet" href="./css/main.css">
+	</head>
 
-    }</style><body><div id=app></div><script src=https://unpkg.com/wasm-feature-detect/dist/umd/index.js></script><script src=static/vconsole.js></script><script src=static/js/CryptoJS/crypto-js.js></script><script src=static/js/virtual_background/tflite.js></script><script src=static/js/virtual_background/timerWorker.js></script><script src=static/js/virtual_background/gsrtc.streamBackgroundEffect.js></script><script src=static/js/indexeddb/debug.js></script><script src=static/js/indexeddb/indexedDB.js></script><script src=static/js/main.js></script><script>// init vConsole
-    var vConsole = new VConsole();
-    console.log('Hello world');</script><script type=text/javascript src=./static/js/manifest.7fe92ed0a1be81f6717f.js></script><script type=text/javascript src=./static/js/vendor.2e6490317210f8c7d3b5.js></script><script type=text/javascript src=./static/js/app.226d86999a8d7b788dea.js></script></body></html>
+	<body>
+		<div class="nrtc-container">
+			<div class="top">
+				<!--    Part1: 测试环境    -->
+				<div class="block">
+					<p class="block-header">WebRtc 测试环境</p>
+					<div id="part-env" class="part"></div>
+
+					<p class="block-header">调试</p>
+					<div class="part">
+						<div class="line">
+							<button type="button" id="start">开始测试</button>
+						</div>
+						<div class="line">
+							<button type="button" id="toggleVConsole">打开vconsole</button>
+						</div>
+
+						<div class="line">
+							<button type="button" id="exportLog">导出测试结果</button>
+						</div>
+
+						<div class="line">
+							<button type="button" id="expand">展开/收起所有测试项</button>
+						</div>
+					</div>
+
+					<p class="block-header">颜色标识说明</p>
+					<div class="part">
+						<div class="color-identification all-pass">测试项全部通过</div>
+					</div>
+					<div class="part">
+						<div class="color-identification partially-pass">测试项部分通过</div>
+					</div>
+					<div class="part">
+						<div class="color-identification all-fail">测试项全部失败</div>
+					</div>
+				</div>
+
+				<!--    Part2: webRTC 相关接口    -->
+				<div class="block">
+					<p class="block-header">设备权限</p>
+					<div class="part" id="interface-part1">
+					</div>
+
+					<p class="block-header">RTCPeerConnection API</p>
+					<div class="part" style="display: none" id="interface-part2">
+						<!-- 
+                <div class="line">
+                    <span>createDataChannel():</span>
+                    <span class="support"></span>
+                </div>
+                <div class="line">
+                    <span>removeTrack():</span>
+                    <span class="support"></span>
+                </div>
+                <div class="line">
+                    <span>restartIce():</span>
+                    <span class="support"></span>
+                </div>
+                <div class="line">
+                    <span>close():</span>
+                    <span class="support"></span>
+                </div> -->
+					</div>
+
+					<p class="block-header">RTCPeerConnection Event</p>
+					<div class="part" id="interface-part3"></div>
+
+					<p class="block-header">RTCRtpSender</p>
+					<div class="part" id="interface-part4">
+						<!-- <div class="line">
+                    <span>getStats() :</span>
+                    <span class="support"></span>
+                </div> -->
+					</div>
+
+					<p class="block-header">MediaDevices.enumerateDevices</p>
+					<div class="part" id="interface-part5">
+						<!-- <div class="line">
+                    <span>ondevicechange 事件:</span>
+                    <span class="support"></span>
+                </div> -->
+						<div class="line">
+							<span>Audio input：</span>
+							<div class="line">
+								<ul id="audio-input"></ul>
+							</div>
+						</div>
+						<div class="line">
+							<span>Audio output：</span>
+							<div class="line">
+								<ul id="audio-output"></ul>
+							</div>
+						</div>
+						<div class="line">
+							<span>Video input:</span>
+							<div class="line">
+								<ul id="video-input"></ul>
+							</div>
+						</div>
+					</div>
+
+					<p class="block-header">MediaDevices.getDisplayMedia</p>
+					<div class="part" id="interface-part6">
+
+						<div class="line">
+							<span>支持的帧率：</span>
+						</div>
+					</div>
+
+					<p class="block-header">MediaDevices.getUserMedia</p>
+					<div class="part" id="interface-part7">
+						<div class="line" id="limit">
+							<span>支持的限制参数:</span>
+						</div>
+					</div>
+
+					<p class="block-header">MediaStream</p>
+					<div class="part" id="interface-part8">
+						<!-- <div class="line">
+							<span>addTrack():</span>
+							<span class="support"></span>
+						</div> -->
+						<div class="line">
+							<span>removeTrack():</span>
+							<span class="support"></span>
+						</div>
+						<!-- <div class="line">
+							<span>getTracks():</span>
+							<span class="support"></span>
+						</div> -->
+						<!-- <div class="line">
+							<span>getAudioTracks():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>getVideoTracks():</span>
+							<span class="support"></span>
+						</div> -->
+
+						<div class="line">
+							<span>onaddtrack:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>onremovetrack:</span>
+							<span class="support"></span>
+						</div>
+					</div>
+
+
+					<p class="block-header">MediaStreamTrack</p>
+					<div class="part" id="interface-part9">
+						<!-- <div class="line">
+							<span>applyConstraints():</span>
+							<span class="support"></span>
+						</div> -->
+						<div class="line">
+							<span>getConstraints():</span>
+							<span class="support"></span>
+						</div>
+						<!-- <div class="line">
+							<span>getCapabilities():</span>
+							<span class="support"></span>
+						</div> -->
+						<div class="line">
+							<span>getSettings():</span>
+							<span class="support"></span>
+						</div>
+					</div>
+				</div>
+
+
+				<!--    Part3: 其他相关功能    -->
+				<div class="block">
+					<p class="block-header">音视频编解码列表</p>
+					<div class="part" id="other-part1">
+						<div class="line" id="audioCodecs">
+							<span>音频编码:</span>
+							<!-- <div class="line">
+								<span>opus:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>ISAC:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>G722:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>PCMU:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>PCMA:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>DTMF:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>RED:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>telephone-event:</span>
+								<span class="support"></span>
+							</div> -->
+						</div>
+						<div class="line" id="audioDecoding">
+							<span>音频解码:</span>
+							<!-- <div class="line">
+								<span>opus:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>ISAC:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>G722:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>PCMU:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>PCMA:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>DTMF:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>RED:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>telephone-event:</span>
+								<span class="support"></span>
+							</div> -->
+						</div>
+						<div class="line" id="videoCodecs">
+							<span>视频编码:</span>
+							<!-- <div class="line">
+								<span>VP8:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>VP9:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>H264:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>H265:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>AV1:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>flexfec-03:</span>
+								<span class="support"></span>
+							</div> -->
+						</div>
+						<div class="line" id="videoDecoding">
+							<span>视频解码:</span>
+							<!-- <div class="line">
+								<span>VP8:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>VP9:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>H264:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>H265:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>AV1:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>flexfec-03:</span>
+								<span class="support"></span>
+							</div> -->
+						</div>
+					</div>
+
+					<p class="block-header">弱网对抗</p>
+					<div class="part" id="other-part2">
+						<!-- <div class="line">
+							<span>音频:</span>
+							<div class="line">
+								<span>FEC:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>RED:</span>
+								<span class="support"></span>
+							</div>
+						</div>
+						<div class="line">
+							<span>视频:</span>
+							<div class="line">
+								<span>FEC:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>RED:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>RTCP:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>RTX:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>NACK:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>PLI:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>FIR:</span>
+								<span class="support"></span>
+							</div>
+							<div class="line">
+								<span>REMB:</span>
+								<span class="support"></span>
+							</div>
+						</div> -->
+					</div>
+					<p class="block-header">webSocket </p>
+					<div class="part" id="other-part3">
+						<div class="line">
+							<span>webSocket功能:</span>
+							<!-- <span class="support"></span> -->
+						</div>
+						<div class="line">
+							<span>webSocket重连:</span>
+							<!-- <span class="support"></span> -->
+						</div>
+						<div class="line">
+							<span>webSocket保活:</span>
+							<!-- <span class="support"></span> -->
+						</div>
+					</div>
+
+					<p class="block-header">WebAssembly</p>
+					<div class="part" id="other-part4">
+						<!-- <div class="line">
+							<span>bigInt():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>bulkMemory():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>exceptions():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>multiValue():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>mutableGlobals():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>referenceTypes():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>saturatedFloatToInt():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>signExtensions():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>simd():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>memory64():</span>
+							<span class="notSupport"></span>
+						</div>
+						<div class="line">
+							<span>tailCall():</span>
+							<span class="notSupport"></span>
+						</div>
+						<div class="line">
+							<span>threads():</span>
+							<span class="notSupport"></span>
+						</div> -->
+					</div>
+
+					<p class="block-header">captureStream</p>
+					<div class="part" id="other-part5">
+						<!-- <div class="line">
+							<span>CanvasElement.captureStream():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>MediaElement.captureStream():</span>
+							<span class="support"></span>
+						</div> -->
+					</div>
+
+					<p class="block-header">WebAudio</p>
+					<div class="part" id="other-part6">
+						<!-- <div class="line">
+							<span>createMediaStreamDestination():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>createMediaStreamSource():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>createMediaElementSource():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>resume():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>createScriptProcessor():</span>
+							<span class="support"></span>
+						</div> -->
+					</div>
+
+					<p class="block-header">MediaRecorder</p>
+					<div class="part" id="other-part7">
+						<!-- <div class="line">
+							<span>video/webm\;codecs=vp8:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>video/webm\;codecs=h264:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>audio/webm\;codecs=opus:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>audio/webm:</span>
+							<span class="support"></span>
+						</div> -->
+					</div>
+
+					<p class="block-header">WebCodecs</p>
+					<div class="part" id="other-part8">
+						<!-- <div class="line">
+							<span>AudioData():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>AudioDecoder():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>AudioEncoder():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>VideoDecoder():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>VideoEncoder():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>ImageDecoder():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>VideoFrame():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>ImageTrack():</span>
+							<span class="support"></span>
+						</div> -->
+					</div>
+
+					<p class="block-header">本地存储</p>
+					<div class="part" id="other-part9">
+						<!-- <div class="line">
+							<span>localStorage:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>sessionStorage:</span>
+							<span class="support"></span>
+						</div> -->
+					</div>
+
+					<p class="block-header">IndexedDB</p>
+					<div class="part" id="other-part10">
+						<!-- <div class="line">
+							<span>open():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>openCursor():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>count():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>getAll():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>bound():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>upperBound():</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>lowerBound():</span>
+							<span class="support"></span>
+						</div> -->
+					</div>
+
+					<p class="block-header">其他</p>
+					<div class="part" id="other-part11">
+						<!-- <div class="line">
+							<span>WebTransport:</span>
+							<span class="support"></span>
+						</div> -->
+
+						<!-- <div class="line">
+							<span>Web Worker:</span>
+							<span class="support"></span>
+						</div> -->
+
+						<!-- <div class="line">
+							<span>CryptoJS加解密:</span>
+							<span class="support"></span>
+						</div> -->
+					</div>
+				</div>
+
+				<!--    Part4: 功能支持预览    -->
+				<div class="block">
+					<p class="block-header"> 总体功能支持情况 </p>
+					<div class="part">
+						<!-- <div class="line">
+							<span>P2P音频通话:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>P2P视频通话:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>开摄像头:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>关摄像头:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>开演示:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>开启桌面共享:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>关闭桌面共享:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>获取音视频设备列表:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>webSocket断网重连:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>webSocket保活:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>ICE重连:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>Trickle-ice:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>WebHID:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>debug.js日志导出:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>噪音检测:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>音量检测:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>切换前后摄像头（移动端）:</span>
+							<span class="support"></span>
+						</div> -->
+					</div>
+
+					<p class="block-header"> getStats 状态统计 </p>
+					<div class="part">
+						<!-- <div class="line">
+							<span>网络延迟:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>网络抖动:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>提名的candidatePair:</span>
+							<span class="support"></span>
+						</div>
+						<div class="line">
+							<span>判断使用UDP or TCP:</span>
+							<span class="support"></span>
+						</div> -->
+					</div>
+
+					<p class="block-header">以下测试项请手动选择</p>
+					<div class="part">
+						<div class="line">
+							<span>MIC和摄像头系统授权提示方式:</span>
+							<select>
+								<option value=''>自动授权</option>
+								<option value=''>不提示授权</option>
+								<option value=''>左上角弹框或页面弹框</option>
+							</select>
+						</div>
+						<div class="line">
+							<span>每次访问MIC和摄像头都独立授权:</span>
+							<label><input type="checkbox">是</label>
+						</div>
+						<div class="line">
+							<span>共享时可选择整个屏幕、窗口或某个tab页:</span>
+							<label><input type="checkbox">支持</label>
+						</div>
+						<div class="line">
+							<span>共享整个屏幕时选择多屏幕:</span>
+							<label><input type="checkbox">支持</label>
+						</div>
+						<div class="line">
+							<span>共享桌面时共享音频:</span>
+							<label><input type="checkbox">支持</label>
+						</div>
+						<div class="line">
+							<span>本地虚拟背景设置:</span>
+							<label><input type="checkbox">支持</label>
+						</div>
+					</div>
+				</div>
+			</div>
+			<audio src="" id="myAudio"></audio>
+		</div>
+
+		<script type="application/javascript" src="js/vconsole.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+		<script type="application/javascript" src="js/public.js"></script>
+		<script type="text/javascript" src="js/index.js"></script>
+		<script type="text/javascript" src="js/crypto-js.js"></script>
+		<script type="text/javascript" src="js/sdp_tools.js"></script>
+		<script type="module">
+			import * as ft from "./js/wasm-feature-detect.js";
+			console.log(SDPTools)
+			// import sdp_tools from './js/sdp_tools.js'
+			window.onload = function() {
+				console.log('收起所有展开项')
+				setBlockHeadersDisplay('none')
+				WebAssembly()
+				indexedDB()
+			}
+			
+			// WebAssembly
+			async function WebAssembly() {
+				// let data = {
+				// 	name: 'WebAssembly支持测试',
+				// 	content: []
+				// }
+				for (const [name, detector] of Object.entries(ft)) {
+					const supported = await detector();
+					if (supported) {
+						$("#other-part4").append(
+							'<div class="line"><span>' + name + '():</span><span class="support"></span></div>');
+					} else {
+						$("#other-part4").append(
+							'<div class="line"><span>' + name + '():</span><span class="notSupport"></span></div>');
+					}
+				}
+			}
+			
+			async function indexedDB() {
+				var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window
+					.msIndexedDB;
+				var transaction, objectStore;
+				const DBOpenRequest = indexedDB.open("toDoList", 4);
+				DBOpenRequest.onsuccess = async function(e) {
+					let db = e.target.result;
+					transaction = await db.transaction(["toDoList"])
+					objectStore = await transaction.objectStore("toDoList");
+					var openCursor = await objectStore.openCursor();
+					var count = objectStore.count();
+					var getAll = objectStore.getAll();
+					if (openCursor) {
+						$("#other-part10").append(
+							'<div class="line"><span>openCursor():</span><span class="support"></span></div>');
+					} else {
+						$("#other-part10").append(
+							'<div class="line"><span>openCursor():</span><span class="notSupport"></span></div>');
+					}
+			
+					if (count) {
+						$("#other-part10").append(
+							'<div class="line"><span>count():</span><span class="support"></span></div>');
+					} else {
+						$("#other-part10").append(
+							'<div class="line"><span>count():</span><span class="notSupport"></span></div>');
+					}
+			
+					if (getAll) {
+						$("#other-part10").append(
+							'<div class="line"><span>getAll():</span><span class="support"></span></div>');
+					} else {
+						$("#other-part10").append(
+							'<div class="line"><span>getAll():</span><span class="notSupport"></span></div>');
+					}
+			
+				};
+				DBOpenRequest.onupgradeneeded = function(event) {
+					let db = event.target.result;
+					let objectStore = db.createObjectStore("toDoList", {
+						keyPath: "taskTitle"
+					});
+			
+					objectStore.createIndex("hours", "hours", {
+						unique: false
+					});
+				};
+				// var objectStore = await transaction.objectStore("toDoList");
+				var bound = IDBKeyRange.bound("F", "W", true, true);
+				var upperBound = IDBKeyRange.upperBound("F");
+				var lowerBound = IDBKeyRange.lowerBound("F");
+				// if (indexedDB) {
+				// 	data.content[0].value = 'indexedDB'
+				// 	data.content[0].type = "yes"
+				// } else {
+				// 	data.content[0].value = 'indexedDB'
+				// 	data.content[0].type = "no"
+				// }
+				if (DBOpenRequest) {
+					$("#other-part10").append(
+						'<div class="line"><span>open():</span><span class="support"></span></div>');
+				} else {
+					$("#other-part10").append(
+						'<div class="line"><span>open():</span><span class="notSupport"></span></div>');
+				}
+			
+				if (bound) {
+					$("#other-part10").append(
+						'<div class="line"><span>bound():</span><span class="support"></span></div>');
+				} else {
+					$("#other-part10").append(
+						'<div class="line"><span>bound():</span><span class="notSupport"></span></div>');
+				}
+				if (upperBound) {
+					$("#other-part10").append(
+						'<div class="line"><span>upperBound():</span><span class="support"></span></div>');
+				} else {
+					$("#other-part10").append(
+						'<div class="line"><span>upperBound():</span><span class="notSupport"></span></div>');
+				}
+			
+				if (lowerBound) {
+					$("#other-part10").append(
+						'<div class="line"><span>lowerBound():</span><span class="support"></span></div>');
+				} else {
+					$("#other-part10").append(
+						'<div class="line"><span>lowerBound():</span><span class="notSupport"></span></div>');
+				}
+			}
+			
+			
+		</script>
+	</body>
+</html>
