@@ -34,6 +34,9 @@
 						<div class="line">
 							<button type="button" id="expand">展开/收起所有测试项</button>
 						</div>
+						<div class="line">
+							<button id="getusermedia">开始声音检测</button>
+						</div>
 					</div>
 
 					<p class="block-header">颜色标识说明</p>
@@ -315,20 +318,20 @@
 
 					<p class="block-header">弱网对抗</p>
 					<div class="part" id="other-part2">
-						<!-- <div class="line">
+						<div class="line" id="weakNetworkAudio">
 							<span>音频:</span>
-							<div class="line">
+							<!-- <div class="line">
 								<span>FEC:</span>
 								<span class="support"></span>
 							</div>
 							<div class="line">
 								<span>RED:</span>
 								<span class="support"></span>
-							</div>
+							</div> -->
 						</div>
-						<div class="line">
+						<div class="line" id="weakNetworkVideo">
 							<span>视频:</span>
-							<div class="line">
+							<!-- <div class="line">
 								<span>FEC:</span>
 								<span class="support"></span>
 							</div>
@@ -359,8 +362,8 @@
 							<div class="line">
 								<span>REMB:</span>
 								<span class="support"></span>
-							</div>
-						</div> -->
+							</div> -->
+						</div>
 					</div>
 					<p class="block-header">webSocket </p>
 					<div class="part" id="other-part3">
@@ -588,7 +591,7 @@
 				<!--    Part4: 功能支持预览    -->
 				<div class="block">
 					<p class="block-header"> 总体功能支持情况 </p>
-					<div class="part">
+					<div class="part" id="public-part1">
 						<!-- <div class="line">
 							<span>P2P音频通话:</span>
 							<span class="support"></span>
@@ -660,7 +663,7 @@
 					</div>
 
 					<p class="block-header"> getStats 状态统计 </p>
-					<div class="part">
+					<div class="part" id="public-part2">
 						<!-- <div class="line">
 							<span>网络延迟:</span>
 							<span class="support"></span>
@@ -714,22 +717,41 @@
 			</div>
 			<audio src="" id="myAudio"></audio>
 		</div>
-
-		<script type="application/javascript" src="js/vconsole.min.js"></script>
+		<div id="mask">
+			<div>
+				<div class="mask-progress">
+					<div id="progress-content"></div>
+				</div>
+				<div style="width: 100%;">测试中</div>
+			</div>
+			
+		</div>
+		<script type="application/javascript" src="js/vconsole/vconsole.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
 		<script type="application/javascript" src="js/public.js"></script>
 		<script type="text/javascript" src="js/index.js"></script>
-		<script type="text/javascript" src="js/crypto-js.js"></script>
-		<script type="text/javascript" src="js/sdp_tools.js"></script>
+		<script type="text/javascript" src="js/CryptoJS/crypto-js.js"></script>
+		<script type="text/javascript" src="js/indexeddb/sdp_tools.js"></script>
+		<script type="text/javascript" src="js/indexeddb/debug.js"></script>
+		<script type="text/javascript" src="js/indexeddb/indexedDB.js"></script>
+		<script type="text/javascript" src="js/restart-ice/index.js"></script>
+		<script type="text/javascript" src="js/soundMeter/soundDetection.js"></script>
+		<script type="text/javascript" src="js/main.js"></script>
 		<script type="module">
-			import * as ft from "./js/wasm-feature-detect.js";
-			console.log(SDPTools)
+			
+			import * as ft from "./js/webtransport/wasm-feature-detect.js";
 			// import sdp_tools from './js/sdp_tools.js'
 			window.onload = function() {
 				console.log('收起所有展开项')
 				setBlockHeadersDisplay('none')
 				WebAssembly()
 				indexedDB()
+				document.getElementById('getusermedia').onclick = getMedia;
+				
+				if (SoundMeter) {
+				    window.soundDetection = new SoundMeter()
+				}
+				// network()
 			}
 			
 			// WebAssembly
@@ -839,8 +861,6 @@
 						'<div class="line"><span>lowerBound():</span><span class="notSupport"></span></div>');
 				}
 			}
-			
-			
 		</script>
 	</body>
 </html>

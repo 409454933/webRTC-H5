@@ -8,6 +8,11 @@ let WS_KEEP_ALIVE_TIMEOUT_FLAG = 5
 let wsReconnectTime = 2
 var Offer
 var Answer
+let stream;
+let isMute;
+let audio = document.getElementById("myAudio")
+let progressContent = document.getElementById("progress-content")
+let mask = document.getElementById("mask")
 let quickScan = [{
 		'label': '4K(UHD)',
 		'width': 3840,
@@ -182,15 +187,16 @@ document.getElementById('toggleVConsole').onclick = function() {
 		vconsole = new VConsole();
 	}
 }
-document.getElementById('start').onclick = function(){
+document.getElementById('start').onclick = function() {
 	testingEnvironment()
-	Switch()
+	mask.style.display = 'flex';
+	// Switch1()
 }
 
 let blockHeaders = document.getElementsByClassName('block-header')
-document.getElementById('expand').onclick = Switch;
+document.getElementById('expand').onclick = Switch1;
 
-function Switch(){
+function Switch1() {
 	if (!blockHeaders) {
 		blockHeaders = document.getElementsByClassName('block-header')
 	}
@@ -251,6 +257,7 @@ function testingEnvironment() {
 	for (let i in data) {
 		$("#part-env").append(data[i])
 	}
+	progressContent.style.width = '5%';
 	devicePermissions()
 }
 
@@ -276,13 +283,14 @@ async function devicePermissions() {
 		})
 		.then(stream => {
 			$("#interface-part1").append(
-				'<div class="line"><span>是否允许使用摄像头:</span><span class="support"></span></div>')
+				'<div class="line"><span>是否允许使用麦克风:</span><span class="support"></span></div>')
 			tracks(stream)
 		})
 		.catch(function(err) {
 			$("#interface-part1").append(
-				'<div class="line"><span>是否允许使用摄像头:</span><span class="notSupport"></span></div>')
+				'<div class="line"><span>是否允许使用麦克风:</span><span class="notSupport"></span></div>')
 		});
+	progressContent.style.width = '10%';
 	await PeerConnection()
 }
 
@@ -522,6 +530,7 @@ async function PeerConnection() {
 	// setTimeout(function(){
 	// 	codes()
 	// },5000)
+	progressContent.style.width = '15%';
 	Receiver()
 };
 
@@ -597,9 +606,10 @@ async function Receiver() {
 				'<div class="line"><span>getCapabilities():</span><span class="notSupport"></span></div>'
 			);
 		}
-		
+
 		tracks(stream)
 	});
+	progressContent.style.width = '20%';
 	enumerateDevices()
 };
 
@@ -625,17 +635,23 @@ function enumerateDevices() {
 			}
 			$("#interface-part5").prepend(
 				'<div class="line"><span>enumerateDevices获取设备列表:</span><span class="support"></span></div>');
+			$("#public-part1").append(
+				'<div class="line"><span>获取音视频设备列表:</span><span class="support"></span></div>');
 		})
 		.catch(function(err) {
 			// log.error(e);
 			console.log(err)
 			$("#interface-part5").append(
 				'<div class="line">enumerateDevices获取设备列表:</span><span class="notSupport"></span></div>');
+			$("#public-part1").append(
+				'<div class="line"><span>获取音视频设备列表:</span><span class="support"></span></div>');
 		});
 	navigator.mediaDevices.ondevicechange = event => {
 		$("#interface-part5").append(
 			'<div class="line"><span>ondevicechange 事件:</span><span class="support"></span></div>');
 	}
+	// getDisplayMedia()
+	progressContent.style.width = '25%';
 	getDisplayMedia()
 };
 
@@ -667,19 +683,7 @@ async function getDisplayMedia() {
 				console.log(err)
 			});
 
-		let data = [{
-			exact: 5
-		}, {
-			ideal: 5
-		}, '5', {
-			exact: 15
-		}, {
-			ideal: 15
-		}, '15', {
-			exact: 30
-		}, {
-			ideal: 30
-		}, '30']
+		let data = ['5', '15', '30']
 		for (let i in data) {
 			let constraints1 = {
 				audio: true,
@@ -698,19 +702,19 @@ async function getDisplayMedia() {
 			await navigator.mediaDevices.getDisplayMedia(constraints1)
 				.then(stream => {
 					streams = stream
-					$("#interface-part6").append('<div class="line"><span>' + datas[1] + datas[2].split('}')[
-						0] + 'fps:</span><span class="support"></span></div>');
+					$("#interface-part6").append('<div class="line"><span>' + data[i] +
+						'fps:</span><span class="support"></span></div>');
 					tracks(stream)
 				})
 				.catch(function(err) {
 					console.log(err)
-					$("#interface-part6").append('<div class="line"><span>' + datas[1] + datas[2].split('}')[
-						0] + 'fps:</span><span class="notSupport"></span></div>');
+					$("#interface-part6").append('<div class="line"><span>' + data[i] +
+						'fps:</span><span class="notSupport"></span></div>');
 				});
 		}
 
 	}
-
+	progressContent.style.width = '30%';
 	resolvingPower()
 };
 
@@ -814,6 +818,7 @@ async function resolvingPower() {
 				});
 		}
 	}
+	progressContent.style.width = '35%';
 	MediaStreamTrack()
 }
 
@@ -858,131 +863,106 @@ async function MediaStreamTrack() {
 				});
 			tracks(mediaStream)
 		});
+	progressContent.style.width = '40%';
 	codes();
 }
 
 function codes() {
-	console.log('codes')
-	console.log(Offer)
+	let AudioCodecs = ['opus', 'ISAC', 'G722', 'PCMU', 'PCMA', 'DTMF', 'RED', 'telephone-event'];
+	let VideoCodecs = ['VP8', 'VP9', 'H264', 'H265', 'AV1', 'flexfec-03'];
+	let weakNetworkAudio = ['FEC', 'RED'];
+	let weakNetworkVideo = ['FEC', 'RED', 'RTCP', 'RTX', 'NACK', 'PLI', 'FIR', 'REMB'];
 	let parsedSdp = SDPTools.parseSDP(Offer.sdp);
-	let h264Codec = SDPTools.getRTCRtpCapabilities(Offer.sdp, ['telephone-event',
-		'rtx',
-		'red', 'ulpfec'
-	])
-	let data3 = Offer.sdp.split('\r\n')
-	let data4 = [];
-	for (let n in data3) {
-		if (data3[n].substring(0, 2) == 'a=') {
-			data4.push(data3[n])
+	let h264Codec = SDPTools.getRTCRtpCapabilities(Offer.sdp, ['telephone-event', 'rtx', 'red', 'ulpfec']);
+	let h264Codec1 = SDPTools.getRTCRtpCapabilities(Answer.sdp, ['telephone-event', 'rtx', 'red', 'ulpfec']);
+	let data = parsedSdp.media[0].rtcpFb;
+	let data0 = [];
+	let data1 = [];
+	for (let index in data) {
+		data0.push(data[index].type)
+		if (data[index].subtype) {
+			data0.push(data[index].subtype)
 		}
 	}
-	// console.log(data4)
-	let data0 = parsedSdp.media[0].rtcpFb;
-	let data1 = parsedSdp.media[1].rtcpFb;
-	let data2 = [];
-	data1.forEach(function(a) {
-		var check = data2.every(function(b) {
-			// return a.type !== b.type;
-			return a.type !== b.type || a.subtype !== a.subtype;
-		})
-		check ? data2.push(a) : ''
-	})
-	let datas = []
-	let videoCode = ['FEC', 'RED', 'RTCP', 'RTX', 'NACK', 'PLI', 'FIR', 'REMB']
-	for(let index in data1){
-		datas.push(data1[index].type)
-		if(data1[index].subtype){
-			datas.push(data1[index].subtype)
-		}
-	}
-	let datas0 = []
-	datas.forEach(function(a) {
-		var check = datas0.every(function(b) {
+	data0.forEach(function(a) {
+		var check = data1.every(function(b) {
 			return a !== b;
 		})
-		check ? datas0.push(a) : ''
+		check ? data1.push(a) : ''
 	})
-	console.log(datas0)
-	// data0.forEach(function(a) {
-	// 	var check = datas.every(function(b) {
-	// 		return a.type !== b.type;
-	// 	})
-	// 	check ? datas.push(a) : ''
-	// })
-	// console.log(data2)
-	// console.log(parsedSdp.media[1])
-	
-	// console.log(datas)
-	// let parsedSdp1 = this.$sdp_tools.parseSDP(this.answer.sdp);
-	let h264Codec1 = SDPTools.getRTCRtpCapabilities(Answer.sdp, ['telephone-event',
-		'rtx',
-		'red', 'ulpfec'
-	])
+	let datas = parsedSdp.media[1].rtcpFb;
+	let datas0 = []
+	let datas1 = [];
+	for (let index in datas) {
+		datas0.push(datas[index].type)
+		if (datas[index].subtype) {
+			datas0.push(datas[index].subtype)
+		}
+	}
+	datas0.forEach(function(a) {
+		var check = datas1.every(function(b) {
+			return a !== b;
+		})
+		check ? datas1.push(a) : ''
+	})
 
-	//console.log(parsedSdp1)
-	let videoCodecs = {
-		name: '视频编码能力',
-		content: [{
-			value: ''
-		}]
-	};
-	let videoDecoding = {
-		name: '视频解码能力',
-		content: [{
-			value: ''
-		}]
-	};
-	let audioCodecs = {
-		name: '音频编码能力',
-		content: [{
-			value: ''
-		}]
-	};
-	let audioDecoding = {
-		name: '音频解码能力',
-		content: [{
-			value: ''
-		}]
-	};
-	let Weaknetwork = {
-		name: '弱网对抗能力',
-		content: [{
-			value: ''
-		}]
-	};
-	for (let i in h264Codec.audioCodecs) {
-		$("#audioCodecs").append(
-			'<div class="line"><span>' + h264Codec.audioCodecs[i] + ':</span><span class="support"></span></div>');
-		// h264Codec.audioCodecs[i] ? audioCodecs.content[0].value += h264Codec.audioCodecs[i] +
-		// 	'，' : ''
-	}
-
-	for (let i in h264Codec1.audioCodecs) {
-		$("#audioDecoding").append(
-			'<div class="line"><span>' + h264Codec1.audioCodecs[i] + ':</span><span class="support"></span></div>');
-		// h264Codec1.audioCodecs[i] ? audioDecoding.content[0].value += h264Codec1.audioCodecs[i] +
-		// 	'，' : ''
-	}
-
-	for (let i in h264Codec.videoCodecs) {
-		$("#videoCodecs").append(
-			'<div class="line"><span>' +  h264Codec.videoCodecs[i] + ':</span><span class="support"></span></div>');
-		// videoCodecs.content[0].value += h264Codec.videoCodecs[i] + '，'
-	}
-
-	for (let i in h264Codec1.videoCodecs) {
-		$("#videoDecoding").append(
-			'<div class="line"><span>' +  h264Codec1.videoCodecs[i] + ':</span><span class="support"></span></div>');
-		// videoDecoding.content[0].value += h264Codec1.videoCodecs[i] + '，'
-	}
-	for (let i in data2) {
-		Weaknetwork.content[0].value += data2[i].type + '，'
-	}
-	console.log(videoCodecs)
-	console.log(videoDecoding)
-	console.log(audioCodecs)
-	console.log(audioDecoding)
-	console.log(Weaknetwork)
+	console.log(data1)
+	console.log(datas1)
+	AudioCodecs.filter(function(n) {
+		if (h264Codec.audioCodecs.indexOf(n) != -1) {
+			$("#audioCodecs").append(
+				'<div class="line"><span>' + n + ':</span><span class="support"></span></div>');
+		} else {
+			$("#audioCodecs").append(
+				'<div class="line"><span>' + n + ':</span><span class="notSupport"></span></div>');
+		}
+	});
+	AudioCodecs.filter(function(n) {
+		if (h264Codec1.audioCodecs.indexOf(n) != -1) {
+			$("#audioDecoding").append(
+				'<div class="line"><span>' + n + ':</span><span class="support"></span></div>');
+		} else {
+			$("#audioDecoding").append(
+				'<div class="line"><span>' + n + ':</span><span class="notSupport"></span></div>');
+		}
+	});
+	VideoCodecs.filter(function(n) {
+		if (h264Codec.videoCodecs.indexOf(n) != -1) {
+			$("#videoCodecs").append(
+				'<div class="line"><span>' + n + ':</span><span class="support"></span></div>');
+		} else {
+			$("#videoCodecs").append(
+				'<div class="line"><span>' + n + ':</span><span class="notSupport"></span></div>');
+		}
+	});
+	VideoCodecs.filter(function(n) {
+		if (h264Codec1.videoCodecs.indexOf(n) != -1) {
+			$("#videoDecoding").append(
+				'<div class="line"><span>' + n + ':</span><span class="support"></span></div>');
+		} else {
+			$("#videoDecoding").append(
+				'<div class="line"><span>' + n + ':</span><span class="notSupport"></span></div>');
+		}
+	});
+	weakNetworkAudio.filter(function(n) {
+		if (data1.indexOf(n.toLowerCase()) != -1) {
+			$("#weakNetworkAudio").append(
+				'<div class="line"><span>' + n + ':</span><span class="support"></span></div>');
+		} else {
+			$("#weakNetworkAudio").append(
+				'<div class="line"><span>' + n + ':</span><span class="notSupport"></span></div>');
+		}
+	});
+	weakNetworkVideo.filter(function(n) {
+		if (datas1.indexOf(n.toLowerCase()) != -1) {
+			$("#weakNetworkVideo").append(
+				'<div class="line"><span>' + n + ':</span><span class="support"></span></div>');
+		} else {
+			$("#weakNetworkVideo").append(
+				'<div class="line"><span>' + n + ':</span><span class="notSupport"></span></div>');
+		}
+	});
+	progressContent.style.width = '45%';
 	captureStream()
 }
 
@@ -1100,6 +1080,7 @@ function captureStream() {
 			'<div class="line"><span>MediaElement.captureStream():</span><span class="notSupport"></span></div>'
 		);
 	}
+	progressContent.style.width = '50%';
 	WebAudio()
 }
 
@@ -1167,7 +1148,7 @@ async function WebAudio() {
 		$("#other-part6").append(
 			'<div class="line"><span>createScriptProcessor():</span><span class="notSupport"></span></div>');
 	}
-
+	progressContent.style.width = '55%';
 	MediaRecorders()
 }
 
@@ -1205,7 +1186,9 @@ async function MediaRecorders() {
 			console.log(err)
 			/* 处理error */
 		});
-	webcodec()
+	progressContent.style.width = '60%';
+	await webcodec()
+	// await 
 }
 
 // WebCodecs
@@ -1308,7 +1291,7 @@ async function webcodec() {
 		$("#other-part8").append(
 			'<div class="line"><span>ImageDecoder():</span><span class="notSupport"></span></div>');
 	}
-
+	progressContent.style.width = '65%';
 	storage()
 }
 
@@ -1329,7 +1312,7 @@ async function storage() {
 		$("#other-part9").append(
 			'<div class="line"><span>sessionStorage:</span><span class="notSupport"></span></div>');
 	}
-
+	progressContent.style.width = '70%';
 	webtransport()
 }
 
@@ -1346,7 +1329,7 @@ function webtransport() {
 
 	if (window.Worker) {
 		try {
-			var myWorker = new Worker('./js/worker.js');
+			var myWorker = new Worker('./js/webtransport/worker.js');
 			myWorker.postMessage([1, 2]);
 			myWorker.onmessage = function(e) {
 				console.log('Message received from worker' + e.data);
@@ -1386,13 +1369,414 @@ function webtransport() {
 		console.warn('解密成功')
 		$("#other-part11").append(
 			'<div class="line"><span>CryptoJS加解密:</span><span class="support"></span></div>');
-		return true
 	} else {
 		$("#other-part11").append(
 			'<div class="line"><span>CryptoJS加解密:</span><span class="notSupport"></span></div>');
 		console.warn('解密失败？')
-		return false
 	}
+	console.log('start')
+	progressContent.style.width = '75%';
+	public()
+	// start({audio: true, video: true})
+}
+
+function public() {
+	if (Offer.sdp.indexOf('a=ice-options:trickle') !== -1) {
+		$("#public-part1").append(
+			'<div class="line"><span>Trickle-ice:</span><span class="support"></span></div>');
+	} else {
+		$("#public-part1").append(
+			'<div class="line"><span>Trickle-ice:</span><span class="notSupport"></span></div>');
+	}
+
+	if (window.navigator.hid) {
+		$("#public-part1").append(
+			'<div class="line"><span>WebHID:</span><span class="support"></span></div>');
+	} else {
+		$("#public-part1").append(
+			'<div class="line"><span>WebHID:</span><span class="notSupport"></span></div>');
+	}
+	progressContent.style.width = '80%';
+	getMedia()
+}
+
+async function getMedia() {
+	if (!stream) {
+		let constraints = {
+			audio: true
+		};
+		try {
+			console.log("constraints:", constraints)
+			if (navigator.mediaDevices.getUserMedia) {
+				stream = await navigator.mediaDevices.getUserMedia(constraints);
+			}
+			window.soundDetection.isMute = isMute = false
+			audio.srcObject = stream
+			audio.play()
+
+			function callback(event) {
+				console.log(event.message)
+			}
+			window.soundDetection.streamMuteSwitch({
+				stream: stream,
+				type: 'audio',
+				mute: true
+			})
+			await window.soundDetection.checkAudioOutputVolume({
+				isMute: isMute,
+				stream: stream,
+				callback: callback
+			})
+		} catch (err) {
+			console.error("Error: " + err);
+		}
+	}
+	progressContent.style.width = '85%';
+	logExport()
+	network()
 }
 
 
+function network() {
+
+	function getType(obj) {
+		if (Object.prototype.toString.call(obj) === '[object Object]') {
+			return 'Object'
+		} else if (Object.prototype.toString.call(obj) === '[object Array]') {
+			return 'Array'
+		} else {
+			return 'nomal'
+		}
+	}
+
+	function deepCopy(obj) {
+		if (getType(obj) === 'nomal') {
+			return obj
+		} else {
+			var newObj = getType(obj) === 'Object' ? {} : []
+			for (let key in obj) {
+				if (obj.hasOwnProperty(key)) {
+					newObj[key] = deepCopy(obj[key])
+				}
+			}
+		}
+		return newObj
+	}
+
+	function gotStream(stream) {
+		localStream = stream;
+		localStream.getTracks().forEach(track => pc1.addTrack(track, localStream));
+		let offer = pc1.createOffer()
+		pc1.setLocalDescription(offer)
+		tracks(stream)
+	}
+
+	function objectDeepCopy(obj, objBefore) {
+		function getType(obj) {
+			if (Object.prototype.toString.call(obj) === '[object Object]') {
+				return 'Object'
+			} else if (Object.prototype.toString.call(obj) === '[object Array]') {
+				return 'Array'
+			} else {
+				return 'nomal'
+			}
+		}
+
+		if (getType(obj) === 'nomal') {
+			return obj
+		} else {
+			var newObj = objBefore ? deepCopy(objBefore) : getType(obj) === 'Object' ? {} : []
+			for (let key in obj) {
+				if (obj.hasOwnProperty(key)) {
+					newObj[key] = objectDeepCopy(obj[key])
+				}
+			}
+		}
+		return newObj
+	}
+
+	function getBandWidth(stats) {
+		let bandWidthObject = {};
+		let travelTime;
+		let curentBytes;
+
+		if (stats && stats.prevTimestamp) {
+			travelTime = Number(stats.timestamp) - Number(stats.prevTimestamp)
+		} else {
+			travelTime = 0
+		}
+
+		if (stats && stats.hasOwnProperty('prevBytesReceived')) {
+			curentBytes = Number(stats.bytesReceived) - Number(stats.prevBytesReceived)
+		} else if (stats && stats.hasOwnProperty('prevBytesSent')) {
+			curentBytes = Number(stats.bytesSent) - Number(stats.prevBytesSent)
+		} else {
+			curentBytes = 0
+		}
+
+		if (curentBytes >= 0 && travelTime > 0) {
+			bandWidthObject.bandWidthVal = curentBytes * 8 * 1000 / travelTime
+		} else {
+			bandWidthObject.bandWidthVal = 0
+		}
+
+		bandWidthObject.bandWidthUnit = 'bps'
+
+		return bandWidthObject
+	}
+	// var configuration = {},
+	//     pc1, pc2, localStream, names, differenceRtt, time,
+	//     roundTripTime = 0,
+	//     jitter = '正常',
+	//     offerOptions = {
+	//         offerToReceiveAudio: 1,
+	//         offerToReceiveVideo: 1
+	//     }
+	var configuration = {},
+		pc1, pc2, localStream, names, differenceRtt, time,
+		type = '正常',
+		roundTripTime = 0,
+		audioOut = '0.00%',
+		videoOut = '0.00%',
+		stats1 = '',
+		rttTimesArr = [],
+		jitter = '正常',
+		offerOptions = {
+			offerToReceiveAudio: 1,
+			offerToReceiveVideo: 1
+		}
+	pc1 = new RTCPeerConnection(configuration)
+	pc2 = new RTCPeerConnection(configuration)
+	pc1.onicecandidate = function(event) {
+		if (!event.candidate) {
+			pc2.onicecandidate = function(event) {
+				if (!event.candidate) {
+					pc1.setRemoteDescription(pc2.localDescription)
+				}
+			};
+			pc2.setRemoteDescription(pc1.localDescription)
+			let answer = pc2.createAnswer()
+			pc2.setLocalDescription(answer)
+		}
+	};
+	navigator.mediaDevices.getUserMedia({
+			audio: true,
+			video: true,
+			frameRate: {
+				exact: 15,
+			}
+		})
+		.then(gotStream)
+		.catch(e => alert(`getUserMedia() error: ${e.name}`));
+	time = setInterval(function() {
+		let selector = null;
+		pc1.getStats(selector).then(function(report) {
+			let statsData = {};
+			let statsNeed = {};
+			let lossRates = {};
+			report.forEach(item => {
+				statsData[item.id] = deepCopy(item)
+			})
+			// console.log(statsData)
+			let candidate = [];
+			let transport = [];
+			for (let key in statsData) {
+				let statstype = (statsData[key].type === 'inbound-rtp') ?
+					'local_in' : (statsData[key].type === 'outbound-rtp') ?
+					'local_out' : (statsData[key].type === 'remote-inbound-rtp') ?
+					'remote_in' : null
+				let stats_id = 'ssrc_' + statsData[key].ssrc
+
+				if (statstype) {
+					if (statstype && statstype.indexOf('local') >= 0) {
+						statsNeed[stats_id] = statsNeed[stats_id] ?
+							objectDeepCopy(statsData[key], statsNeed[stats_id]) : objectDeepCopy(
+								statsData[key])
+					} else if (statsNeed[stats_id] && statstype === 'remote_in') {
+						statsNeed[stats_id].packetsLost = statsData[key]
+							.packetsLost
+					}
+					statsNeed[stats_id].roundTripTime = statsData[key]
+						.hasOwnProperty('roundTripTime') ? Number(statsData[key]
+							.roundTripTime) * 1000 : null
+					statsNeed[stats_id].jitter = statsData[key].hasOwnProperty(
+						'jitter') ? Number(statsData[key].jitter) : null
+				}
+				if (statsData[key].type === 'candidate-pair') {
+					candidate.push(statsData[key])
+				}
+				if (statsData[key].type === 'transport') {
+					transport.push(statsData[key])
+				}
+			}
+			for (let key in statsNeed) {
+				let codeDetail = report[statsNeed[key].codecId] || null
+				let trackDetail = report[statsNeed[key].trackId] || null
+				if (codeDetail) {
+					for (let keyIn in codeDetail) {
+						if (keyIn !== 'id' && keyIn !== 'type' && keyIn !==
+							'mimeType') {
+							statsNeed[key][keyIn] = codeDetail[keyIn]
+						}
+
+						if (keyIn === 'mimeType') {
+							statsNeed[key].codecName = codeDetail[keyIn].split(
+								'/')[1]
+						}
+					}
+				}
+
+				if (trackDetail) {
+					for (let keyIn in trackDetail) {
+						if (keyIn !== 'id' && keyIn !== 'type') {
+							statsNeed[key][keyIn] = trackDetail[keyIn]
+						}
+					}
+				}
+
+				for (let keyId in statsNeed[key]) {
+					if (keyId.toLocaleLowerCase().indexOf('id') >= 0 || keyId ===
+						'kind') {
+						delete(statsNeed[key][keyId])
+					}
+				}
+			}
+
+			for (let key in statsNeed) {
+
+				if (!stats1) {
+					stats1 = {}
+				}
+
+				if (stats1[key]) {
+					if (stats1[key].hasOwnProperty('packetsSent')) {
+						statsNeed[key].prevPacketsSent = stats1[key]
+							.packetsSent
+					}
+					if (stats1[key].hasOwnProperty('packetsLost')) {
+						statsNeed[key].prevPacketsLost = stats1[key]
+							.packetsLost
+					}
+				}
+			}
+
+			stats1 = deepCopy(statsNeed)
+
+			// console.log(transport)
+			// console.log(candidate)
+			for (let a in transport) {
+				for (let b in candidate) {
+					if (transport[a].selectedCandidatePairId == candidate[b].id) {
+						// console.log(candidate[b])
+					}
+				}
+			}
+
+			for (let i in statsNeed) {
+				roundTripTime = statsNeed[i].roundTripTime
+				rttTimesArr.push(roundTripTime)
+			}
+			if (rttTimesArr.length > 6) {
+				rttTimesArr.splice(0, 2)
+			}
+			const length = rttTimesArr.length
+			differenceRtt = rttTimesArr[length - 1] - rttTimesArr[length - 2]
+			if (differenceRtt >= 500) {
+				jitter = '高'
+			} else if (differenceRtt >= 100) {
+				jitter = '较大'
+			} else {
+				jitter = '正常'
+			}
+
+			let stats = statsNeed;
+			for (let key in stats) {
+				let lossRate = {
+					lossRate: '0.00%',
+					bandWidthVal: 0,
+					bandWidthUnit: 'bps',
+					codecName: '',
+					ssrc: key
+				};
+				let statsNow = stats[key]
+				let packetsLossRate;
+
+				if (statsNow.hasOwnProperty('packetsSent') && statsNow
+					.hasOwnProperty('packetsLost')) {
+					packetsLossRate = (Number(statsNow.packetsLost) - Number(statsNow
+						.prevPacketsLost)) /
+						Number(
+							Number(statsNow.packetsSent) - Number(statsNow.prevPacketsSent))
+
+
+				}
+
+
+				if (typeof(packetsLossRate) === "number" && packetsLossRate
+					.toString() !== 'NaN') {
+					if (packetsLossRate > 1) {
+						packetsLossRate = 1
+					}
+					lossRate.lossRate = (packetsLossRate * 100).toFixed(2) + '%'
+				} else {
+					lossRate.lossRate = 'negative'
+				}
+
+				// if (statsNow.codecName) {
+
+				// }
+				lossRate.codecName = statsNow.mediaType;
+
+				if (statsNow.hasOwnProperty('roundTripTime')) {
+					lossRate.roundTripTime = statsNow.roundTripTime
+				}
+				if (statsNow.hasOwnProperty('jitter')) {
+					lossRate.jitter = statsNow.jitter
+				}
+
+				if (statsNow.frameWidth && statsNow.frameWidth !== '0' && statsNow
+					.frameHeight && statsNow.frameHeight !== '0') {
+					lossRate.resolution = statsNow.frameWidth + ' X ' + statsNow
+						.frameHeight
+				}
+
+				lossRate.bandWidthVal = getBandWidth(statsNow).bandWidthVal;
+				lossRate.bandWidthUnit = getBandWidth(statsNow).bandWidthUnit;
+
+				lossRates[key] = lossRate
+			}
+
+			// console.log(lossRates)
+			for (let j in lossRates) {
+				if (lossRates[j].codecName === 'video' && lossRates[j]
+					.lossRate !== 'negative') {
+					videoOut = lossRates[j].lossRate
+				} else if (lossRates[j].codecName === 'audio' && lossRates[j]
+					.lossRate !== 'negative') {
+					audioOut = lossRates[j].lossRate
+				}
+			}
+		})
+
+		let maxLossRate = Math.max(Number(videoOut.replace('%', '')), Number(audioOut.replace('%', '')))
+		if (maxLossRate >= 20 || differenceRtt >= 500) {
+			type = '差'
+		} else if (maxLossRate >= 10 || differenceRtt >= 100) {
+			type = '一般'
+		} else {
+			type = '好'
+		}
+		console.log((roundTripTime / 2).toFixed() + 'ms', jitter)
+		clearTimeout(time)
+		$("#public-part2").append(
+			'<div class="line"><span>网络延迟:</span><span class="support"></span></div>');
+		$("#public-part2").append(
+			'<div class="line"><span>网络抖动:</span><span class="support"></span></div>');
+		progressContent.style.width = '100%';
+		mask.style.display = 'none';
+		start()
+		start1()
+		// _this.roundTripTime = (roundTripTime / 2).toFixed() + 'ms';
+		// _this.jitter = jitter
+	}, 5000)
+}
