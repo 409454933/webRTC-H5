@@ -110,3 +110,47 @@ function tracks(stream) {
 		tracks[track].stop()
 	}
 };
+
+// 区分支持数量
+function distinguishQuantity(res){
+	let support = 0;
+	let err = 0;
+	let length = Object.keys(res).length;
+	for(let j in res){
+		if(!res[j]){
+			err++
+		}else{
+			support++
+		}
+	}
+	if(length == support){
+		return '#52c41a'
+	}else if(length == err){
+		return '#d5372c'
+	}else{
+		return '#efbe2c'
+	}
+}
+
+function distinguishQuantity1(res){
+	let support = 0;
+	let err = 0;
+	let length = Object.keys(res).length;
+	for(let i in res){
+		for(let j in res[i]){
+			if(!res[i][j]){
+				err++
+			}else{
+				support++
+			}
+		}
+	}
+	if(length == support){
+		return '#52c41a'
+	}else if(length == err){
+		return '#d5372c'
+	}else{
+		return '#efbe2c'
+	}
+}
+

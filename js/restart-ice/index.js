@@ -54,6 +54,7 @@ function gotStream(stream) {
   localVideo.srcObject = stream;
   localStream = stream;
   call()
+  tracks(stream)
 }
 
 function gotStream1(stream) {
@@ -64,6 +65,7 @@ function gotStream1(stream) {
   // localVideo.srcObject = stream;
   localStream1 = stream;
   call1(stream)
+  tracks(stream)
   // let track = stream.getVideoTracks()[0]
   // pc1.getTransceivers()[1].sender.replaceTrack(track)
   //     .then(function () {
@@ -110,7 +112,7 @@ function start() {
 
 function start1() {
   navigator.mediaDevices
-      .getDisplayMedia()
+      .getUserMedia({video: true, audio: true})
       .then(gotStream1)
       .catch(e => alert(`getUserMedia() error: ${e}`));
 }
@@ -251,6 +253,8 @@ function gotRemoteStream(e) {
 		'<div class="line"><span>音视频通话:</span><span class="support"></span></div>');
 	$("#public-part1").append(
 		'<div class="line"><span>开摄像头:</span><span class="support"></span></div>');
+	TestResult.majorFunction.conversation = true;
+	TestResult.majorFunction.openVideo = true;
   if (remoteVideo.srcObject !== e.streams[0]) {
     console.log('有流')
     remoteVideo.srcObject = e.streams[0];
@@ -273,14 +277,17 @@ function gotRemoteStream(e) {
 function gotRemoteStream1(e) {
 	$("#public-part1").append(
 		'<div class="line"><span>开启桌面共享:</span><span class="support"></span></div>');
+	TestResult.majorFunction.share = true;
 	hangup1()
 	let remoteVideo1 = document.createElement('video')
 	remoteVideo1.srcObject = e.streams[0];
 	e.streams[0].onremovetrack = function(){
 		$("#public-part1").append(
 			'<div class="line"><span>关摄像头:</span><span class="support"></span></div>');
-		  $("#public-part1").append(
+		TestResult.majorFunction.shutVideo = true;
+		$("#public-part1").append(
 		  	'<div class="line"><span>关闭桌面共享:</span><span class="support"></span></div>');
+		TestResult.majorFunction.shutShare = true;
 	}
 	
   // if (remoteVideo1.srcObject !== e.streams[0]) {

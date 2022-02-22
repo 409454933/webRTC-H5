@@ -44,10 +44,12 @@ DBExport.prototype.fileDownload = (logs, fileName) => {
 	   $("#public-part1").append(
 	   	'<div class="line"><span>debug.js日志导出:</span><span class="support"></span></div>');
        console.warn(fileName + ' download complete')
+	   TestResult.majorFunction.debug = true;
     }catch(e){
         console.log(e)
 		$("#public-part1").append(
 			'<div class="line"><span>debug.js日志导出:</span><span class="notSupport"></span></div>');
+		TestResult.majorFunction.debug = false;
         //TODO handle the exception
     }
 

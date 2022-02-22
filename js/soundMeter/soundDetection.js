@@ -204,6 +204,8 @@ SoundMeter.prototype.checkAudioOutputVolume = async function (data) {
 							clearTimeout(This.showMicVolumnTimer)
 							$("#public-part1").append(
 								'<div class="line"><span>音量检测:</span><span class="support"></span></div>');
+							document.getElementById('public-part1').style.display = 'none';
+							document.getElementById('majorFunction').style.background = distinguishQuantity(TestResult['majorFunction']);
                             data.callback({message:message, isSoundDetected: false})
                             // gsRTC.trigger("onMicStatusChange", {isSoundDetected: false})
                         }

@@ -106,6 +106,20 @@ body {
 .part {
   padding-bottom: 10px;
   word-break: break-all;
+  
+}
+.children{
+	transition: all .5s;
+	width: 100px;
+	height: 0;
+	background-color: #000000;
+	box-shadow:0 0 8px 0 rgba(232,237,250,.6),0 2px 4px 0 rgba(232,237,250,.5)
+}
+.part:hover{
+	cursor: pointer;
+}
+.part:hover .children{
+	height: 100px;
 }
 .input-40 {
   width: 35px;

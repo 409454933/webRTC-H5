@@ -1,3 +1,39 @@
+let TestResult = {
+	environment: {},
+	DevicePermissions: {},
+	RTCPeerConnectionAPI: {},
+	RTCPeerConnectionEvent: {},
+	RTCRtpSender: {},
+	enumerateDevices: {
+		audioinput: [],
+		audiooutput: [],
+		videoinput: []
+	},
+	getDisplayMedia: {},
+	getUserMedia: {},
+	MediaStream: {},
+	MediaStreamTrack: {},
+	CodecList: {
+		audioCodecs: {},
+		audioDecoding: {},
+		videoCodecs: {},
+		videoDecoding: {}
+	},
+	WeakNetworkConfrontation: {
+		weakNetworkAudio: {},
+		weakNetworkVideo: {}
+	},
+	// webSocket: {},
+	WebAssembly: {},
+	captureStream: {},
+	WebAudio: {},
+	MediaRecorder: {},
+	WebCodecs: {},
+	LocalStorage: {},
+	IndexedDB: {},
+	other: {},
+	majorFunction: {}
+}
 let vconsole = null
 let Videos = []
 let ws = null
@@ -13,7 +49,8 @@ let isMute;
 let audio = document.getElementById("myAudio")
 let progressContent = document.getElementById("progress-content")
 let mask = document.getElementById("mask")
-let quickScan = [{
+let quickScan = [
+	{
 		'label': '4K(UHD)',
 		'width': 3840,
 		'height': 2160,
@@ -189,7 +226,7 @@ document.getElementById('toggleVConsole').onclick = function() {
 }
 document.getElementById('start').onclick = function() {
 	testingEnvironment()
-	mask.style.display = 'flex';
+	// mask.style.display = 'flex';
 	// Switch1()
 }
 
@@ -246,6 +283,10 @@ function setBlockHeadersDisplay(displayStyle) {
 // 测试环境
 function testingEnvironment() {
 	let BrowserDetail = getBrowserDetail();
+	TestResult.environment.systemName = BrowserDetail.systemFriendlyName;
+	TestResult.environment.browser = BrowserDetail.browser + '/' + BrowserDetail.UIVersion;
+	TestResult.environment.resolvingPower = BrowserDetail.resolvingPower;
+	TestResult.environment.UA = BrowserDetail.UA;
 	let systemFriendlyName = '<div class="line"><span>操作系统：</span><span>' + BrowserDetail.systemFriendlyName +
 		'</span></div>';
 	let browser = '<div class="line"><span>浏览器：</span><span>' + BrowserDetail.browser + '/' + BrowserDetail
@@ -263,6 +304,7 @@ function testingEnvironment() {
 
 // 设备权限
 async function devicePermissions() {
+	document.getElementById('interface-part1').style.display = 'block';
 	await navigator.mediaDevices.getUserMedia({
 			audio: false,
 			video: true
@@ -270,11 +312,13 @@ async function devicePermissions() {
 		.then(stream => {
 			$("#interface-part1").append(
 				'<div class="line"><span>是否允许使用摄像头:</span><span class="support"></span></div>')
+			TestResult.DevicePermissions.video = true;
 			tracks(stream)
 		})
 		.catch(function(err) {
 			$("#interface-part1").append(
 				'<div class="line"><span>是否允许使用摄像头:</span><span class="notSupport"></span></div>')
+			TestResult.DevicePermissions.video = false;
 		});
 
 	await navigator.mediaDevices.getUserMedia({
@@ -284,18 +328,24 @@ async function devicePermissions() {
 		.then(stream => {
 			$("#interface-part1").append(
 				'<div class="line"><span>是否允许使用麦克风:</span><span class="support"></span></div>')
+			TestResult.DevicePermissions.audio = true;
 			tracks(stream)
 		})
 		.catch(function(err) {
 			$("#interface-part1").append(
 				'<div class="line"><span>是否允许使用麦克风:</span><span class="notSupport"></span></div>')
+			TestResult.DevicePermissions.audio = false;
 		});
 	progressContent.style.width = '10%';
+	document.getElementById('interface-part1').style.display = 'none';
+	document.getElementById('DevicePermissions').style.background = distinguishQuantity(TestResult['DevicePermissions']);
 	await PeerConnection()
 }
 
 // RTCPeerConnection API
 async function PeerConnection() {
+	document.getElementById('interface-part2').style.display = 'block';
+	document.getElementById('interface-part3').style.display = 'block';
 	let offer, answer, sdp, offerOptions = {
 		offerToReceiveAudio: 1,
 		offerToReceiveVideo: 1
@@ -309,9 +359,11 @@ async function PeerConnection() {
 	if (pc) {
 		$("#interface-part2").append(
 			'<div class="line"><span>RTCPeerConnection():</span><span class="support"></span></div>');
+		TestResult.RTCPeerConnectionAPI.RTCPeerConnection = true;
 	} else {
 		$("#interface-part2").append(
 			'<div class="line"><span>RTCPeerConnection():</span><span class="notSupport"></span></div>');
+		TestResult.RTCPeerConnectionAPI.RTCPeerConnection = false;
 	}
 
 	pc.onicecandidate = async event => {
@@ -321,17 +373,19 @@ async function PeerConnection() {
 			Offer = sdp
 			$("#interface-part3").append(
 				'<div class="line"><span>icecandidate():</span><span class="support"></span></div>');
-
+				TestResult.RTCPeerConnectionEvent.icecandidate = true;
 			try {
 				pc1.setRemoteDescription(sdp)
 				$("#interface-part2").append(
 					'<div class="line"><span>setRemoteDescription():</span><span class="support"></span></div>'
 				);
+				TestResult.RTCPeerConnectionAPI.setRemoteDescription = true;
 			} catch (e) {
 				log.error(e);
 				$("#interface-part2").append(
 					'<div class="line"><span>setRemoteDescription():</span><span class="notSupport"></span></div>'
 				);
+				TestResult.RTCPeerConnectionAPI.setRemoteDescription = false;
 			}
 
 			try {
@@ -339,12 +393,14 @@ async function PeerConnection() {
 				$("#interface-part2").append(
 					'<div class="line"><span>createAnswer():</span><span class="support"></span></div>'
 				);
+				TestResult.RTCPeerConnectionAPI.createAnswer = true;
 				await pc1.setLocalDescription(answer)
 			} catch (e) {
 				log.error(e);
 				$("#interface-part2").append(
 					'<div class="line"><span>createAnswer():</span><span class="notSupport"></span></div>'
 				);
+				TestResult.RTCPeerConnectionAPI.createAnswer = false;
 			}
 
 			try {
@@ -352,11 +408,13 @@ async function PeerConnection() {
 				$("#interface-part2").append(
 					'<div class="line"><span>getTransceivers():</span><span class="support"></span></div>'
 				);
+				TestResult.RTCPeerConnectionAPI.getTransceivers = true;
 			} catch (e) {
 				log.error(e);
 				$("#interface-part2").append(
 					'<div class="line"><span>getTransceivers():</span><span class="notSupport"></span></div>'
 				);
+				TestResult.RTCPeerConnectionAPI.getTransceivers = false;
 			}
 
 			try {
@@ -364,11 +422,13 @@ async function PeerConnection() {
 				$("#interface-part2").append(
 					'<div class="line"><span>getSenders():</span><span class="support"></span></div>'
 				);
+				TestResult.RTCPeerConnectionAPI.getSenders = true;
 			} catch (e) {
 				log.error(e);
 				$("#interface-part2").append(
 					'<div class="line"><span>getSenders():</span><span class="notSupport"></span></div>'
 				);
+				TestResult.RTCPeerConnectionAPI.getSenders = false;
 			}
 
 
@@ -377,11 +437,13 @@ async function PeerConnection() {
 				$("#interface-part2").append(
 					'<div class="line"><span>getReceivers():</span><span class="support"></span></div>'
 				);
+				TestResult.RTCPeerConnectionAPI.getReceivers = true;
 			} catch (e) {
 				log.error(e);
 				$("#interface-part2").append(
 					'<div class="line"><span>getReceivers():</span><span class="notSupport"></span></div>'
 				);
+				TestResult.RTCPeerConnectionAPI.getReceivers = false;
 			}
 
 
@@ -389,16 +451,20 @@ async function PeerConnection() {
 				pc.getStats()
 				$("#interface-part2").append(
 					'<div class="line"><span>getStats():</span><span class="support"></span></div>');
+				TestResult.RTCPeerConnectionAPI.getStats = true;
 				$("#interface-part4").append(
 					'<div class="line"><span>getStats():</span><span class="support"></span></div>');
+				TestResult.RTCRtpSender.getStats = true;
 			} catch (e) {
 				log.error(e);
 				$("#interface-part2").append(
 					'<div class="line"><span>getStats():</span><span class="notSupport"></span></div>'
 				);
+				TestResult.RTCPeerConnectionAPI.getStats = false;
 				$("#interface-part4").append(
 					'<div class="line"><span>getStats():</span><span class="notSupport"></span></div>'
 				);
+				TestResult.RTCRtpSender.getStats = false;
 			}
 
 
@@ -419,6 +485,7 @@ async function PeerConnection() {
 		$("#interface-part3").append(
 			'<div class="line"><span>iceconnectionstatechange:</span><span class="support"></span></div>'
 		);
+		TestResult.RTCPeerConnectionEvent.iceconnectionstatechange = true;
 	}, false);
 
 	pc.addEventListener("icegatheringstatechange", ev => {
@@ -433,6 +500,7 @@ async function PeerConnection() {
 				$("#interface-part3").append(
 					'<div class="line"><span>icegatheringstatechange:</span><span class="support"></span></div>'
 				);
+				TestResult.RTCPeerConnectionEvent.icegatheringstatechange = true;
 				break;
 		}
 	}, false);
@@ -441,6 +509,7 @@ async function PeerConnection() {
 		// console.log(ev)
 		$("#interface-part3").append(
 			'<div class="line"><span>negotiationneeded:</span><span class="support"></span></div>');
+		TestResult.RTCPeerConnectionEvent.negotiationneeded = true;
 	}, false);
 
 	pc.addEventListener("connectionstatechange", ev => {
@@ -448,12 +517,14 @@ async function PeerConnection() {
 		$("#interface-part3").append(
 			'<div class="line"><span>connectionstatechange:</span><span class="support"></span></div>'
 		);
+		TestResult.RTCPeerConnectionEvent.connectionstatechange = true;
 	}, false);
 
 	pc.addEventListener("signalingstatechange", ev => {
 		$("#interface-part3").append(
 			'<div class="line"><span>signalingstatechange:</span><span class="support"></span></div>'
 		);
+		TestResult.RTCPeerConnectionEvent.signalingstatechange = true;
 	}, false);
 
 	await navigator.mediaDevices.getUserMedia(constraints)
@@ -463,16 +534,20 @@ async function PeerConnection() {
 				stream.getTracks().forEach(track => pc.addTrack(track, stream));
 				$("#interface-part2").append(
 					'<div class="line"><span>addTrack():</span><span class="support"></span></div>');
+				TestResult.RTCPeerConnectionAPI.addTrack = true;
 				$("#interface-part8").append(
 					'<div class="line"><span>addTrack():</span><span class="support"></span></div>');
+				TestResult.MediaStream.addTrack = true;
 			} catch (e) {
 				log.error(e);
 				$("#interface-part2").append(
 					'<div class="line"><span>addTrack():</span><span class="notSupport"></span></div>'
 				);
+				TestResult.RTCPeerConnectionAPI.addTrack = false;
 				$("#interface-part8").append(
 					'<div class="line"><span>addTrack():</span><span class="notSupport"></span></div>'
 				);
+				TestResult.MediaStream.addTrack = false;
 			}
 
 			try {
@@ -480,6 +555,7 @@ async function PeerConnection() {
 				$("#interface-part8").append(
 					'<div class="line"><span>getAudioTracks():</span><span class="support"></span></div>'
 				);
+				TestResult.MediaStream.icecandidate = true;
 			} catch (e) {
 				$("#interface-part8").append(
 					'<div class="line"><span>getAudioTracks():</span><span class="notSupport"></span></div>'
@@ -502,11 +578,13 @@ async function PeerConnection() {
 				$("#interface-part2").append(
 					'<div class="line"><span>createOffer():</span><span class="support"></span></div>'
 				);
+				TestResult.RTCPeerConnectionAPI.createOffer = true;
 			} catch (e) {
 				log.error(e);
 				$("#interface-part2").append(
 					'<div class="line"><span>createOffer():</span><span class="notSupport"></span></div>'
 				);
+				TestResult.RTCPeerConnectionAPI.createOffer = false;
 			}
 
 			try {
@@ -514,11 +592,13 @@ async function PeerConnection() {
 				$("#interface-part2").append(
 					'<div class="line"><span>setLocalDescription():</span><span class="support"></span></div>'
 				);
+				TestResult.RTCPeerConnectionAPI.setLocalDescription = true;
 			} catch (e) {
 				log.error(e);
 				$("#interface-part2").append(
 					'<div class="line"><span>setLocalDescription():</span><span class="notSupport"></span></div>'
 				);
+				TestResult.RTCPeerConnectionAPI.setLocalDescription = false;
 			}
 			tracks(stream)
 
@@ -531,11 +611,16 @@ async function PeerConnection() {
 	// 	codes()
 	// },5000)
 	progressContent.style.width = '15%';
+	document.getElementById('interface-part2').style.display = 'none';
+	document.getElementById('interface-part3').style.display = 'none';
+	document.getElementById('RTCPeerConnectionAPI').style.background = distinguishQuantity(TestResult['RTCPeerConnectionAPI']);
+	document.getElementById('RTCPeerConnectionEvent').style.background = distinguishQuantity(TestResult['RTCPeerConnectionEvent']);
 	Receiver()
 };
 
 // RTCRtpSender
 async function Receiver() {
+	document.getElementById('interface-part4').style.display = 'block';
 	let pc = new RTCPeerConnection();
 	// await navigator.mediaDevices.getUserMedia({
 	//         video: true,
@@ -558,11 +643,13 @@ async function Receiver() {
 			sender1.getParameters()
 			$("#interface-part4").append(
 				'<div class="line"><span>getParameters():</span><span class="support"></span></div>');
+			TestResult.RTCRtpSender.getParameters = true;
 		} catch (e) {
 			// log.error(e);
 			$("#interface-part4").append(
 				'<div class="line"><span>getParameters():</span><span class="notSupport"></span></div>'
 			);
+			TestResult.RTCRtpSender.getParameters = false;
 		}
 
 		try {
@@ -571,22 +658,26 @@ async function Receiver() {
 			sender.setParameters(parameters)
 			$("#interface-part4").append(
 				'<div class="line"><span>setParameters():</span><span class="support"></span></div>');
+			TestResult.RTCRtpSender.setParameters = true;
 		} catch (e) {
 			// log.error(e);
 			$("#interface-part4").append(
 				'<div class="line"><span>setParameters():</span><span class="notSupport"></span></div>'
 			);
+			TestResult.RTCRtpSender.setParameters = false;
 		}
 
 		try {
 			sender1.replaceTrack(videoTrack1);
 			$("#interface-part4").append(
 				'<div class="line"><span>replaceTrack():</span><span class="support"></span></div>');
+			TestResult.RTCRtpSender.replaceTrack = true;
 		} catch (e) {
 			// log.error(e);
 			$("#interface-part4").append(
 				'<div class="line"><span>replaceTrack():</span><span class="notSupport"></span></div>'
 			);
+			TestResult.RTCRtpSender.replaceTrack = false;
 		}
 
 		try {
@@ -594,6 +685,7 @@ async function Receiver() {
 			$("#interface-part4").append(
 				'<div class="line"><span>getCapabilities():</span><span class="support"></span></div>'
 			);
+			TestResult.RTCRtpSender.getCapabilities = true;
 			$("#interface-part9").append(
 				'<div class="line"><span>getCapabilities():</span><span class="support"></span></div>'
 			);
@@ -602,6 +694,7 @@ async function Receiver() {
 			$("#interface-part4").append(
 				'<div class="line"><span>getCapabilities():</span><span class="notSupport"></span></div>'
 			);
+			TestResult.RTCRtpSender.getCapabilities = false;
 			$("#interface-part9").append(
 				'<div class="line"><span>getCapabilities():</span><span class="notSupport"></span></div>'
 			);
@@ -610,31 +703,38 @@ async function Receiver() {
 		tracks(stream)
 	});
 	progressContent.style.width = '20%';
+	document.getElementById('interface-part4').style.display = 'none';
+	document.getElementById('RTCRtpSender').style.background = distinguishQuantity(TestResult['RTCRtpSender']);
 	enumerateDevices()
 };
 
 // MediaDevices.enumerateDevices
 function enumerateDevices() {
+	document.getElementById('interface-part5').style.display = 'block';
 	navigator.mediaDevices.enumerateDevices()
 		.then(devices => {
 			for (let i in devices) {
 				if (devices[i].deviceId !== 'default' && devices[i].deviceId !== 'communications') {
 					if (devices[i].kind == 'audioinput') {
 						$("#audio-input").append('<li>' + devices[i].label + '</li>');
+						TestResult.enumerateDevices.audioinput.push(devices[i].label);
 					} else if (devices[i].kind == 'audiooutput') {
 						$("#audio-output").append('<li>' + devices[i].label + '</li>');
+						TestResult.enumerateDevices.audiooutput.push(devices[i].label);
 					} else if (devices[i].kind == 'videoinput') {
 						let datas = {
 							label: devices[i].label,
 							devices: devices[i].deviceId
 						}
 						Videos.push(datas)
+						TestResult.enumerateDevices.videoinput.push(devices[i].label);
 						$("#video-input").append('<li>' + devices[i].label + '</li>');
 					}
 				}
 			}
 			$("#interface-part5").prepend(
 				'<div class="line"><span>enumerateDevices获取设备列表:</span><span class="support"></span></div>');
+			TestResult.enumerateDevices.enumerateDevices = true;
 			$("#public-part1").append(
 				'<div class="line"><span>获取音视频设备列表:</span><span class="support"></span></div>');
 		})
@@ -643,20 +743,24 @@ function enumerateDevices() {
 			console.log(err)
 			$("#interface-part5").append(
 				'<div class="line">enumerateDevices获取设备列表:</span><span class="notSupport"></span></div>');
+			TestResult.enumerateDevices.enumerateDevices = false;
 			$("#public-part1").append(
 				'<div class="line"><span>获取音视频设备列表:</span><span class="support"></span></div>');
 		});
 	navigator.mediaDevices.ondevicechange = event => {
 		$("#interface-part5").append(
 			'<div class="line"><span>ondevicechange 事件:</span><span class="support"></span></div>');
+		TestResult.enumerateDevices.ondevicechange = true;
 	}
-	// getDisplayMedia()
 	progressContent.style.width = '25%';
+	document.getElementById('interface-part5').style.display = 'none';
+	document.getElementById('enumerateDevices').style.background = distinguishQuantity(TestResult['enumerateDevices']);
 	getDisplayMedia()
 };
 
 // MediaDevices.getDisplayMedia
 async function getDisplayMedia() {
+	document.getElementById('interface-part6').style.display = 'block';
 	let constraints = {
 		audio: true,
 		video: {
@@ -668,6 +772,7 @@ async function getDisplayMedia() {
 	if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
 		$("#interface-part6").prepend(
 			'<div class="line"><span>getDisplayMedia 事件:</span><span class="notSupport"></span></div>');
+		TestResult.getDisplayMedia.getDisplayMedia = false;
 	} else {
 		await navigator.mediaDevices.getDisplayMedia(constraints)
 			.then(stream => {
@@ -676,6 +781,7 @@ async function getDisplayMedia() {
 				video.onloadedmetadata = async function() {
 					$("#interface-part6").prepend('<div class="line"><span>支持的最大分辨率:</span><span>' +
 						video.videoWidth + " * " + video.videoHeight + '</span></div>');
+					TestResult.getDisplayMedia.maxResolvingPower = video.videoWidth + " * " + video.videoHeight;
 					tracks(stream)
 				}
 			})
@@ -704,22 +810,28 @@ async function getDisplayMedia() {
 					streams = stream
 					$("#interface-part6").append('<div class="line"><span>' + data[i] +
 						'fps:</span><span class="support"></span></div>');
+					TestResult.getDisplayMedia[data[i] + 'fps'] = true;
 					tracks(stream)
 				})
 				.catch(function(err) {
 					console.log(err)
 					$("#interface-part6").append('<div class="line"><span>' + data[i] +
 						'fps:</span><span class="notSupport"></span></div>');
+					TestResult.getDisplayMedia[data[i] + 'fps'] = false
 				});
 		}
 
 	}
 	progressContent.style.width = '30%';
+	document.getElementById('interface-part6').style.display = 'none';
+	document.getElementById('getDisplayMedia').style.background = distinguishQuantity(TestResult['getDisplayMedia']);
 	resolvingPower()
 };
 
 // MediaDevices.getUserMedia
 async function resolvingPower() {
+	document.getElementById('interface-part7').style.display = 'block';
+	document.getElementById('interface-part8').style.display = 'block';
 	'max',
 	'ideal',
 	'exact'
@@ -769,6 +881,7 @@ async function resolvingPower() {
 				$("#limit").append(
 					'<div class="line"><span>' + data[n].name +
 					':</span><span class="support"></span></div>');
+				TestResult.getUserMedia[data[n].name] = true;
 				tracks(stream)
 			})
 			.catch(err => {
@@ -777,6 +890,7 @@ async function resolvingPower() {
 					'<div class="line"><span>' + data[n].name +
 					':</span><span class="notSupport"></span></div>'
 				);
+				TestResult.getUserMedia[data[n].name] = false;
 			});
 	}
 	for (let i in Videos) {
@@ -807,6 +921,7 @@ async function resolvingPower() {
 						'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height +
 						" * " + 'frameRate:' + quickScan[j].frameRate +
 						':</span><span class="support"></span></div>');
+					TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height +" * " + 'frameRate:' + quickScan[j].frameRate] = true;
 					tracks(stream)
 				})
 				.catch(err => {
@@ -815,15 +930,21 @@ async function resolvingPower() {
 						'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height +
 						" * " + 'frameRate:' + quickScan[j].frameRate +
 						':</span><span class="notSupport"></span></div>');
+					TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height +" * " + 'frameRate:' + quickScan[j].frameRate] = false;
 				});
 		}
 	}
 	progressContent.style.width = '35%';
+	document.getElementById('interface-part7').style.display = 'none';
+	document.getElementById('getUserMedia').style.background = distinguishQuantity(TestResult['getUserMedia']);
+	document.getElementById('interface-part8').style.display = 'none';
+	document.getElementById('MediaStream').style.background = distinguishQuantity(TestResult['MediaStream']);
 	MediaStreamTrack()
 }
 
 // MediaStreamTrack
 async function MediaStreamTrack() {
+	document.getElementById('interface-part9').style.display = 'block';
 	const constraints = {
 		audio: true,
 		video: {
@@ -854,20 +975,27 @@ async function MediaStreamTrack() {
 					$("#interface-part9").prepend(
 						'<div class="line"><span>applyConstraints():</span><span class="support"></span></div>'
 					);
+					TestResult.MediaStreamTrack.applyConstraints = true;
 				})
 				.catch(e => {
 					console.log(e)
 					$("#interface-part9").prepend(
 						'<div class="line"><span>applyConstraints():</span><span class="notSupport"></span></div>'
 					);
+					TestResult.MediaStreamTrack.applyConstraints = false;
 				});
 			tracks(mediaStream)
 		});
 	progressContent.style.width = '40%';
+	document.getElementById('interface-part9').style.display = 'none';
+	document.getElementById('MediaStreamTrack').style.background = distinguishQuantity(TestResult['MediaStreamTrack']);
 	codes();
 }
 
 function codes() {
+	document.getElementById('other-part1').style.display = 'block';
+	document.getElementById('other-part2').style.display = 'block';
+	document.getElementById('other-part4').style.display = 'block';
 	let AudioCodecs = ['opus', 'ISAC', 'G722', 'PCMU', 'PCMA', 'DTMF', 'RED', 'telephone-event'];
 	let VideoCodecs = ['VP8', 'VP9', 'H264', 'H265', 'AV1', 'flexfec-03'];
 	let weakNetworkAudio = ['FEC', 'RED'];
@@ -912,57 +1040,75 @@ function codes() {
 		if (h264Codec.audioCodecs.indexOf(n) != -1) {
 			$("#audioCodecs").append(
 				'<div class="line"><span>' + n + ':</span><span class="support"></span></div>');
+			TestResult.CodecList.audioCodecs[n] = true;
 		} else {
 			$("#audioCodecs").append(
 				'<div class="line"><span>' + n + ':</span><span class="notSupport"></span></div>');
+			TestResult.CodecList.audioCodecs[n] = false;
 		}
 	});
 	AudioCodecs.filter(function(n) {
 		if (h264Codec1.audioCodecs.indexOf(n) != -1) {
 			$("#audioDecoding").append(
 				'<div class="line"><span>' + n + ':</span><span class="support"></span></div>');
+			TestResult.CodecList.audioDecoding[n] = true;
 		} else {
 			$("#audioDecoding").append(
 				'<div class="line"><span>' + n + ':</span><span class="notSupport"></span></div>');
+			TestResult.CodecList.audioDecoding[n] = false;
 		}
 	});
 	VideoCodecs.filter(function(n) {
 		if (h264Codec.videoCodecs.indexOf(n) != -1) {
 			$("#videoCodecs").append(
 				'<div class="line"><span>' + n + ':</span><span class="support"></span></div>');
+			TestResult.CodecList.videoCodecs[n] = true;
 		} else {
 			$("#videoCodecs").append(
 				'<div class="line"><span>' + n + ':</span><span class="notSupport"></span></div>');
+			TestResult.CodecList.videoCodecs[n] = false;
 		}
 	});
 	VideoCodecs.filter(function(n) {
 		if (h264Codec1.videoCodecs.indexOf(n) != -1) {
 			$("#videoDecoding").append(
 				'<div class="line"><span>' + n + ':</span><span class="support"></span></div>');
+			TestResult.CodecList.videoDecoding[n] = true;
 		} else {
 			$("#videoDecoding").append(
 				'<div class="line"><span>' + n + ':</span><span class="notSupport"></span></div>');
+			TestResult.CodecList.videoDecoding[n] = false;
 		}
 	});
 	weakNetworkAudio.filter(function(n) {
 		if (data1.indexOf(n.toLowerCase()) != -1) {
 			$("#weakNetworkAudio").append(
 				'<div class="line"><span>' + n + ':</span><span class="support"></span></div>');
+			TestResult.WeakNetworkConfrontation.weakNetworkAudio[n] = true;
 		} else {
 			$("#weakNetworkAudio").append(
 				'<div class="line"><span>' + n + ':</span><span class="notSupport"></span></div>');
+			TestResult.WeakNetworkConfrontation.weakNetworkAudio[n] = false;
 		}
 	});
 	weakNetworkVideo.filter(function(n) {
 		if (datas1.indexOf(n.toLowerCase()) != -1) {
 			$("#weakNetworkVideo").append(
 				'<div class="line"><span>' + n + ':</span><span class="support"></span></div>');
+			TestResult.WeakNetworkConfrontation.weakNetworkVideo[n] = true;
 		} else {
 			$("#weakNetworkVideo").append(
 				'<div class="line"><span>' + n + ':</span><span class="notSupport"></span></div>');
+			TestResult.WeakNetworkConfrontation.weakNetworkVideo[n] = false;
 		}
 	});
 	progressContent.style.width = '45%';
+	document.getElementById('other-part1').style.display = 'none';
+	document.getElementById('CodecList').style.background = distinguishQuantity1(TestResult['CodecList']);
+	document.getElementById('other-part2').style.display = 'none';
+	document.getElementById('WeakNetworkConfrontation').style.background = distinguishQuantity1(TestResult['WeakNetworkConfrontation']);
+	document.getElementById('other-part4').style.display = 'none';
+	document.getElementById('WebAssembly').style.background = distinguishQuantity(TestResult['WebAssembly']);
 	captureStream()
 }
 
@@ -1052,6 +1198,7 @@ async function websocket() {
 
 // captureStream
 function captureStream() {
+	document.getElementById('other-part5').style.display = 'none';
 	try {
 		var a = document.createElement("canvas");
 		var ctx = a.getContext("2d");
@@ -1061,11 +1208,13 @@ function captureStream() {
 		$("#other-part5").prepend(
 			'<div class="line"><span>CanvasElement.captureStream():</span><span class="support"></span></div>'
 		);
+		TestResult.captureStream.CanvasElement = true;
 	} catch (e) {
 		console.log(e)
 		$("#other-part5").prepend(
 			'<div class="line"><span>CanvasElement.captureStream():</span><span class="notSupport"></span></div>'
 		);
+		TestResult.captureStream.CanvasElement = false;
 	}
 
 	try {
@@ -1074,18 +1223,23 @@ function captureStream() {
 		$("#other-part5").prepend(
 			'<div class="line"><span>MediaElement.captureStream():</span><span class="support"></span></div>'
 		);
+		TestResult.captureStream.MediaElement = true;
 	} catch (e) {
 		console.log(e)
 		$("#other-part5").prepend(
 			'<div class="line"><span>MediaElement.captureStream():</span><span class="notSupport"></span></div>'
 		);
+		TestResult.captureStream.MediaElement = false;
 	}
 	progressContent.style.width = '50%';
+	document.getElementById('other-part5').style.display = 'none';
+	document.getElementById('captureStream').style.background = distinguishQuantity(TestResult['captureStream']);
 	WebAudio()
 }
 
 // WebAudio
 async function WebAudio() {
+	document.getElementById('other-part6').style.display = 'block';
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	const myAudio = document.querySelector('audio');
 	console.log(myAudio)
@@ -1104,10 +1258,12 @@ async function WebAudio() {
 	if (destination) {
 		$("#other-part6").append(
 			'<div class="line"><span>createMediaStreamDestination():</span><span class="support"></span></div>');
+		TestResult.WebAudio.createMediaStreamDestination = true;
 	} else {
 		$("#other-part6").append(
 			'<div class="line"><span>createMediaStreamDestination():</span><span class="notSupport"></span></div>'
 		);
+		TestResult.WebAudio.createMediaStreamDestination = false;
 	}
 	await navigator.mediaDevices.getUserMedia({
 			audio: true,
@@ -1123,37 +1279,47 @@ async function WebAudio() {
 	if (source) {
 		$("#other-part6").append(
 			'<div class="line"><span>createMediaStreamSource():</span><span class="support"></span></div>');
+		TestResult.WebAudio.createMediaStreamSource = true;
 	} else {
 		$("#other-part6").append(
 			'<div class="line"><span>createMediaStreamSource():</span><span class="support"></span></div>');
+			TestResult.WebAudio.createMediaStreamSource = false;
 	}
 
 	if (source1) {
 		$("#other-part6").append(
 			'<div class="line"><span>createMediaElementSource():</span><span class="support"></span></div>');
+		TestResult.WebAudio.createMediaElementSource = true;
 	} else {
 		$("#other-part6").append(
 			'<div class="line"><span>createMediaElementSource():</span><span class="notSupport"></span></div>');
+		TestResult.WebAudio.createMediaElementSource = true;
 	}
 
 	audioContext.resume().then(function() {
 		$("#other-part6").append(
 			'<div class="line"><span>resume():</span><span class="support"></span></div>');
+		TestResult.WebAudio.resume = true;
 	});
 
 	if (scriptNode) {
 		$("#other-part6").append(
 			'<div class="line"><span>createScriptProcessor():</span><span class="support"></span></div>');
+		TestResult.WebAudio.createScriptProcessor = true;
 	} else {
 		$("#other-part6").append(
 			'<div class="line"><span>createScriptProcessor():</span><span class="notSupport"></span></div>');
+		TestResult.WebAudio.createScriptProcessor = false;
 	}
 	progressContent.style.width = '55%';
+	document.getElementById('other-part6').style.display = 'none';
+	document.getElementById('WebAudio').style.background = distinguishQuantity(TestResult['WebAudio']);
 	MediaRecorders()
 }
 
 // MediaRecorder
 async function MediaRecorders() {
+	document.getElementById('other-part7').style.display = 'block';
 	await navigator.mediaDevices.getUserMedia({
 			audio: false,
 			video: true
@@ -1171,10 +1337,12 @@ async function MediaRecorders() {
 						$("#other-part7").append(
 							'<div class="line"><span>' + types[i] +
 							':</span><span class="support"></span></div>');
+						TestResult.MediaRecorder[types[i]] = false;
 					} else {
 						$("#other-part7").append(
 							'<div class="line"><span>' + types[i] +
 							':</span><span class="notSupport"></span></div>');
+						TestResult.MediaRecorder[types[i]] = true;
 					}
 				}
 			} else {
@@ -1187,12 +1355,15 @@ async function MediaRecorders() {
 			/* 处理error */
 		});
 	progressContent.style.width = '60%';
+	document.getElementById('other-part7').style.display = 'none';
+	document.getElementById('MediaRecorder').style.background = distinguishQuantity(TestResult['MediaRecorder']);
 	await webcodec()
 	// await 
 }
 
 // WebCodecs
 async function webcodec() {
+	document.getElementById('other-part8').style.display = 'block';
 	const buffer = new ArrayBuffer(8);
 	const view = new Int32Array(buffer);
 	try {
@@ -1207,10 +1378,12 @@ async function webcodec() {
 		const audiodata = new AudioData(inits);
 		$("#other-part8").append(
 			'<div class="line"><span>AudioData():</span><span class="support"></span></div>');
+		TestResult.WebCodecs.AudioData = true;
 	} catch (e) {
 		console.log(e)
 		$("#other-part8").append(
 			'<div class="line"><span>AudioData():</span><span class="notSupport"></span></div>');
+		TestResult.WebCodecs.AudioData = false;
 	}
 
 	try {
@@ -1220,10 +1393,12 @@ async function webcodec() {
 		});
 		$("#other-part8").append(
 			'<div class="line"><span>AudioDecoder():</span><span class="support"></span></div>');
+		TestResult.WebCodecs.AudioDecoder = true;
 	} catch (e) {
 		console.log(e)
 		$("#other-part8").append(
 			'<div class="line"><span>AudioDecoder():</span><span class="notSupport"></span></div>');
+		TestResult.WebCodecs.AudioDecoder = false;
 	}
 
 	try {
@@ -1233,10 +1408,12 @@ async function webcodec() {
 		});
 		$("#other-part8").append(
 			'<div class="line"><span>AudioEncoder():</span><span class="support"></span></div>');
+		TestResult.WebCodecs.AudioEncoder = true;
 	} catch (e) {
 		console.log(e)
 		$("#other-part8").append(
 			'<div class="line"><span>AudioEncoder():</span><span class="notSupport"></span></div>');
+		TestResult.WebCodecs.AudioEncoder = false;
 	}
 
 	try {
@@ -1246,10 +1423,12 @@ async function webcodec() {
 		});
 		$("#other-part8").append(
 			'<div class="line"><span>VideoDecoder():</span><span class="support"></span></div>');
+		TestResult.WebCodecs.VideoDecoder = true;
 	} catch (e) {
 		console.log(e)
 		$("#other-part8").append(
 			'<div class="line"><span>VideoDecoder():</span><span class="notSupport"></span></div>');
+		TestResult.WebCodecs.VideoDecoder = false;
 	}
 
 	try {
@@ -1259,10 +1438,12 @@ async function webcodec() {
 		});
 		$("#other-part8").append(
 			'<div class="line"><span>VideoEncoder():</span><span class="support"></span></div>');
+		TestResult.WebCodecs.VideoEncoder = true;
 	} catch (e) {
 		console.log(e)
 		$("#other-part8").append(
 			'<div class="line"><span>VideoEncoder():</span><span class="notSupport"></span></div>');
+		TestResult.WebCodecs.VideoEncoder = false;
 	}
 
 	try {
@@ -1272,10 +1453,12 @@ async function webcodec() {
 		});
 		$("#other-part8").append(
 			'<div class="line"><span>VideoFrame():</span><span class="support"></span></div>');
+		TestResult.WebCodecs.VideoFrame = true;
 	} catch (e) {
 		console.log(e)
 		$("#other-part8").append(
 			'<div class="line"><span>VideoFrame():</span><span class="notSupport"></span></div>');
+		TestResult.WebCodecs.VideoFrame = false;
 	}
 
 	try {
@@ -1286,45 +1469,63 @@ async function webcodec() {
 		let imageDecoder = new ImageDecoder(init);
 		$("#other-part8").append(
 			'<div class="line"><span>ImageDecoder():</span><span class="support"></span></div>');
+		TestResult.WebCodecs.ImageDecoder = true;
 	} catch (e) {
 		console.log(e)
 		$("#other-part8").append(
 			'<div class="line"><span>ImageDecoder():</span><span class="notSupport"></span></div>');
+		TestResult.WebCodecs.ImageDecoder = false;
 	}
 	progressContent.style.width = '65%';
+	document.getElementById('other-part8').style.display = 'none';
+	document.getElementById('WebCodecs').style.background = distinguishQuantity(TestResult['WebCodecs']);
 	storage()
 }
 
 // 本地存储
 async function storage() {
+	document.getElementById('other-part9').style.display = 'block';
+	document.getElementById('other-part10').style.display = 'block';
 	if (typeof window.localStorage !== 'undefined') {
 		$("#other-part9").append(
 			'<div class="line"><span>localStorage:</span><span class="support"></span></div>');
+		TestResult.LocalStorage.localStorage = true;
 	} else {
 		$("#other-part9").append(
 			'<div class="line"><span>localStorage:</span><span class="notSupport"></span></div>');
+		TestResult.LocalStorage.localStorage = false;
 	}
 
 	if (typeof window.sessionStorage !== 'undefined') {
 		$("#other-part9").append(
 			'<div class="line"><span>sessionStorage:</span><span class="support"></span></div>');
+		TestResult.LocalStorage.sessionStorage = true;
 	} else {
 		$("#other-part9").append(
 			'<div class="line"><span>sessionStorage:</span><span class="notSupport"></span></div>');
+		TestResult.LocalStorage.sessionStorage = false;
 	}
 	progressContent.style.width = '70%';
+	document.getElementById('other-part9').style.display = 'none';
+	document.getElementById('LocalStorage').style.background = distinguishQuantity(TestResult['LocalStorage']);
+	document.getElementById('other-part10').style.display = 'none';
+	document.getElementById('IndexedDB').style.background = distinguishQuantity(TestResult['IndexedDB']);
+	
 	webtransport()
 }
 
 // IndexedDB
 
 function webtransport() {
+	document.getElementById('other-part11').style.display = 'block';
 	if (typeof window.WebTransport !== 'undefined') {
 		$("#other-part11").append(
 			'<div class="line"><span>WebTransport:</span><span class="support"></span></div>');
+		TestResult.other.WebTransport = true;
 	} else {
 		$("#other-part11").append(
 			'<div class="line"><span>WebTransport:</span><span class="notSupport"></span></div>');
+		TestResult.other.WebTransport = false;
 	}
 
 	if (window.Worker) {
@@ -1336,14 +1537,17 @@ function webtransport() {
 			}
 			$("#other-part11").append(
 				'<div class="line"><span>Web Worker:</span><span class="support"></span></div>');
+			TestResult.other.WebWorker = true;
 		} catch (e) {
 			console.log(e)
 			$("#other-part11").append(
 				'<div class="line"><span>Web Worker:</span><span class="notSupport"></span></div>');
+			TestResult.other.WebWorker = false;
 		}
 	} else {
 		$("#other-part11").append(
 			'<div class="line"><span>Web Worker:</span><span class="notSupport"></span></div>');
+		TestResult.other.WebWorker = false;
 	}
 
 	if (!window.crypto && !window.msCrypto) {
@@ -1369,32 +1573,41 @@ function webtransport() {
 		console.warn('解密成功')
 		$("#other-part11").append(
 			'<div class="line"><span>CryptoJS加解密:</span><span class="support"></span></div>');
+		TestResult.other.CryptoJS = true;
 	} else {
 		$("#other-part11").append(
 			'<div class="line"><span>CryptoJS加解密:</span><span class="notSupport"></span></div>');
+		TestResult.other.CryptoJS = false;
 		console.warn('解密失败？')
 	}
 	console.log('start')
 	progressContent.style.width = '75%';
+	document.getElementById('other-part11').style.display = 'none';
+	document.getElementById('other').style.background = distinguishQuantity(TestResult['other']);
 	public()
 	// start({audio: true, video: true})
 }
 
 function public() {
+	document.getElementById('public-part1').style.display = 'block';
 	if (Offer.sdp.indexOf('a=ice-options:trickle') !== -1) {
 		$("#public-part1").append(
 			'<div class="line"><span>Trickle-ice:</span><span class="support"></span></div>');
+		TestResult.majorFunction.TrickleIce = true;
 	} else {
 		$("#public-part1").append(
 			'<div class="line"><span>Trickle-ice:</span><span class="notSupport"></span></div>');
+		TestResult.majorFunction.TrickleIce = false;
 	}
 
 	if (window.navigator.hid) {
 		$("#public-part1").append(
 			'<div class="line"><span>WebHID:</span><span class="support"></span></div>');
+		TestResult.majorFunction.WebHID = true;
 	} else {
 		$("#public-part1").append(
 			'<div class="line"><span>WebHID:</span><span class="notSupport"></span></div>');
+		TestResult.majorFunction.WebHID = false;
 	}
 	progressContent.style.width = '80%';
 	getMedia()
@@ -1776,6 +1989,7 @@ function network() {
 		mask.style.display = 'none';
 		start()
 		start1()
+		console.log(TestResult)
 		// _this.roundTripTime = (roundTripTime / 2).toFixed() + 'ms';
 		// _this.jitter = jitter
 	}, 5000)

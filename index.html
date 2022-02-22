@@ -15,7 +15,7 @@
 			<div class="top">
 				<!--    Part1: 测试环境    -->
 				<div class="block">
-					<p class="block-header">WebRtc 测试环境</p>
+					<p class="block-header" id="environment">WebRtc 测试环境</p>
 					<div id="part-env" class="part"></div>
 
 					<p class="block-header">调试</p>
@@ -34,9 +34,9 @@
 						<div class="line">
 							<button type="button" id="expand">展开/收起所有测试项</button>
 						</div>
-						<div class="line">
+						<!-- <div class="line">
 							<button id="getusermedia">开始声音检测</button>
-						</div>
+						</div> -->
 					</div>
 
 					<p class="block-header">颜色标识说明</p>
@@ -53,11 +53,11 @@
 
 				<!--    Part2: webRTC 相关接口    -->
 				<div class="block">
-					<p class="block-header">设备权限</p>
+					<p class="block-header" id="DevicePermissions">设备权限</p>
 					<div class="part" id="interface-part1">
 					</div>
 
-					<p class="block-header">RTCPeerConnection API</p>
+					<p class="block-header" id="RTCPeerConnectionAPI">RTCPeerConnection API</p>
 					<div class="part" style="display: none" id="interface-part2">
 						<!-- 
                 <div class="line">
@@ -78,10 +78,10 @@
                 </div> -->
 					</div>
 
-					<p class="block-header">RTCPeerConnection Event</p>
+					<p class="block-header" id="RTCPeerConnectionEvent">RTCPeerConnection Event</p>
 					<div class="part" id="interface-part3"></div>
 
-					<p class="block-header">RTCRtpSender</p>
+					<p class="block-header" id="RTCRtpSender">RTCRtpSender</p>
 					<div class="part" id="interface-part4">
 						<!-- <div class="line">
                     <span>getStats() :</span>
@@ -89,7 +89,7 @@
                 </div> -->
 					</div>
 
-					<p class="block-header">MediaDevices.enumerateDevices</p>
+					<p class="block-header" id="enumerateDevices">MediaDevices.enumerateDevices</p>
 					<div class="part" id="interface-part5">
 						<!-- <div class="line">
                     <span>ondevicechange 事件:</span>
@@ -115,7 +115,7 @@
 						</div>
 					</div>
 
-					<p class="block-header">MediaDevices.getDisplayMedia</p>
+					<p class="block-header" id="getDisplayMedia">MediaDevices.getDisplayMedia</p>
 					<div class="part" id="interface-part6">
 
 						<div class="line">
@@ -123,14 +123,14 @@
 						</div>
 					</div>
 
-					<p class="block-header">MediaDevices.getUserMedia</p>
+					<p class="block-header" id="getUserMedia">MediaDevices.getUserMedia</p>
 					<div class="part" id="interface-part7">
 						<div class="line" id="limit">
 							<span>支持的限制参数:</span>
 						</div>
 					</div>
 
-					<p class="block-header">MediaStream</p>
+					<p class="block-header" id="MediaStream">MediaStream</p>
 					<div class="part" id="interface-part8">
 						<!-- <div class="line">
 							<span>addTrack():</span>
@@ -164,7 +164,7 @@
 					</div>
 
 
-					<p class="block-header">MediaStreamTrack</p>
+					<p class="block-header" id="MediaStreamTrack">MediaStreamTrack</p>
 					<div class="part" id="interface-part9">
 						<!-- <div class="line">
 							<span>applyConstraints():</span>
@@ -188,7 +188,7 @@
 
 				<!--    Part3: 其他相关功能    -->
 				<div class="block">
-					<p class="block-header">音视频编解码列表</p>
+					<p class="block-header" id="CodecList">音视频编解码列表</p>
 					<div class="part" id="other-part1">
 						<div class="line" id="audioCodecs">
 							<span>音频编码:</span>
@@ -316,7 +316,7 @@
 						</div>
 					</div>
 
-					<p class="block-header">弱网对抗</p>
+					<p class="block-header" id="WeakNetworkConfrontation">弱网对抗</p>
 					<div class="part" id="other-part2">
 						<div class="line" id="weakNetworkAudio">
 							<span>音频:</span>
@@ -365,7 +365,7 @@
 							</div> -->
 						</div>
 					</div>
-					<p class="block-header">webSocket </p>
+					<p class="block-header" id="webSocket">webSocket </p>
 					<div class="part" id="other-part3">
 						<div class="line">
 							<span>webSocket功能:</span>
@@ -381,7 +381,7 @@
 						</div>
 					</div>
 
-					<p class="block-header">WebAssembly</p>
+					<p class="block-header" id="WebAssembly">WebAssembly</p>
 					<div class="part" id="other-part4">
 						<!-- <div class="line">
 							<span>bigInt():</span>
@@ -433,7 +433,7 @@
 						</div> -->
 					</div>
 
-					<p class="block-header">captureStream</p>
+					<p class="block-header" id="captureStream">captureStream</p>
 					<div class="part" id="other-part5">
 						<!-- <div class="line">
 							<span>CanvasElement.captureStream():</span>
@@ -445,7 +445,7 @@
 						</div> -->
 					</div>
 
-					<p class="block-header">WebAudio</p>
+					<p class="block-header" id="WebAudio">WebAudio</p>
 					<div class="part" id="other-part6">
 						<!-- <div class="line">
 							<span>createMediaStreamDestination():</span>
@@ -469,7 +469,7 @@
 						</div> -->
 					</div>
 
-					<p class="block-header">MediaRecorder</p>
+					<p class="block-header" id="MediaRecorder">MediaRecorder</p>
 					<div class="part" id="other-part7">
 						<!-- <div class="line">
 							<span>video/webm\;codecs=vp8:</span>
@@ -489,7 +489,7 @@
 						</div> -->
 					</div>
 
-					<p class="block-header">WebCodecs</p>
+					<p class="block-header" id="WebCodecs">WebCodecs</p>
 					<div class="part" id="other-part8">
 						<!-- <div class="line">
 							<span>AudioData():</span>
@@ -525,7 +525,7 @@
 						</div> -->
 					</div>
 
-					<p class="block-header">本地存储</p>
+					<p class="block-header" id="LocalStorage">本地存储</p>
 					<div class="part" id="other-part9">
 						<!-- <div class="line">
 							<span>localStorage:</span>
@@ -537,7 +537,7 @@
 						</div> -->
 					</div>
 
-					<p class="block-header">IndexedDB</p>
+					<p class="block-header" id="IndexedDB">IndexedDB</p>
 					<div class="part" id="other-part10">
 						<!-- <div class="line">
 							<span>open():</span>
@@ -569,7 +569,7 @@
 						</div> -->
 					</div>
 
-					<p class="block-header">其他</p>
+					<p class="block-header" id="other">其他</p>
 					<div class="part" id="other-part11">
 						<!-- <div class="line">
 							<span>WebTransport:</span>
@@ -590,7 +590,7 @@
 
 				<!--    Part4: 功能支持预览    -->
 				<div class="block">
-					<p class="block-header"> 总体功能支持情况 </p>
+					<p class="block-header" id="majorFunction"> 总体功能支持情况 </p>
 					<div class="part" id="public-part1">
 						<!-- <div class="line">
 							<span>P2P音频通话:</span>
@@ -684,6 +684,7 @@
 
 					<p class="block-header">以下测试项请手动选择</p>
 					<div class="part">
+						<div class="children"></div>
 						<div class="line">
 							<span>MIC和摄像头系统授权提示方式:</span>
 							<select>
@@ -716,6 +717,7 @@
 				</div>
 			</div>
 			<audio src="" id="myAudio"></audio>
+			
 		</div>
 		<div id="mask">
 			<div>
@@ -746,7 +748,6 @@
 				setBlockHeadersDisplay('none')
 				WebAssembly()
 				indexedDB()
-				document.getElementById('getusermedia').onclick = getMedia;
 				
 				if (SoundMeter) {
 				    window.soundDetection = new SoundMeter()
@@ -765,9 +766,11 @@
 					if (supported) {
 						$("#other-part4").append(
 							'<div class="line"><span>' + name + '():</span><span class="support"></span></div>');
+						TestResult.WebAssembly[name] = true;
 					} else {
 						$("#other-part4").append(
 							'<div class="line"><span>' + name + '():</span><span class="notSupport"></span></div>');
+						TestResult.WebAssembly[name] = false;
 					}
 				}
 			}
@@ -787,25 +790,31 @@
 					if (openCursor) {
 						$("#other-part10").append(
 							'<div class="line"><span>openCursor():</span><span class="support"></span></div>');
+						TestResult.IndexedDB.openCursor = true;
 					} else {
 						$("#other-part10").append(
 							'<div class="line"><span>openCursor():</span><span class="notSupport"></span></div>');
+						TestResult.IndexedDB.openCursor = false;
 					}
 			
 					if (count) {
 						$("#other-part10").append(
 							'<div class="line"><span>count():</span><span class="support"></span></div>');
+						TestResult.IndexedDB.count = true;
 					} else {
 						$("#other-part10").append(
 							'<div class="line"><span>count():</span><span class="notSupport"></span></div>');
+						TestResult.IndexedDB.count = false;
 					}
 			
 					if (getAll) {
 						$("#other-part10").append(
 							'<div class="line"><span>getAll():</span><span class="support"></span></div>');
+						TestResult.IndexedDB.getAll = true;
 					} else {
 						$("#other-part10").append(
 							'<div class="line"><span>getAll():</span><span class="notSupport"></span></div>');
+						TestResult.IndexedDB.getAll = false;
 					}
 			
 				};
@@ -833,32 +842,40 @@
 				if (DBOpenRequest) {
 					$("#other-part10").append(
 						'<div class="line"><span>open():</span><span class="support"></span></div>');
+					TestResult.IndexedDB.open = true;
 				} else {
 					$("#other-part10").append(
 						'<div class="line"><span>open():</span><span class="notSupport"></span></div>');
+					TestResult.IndexedDB.open = false;
 				}
 			
 				if (bound) {
 					$("#other-part10").append(
 						'<div class="line"><span>bound():</span><span class="support"></span></div>');
+					TestResult.IndexedDB.bound = true;
 				} else {
 					$("#other-part10").append(
 						'<div class="line"><span>bound():</span><span class="notSupport"></span></div>');
+					TestResult.IndexedDB.bound = false;
 				}
 				if (upperBound) {
 					$("#other-part10").append(
 						'<div class="line"><span>upperBound():</span><span class="support"></span></div>');
+					TestResult.IndexedDB.upperBound = true;
 				} else {
 					$("#other-part10").append(
 						'<div class="line"><span>upperBound():</span><span class="notSupport"></span></div>');
+					TestResult.IndexedDB.upperBound = false;
 				}
 			
 				if (lowerBound) {
 					$("#other-part10").append(
 						'<div class="line"><span>lowerBound():</span><span class="support"></span></div>');
+					TestResult.IndexedDB.lowerBound = true;
 				} else {
 					$("#other-part10").append(
 						'<div class="line"><span>lowerBound():</span><span class="notSupport"></span></div>');
+					TestResult.IndexedDB.lowerBound = false;
 				}
 			}
 		</script>
