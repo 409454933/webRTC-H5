@@ -204,11 +204,38 @@ SoundMeter.prototype.checkAudioOutputVolume = async function (data) {
 							clearTimeout(This.showMicVolumnTimer)
 							$("#public-part1").append(
 								'<div class="line"><span>音量检测:</span><span class="support"></span></div>');
-							document.getElementById('public-part1').style.display = 'none';
-							document.getElementById('majorFunction').style.background = distinguishQuantity(TestResult['majorFunction']);
-							document.getElementById('getStats').style.background = distinguishQuantity(TestResult['getStats']);
-							progressContent.style.width = '100%';
-							speed.textContent = '测试完成';
+							let constraints = {
+							    audio: false,
+							    video: {
+							        facingMode: {
+							            exact: "environment"
+							        }
+							    }
+							};
+							navigator.mediaDevices.getUserMedia(constraints)
+								.then(stream => {
+									$("#public-part1").append(
+										'<div class="line"><span>切换前后摄像头（移动端）:</span><span class="support"></span></div>');
+									tracks(stream)
+									TestResult.majorFunction.facingMode = true;
+									document.getElementById('public-part1').style.display = 'none';
+									document.getElementById('majorFunction').style.background = distinguishQuantity(TestResult['majorFunction']);
+									document.getElementById('getStats').style.background = distinguishQuantity(TestResult['getStats']);
+									progressContent.style.width = '100%';
+									speed.textContent = '测试完成';
+								})
+								.catch(err => {
+									/* 处理error */
+									$("#public-part1").append(
+										'<div class="line"><span>切换前后摄像头（移动端）:</span><span class="notSupport"></span></div>');
+									TestResult.majorFunction.facingMode = false;
+									document.getElementById('public-part1').style.display = 'none';
+									document.getElementById('majorFunction').style.background = distinguishQuantity(TestResult['majorFunction']);
+									document.getElementById('getStats').style.background = distinguishQuantity(TestResult['getStats']);
+									progressContent.style.width = '100%';
+									speed.textContent = '测试完成';
+									
+								});
                             data.callback({message:message, isSoundDetected: false})
                             // gsRTC.trigger("onMicStatusChange", {isSoundDetected: false})
                         }

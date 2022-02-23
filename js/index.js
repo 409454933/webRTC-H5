@@ -846,7 +846,7 @@ async function getDisplayMedia() {
 // MediaDevices.getUserMedia
 async function resolvingPower() {
 	document.getElementById('interface-part7').style.display = 'block';
-	document.getElementById('interface-part8').style.display = 'block';
+	
 	'max',
 	'ideal',
 	'exact'
@@ -954,9 +954,35 @@ async function resolvingPower() {
 	progressContent.style.width = '35%';
 	speed.textContent = '进度 35%';
 	document.getElementById('interface-part7').style.display = 'none';
+	document.getElementById('interface-part8').style.display = 'block';
 	document.getElementById('getUserMedia').style.background = distinguishQuantity(TestResult['getUserMedia']);
-	document.getElementById('interface-part8').style.display = 'none';
 	document.getElementById('MediaStream').style.background = distinguishQuantity(TestResult['MediaStream']);
+	document.getElementById('interface-part8').style.display = 'none';
+	MediaStream()
+}
+
+function MediaStream(){
+	var pc, sender, stream;
+	pc = new RTCPeerConnection();
+	navigator.mediaDevices.getUserMedia({video: true}, function(stream) {
+	  // stream.onaddtrack = function(){
+		 //  console.log('addtrack')
+	  // }
+	  var track = stream.getVideoTracks()[0];
+	  // stream.addTrack(track)
+	  sender = pc.addTrack(track, stream);
+	  try{
+	  	pc.removeTrack(sender);
+	  	$("#interface-part8").append(
+	  		'<div class="line"><span>removeTrack():</span><span class="support"></span></div>');
+		TestResult.MediaStream.removeTrack = true;
+	  }catch(e){
+	  	console.log(e)
+	  	$("#interface-part8").append(
+	  		'<div class="line"><span>removeTrack():</span><span class="notSupport"></span></div>');
+		TestResult.MediaStream.removeTrack = false;
+	  }
+	}, function(){});
 	MediaStreamTrack()
 }
 
