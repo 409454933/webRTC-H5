@@ -206,6 +206,7 @@ SoundMeter.prototype.checkAudioOutputVolume = async function (data) {
 								'<div class="line"><span>音量检测:</span><span class="support"></span></div>');
 							document.getElementById('public-part1').style.display = 'none';
 							document.getElementById('majorFunction').style.background = distinguishQuantity(TestResult['majorFunction']);
+							document.getElementById('getStats').style.background = distinguishQuantity(TestResult['getStats']);
 							progressContent.style.width = '100%';
 							speed.textContent = '测试完成';
                             data.callback({message:message, isSoundDetected: false})

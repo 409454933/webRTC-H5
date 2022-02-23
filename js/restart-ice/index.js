@@ -25,7 +25,7 @@ let localVideo;
 let remoteVideo;
 let remoteVideo1;
 let senders;
-
+let iceRestart = false;
 let localStream;
 let localStream1;
 let pc1;
@@ -121,8 +121,7 @@ function start1() {
 function restart() {
   // restartButton.disabled = true;
   offerOptions.iceRestart = true;
-  console.log(pc2.getTransceivers())
-  console.log(pc2.getRemoteStreams())
+  iceRestart = true;
   console.log('pc1 createOffer restart');
   pc1.createOffer(offerOptions).then(onCreateOfferSuccess, onCreateSessionDescriptionError);
 }
@@ -249,10 +248,12 @@ function onSetSessionDescriptionError(error) {
 }
 
 function gotRemoteStream(e) {
-	$("#public-part1").append(
-		'<div class="line"><span>音视频通话:</span><span class="support"></span></div>');
-	$("#public-part1").append(
-		'<div class="line"><span>开摄像头:</span><span class="support"></span></div>');
+	if(!TestResult.majorFunction.conversation){
+		$("#public-part1").append(
+			'<div class="line"><span>音视频通话:</span><span class="support"></span></div>');
+		$("#public-part1").append(
+			'<div class="line"><span>开摄像头:</span><span class="support"></span></div>');
+	}
 	TestResult.majorFunction.conversation = true;
 	TestResult.majorFunction.openVideo = true;
   if (remoteVideo.srcObject !== e.streams[0]) {
@@ -289,7 +290,7 @@ function gotRemoteStream1(e) {
 		  	'<div class="line"><span>关闭桌面共享:</span><span class="support"></span></div>');
 		TestResult.majorFunction.shutShare = true;
 	}
-	
+	restart()
   // if (remoteVideo1.srcObject !== e.streams[0]) {
   //   remoteVideo1.srcObject = e.streams[0];
   //   e.streams[0].onremovetrack = function (evt) {
@@ -336,6 +337,12 @@ function onIceCandidate1(pc, event) {
 
 function onAddIceCandidateSuccess(pc) {
   console.log(`${getName(pc)} addIceCandidate success`);
+  if(iceRestart){
+	  $("#public-part1").append(
+	  	'<div class="line"><span>ICE重连:</span><span class="support"></span></div>');
+	  TestResult.majorFunction.iceRestart = true;
+  }
+  iceRestart = false;
 }
 
 function onAddIceCandidateError(pc, error) {
@@ -381,6 +388,14 @@ function checkStats(pc) {
         }
       });
     }
+	if(!TestResult.getStats.candidatePair){
+		$("#public-part2").append(
+			'<div class="line"><span>提名的candidatePair:</span><span class="support"></span></div>');
+		$("#public-part2").append(
+			'<div class="line"><span>判断使用UDP or TCP:</span><span class="support"></span></div>');
+	}
+	TestResult.getStats.candidatePair = true;
+	TestResult.getStats.UDPorTCP = true;
     //console.log(remoteCandidate);
     if (remoteCandidate && remoteCandidate.id) {
 
@@ -422,7 +437,6 @@ function hangup1() {
         .then(offer => pc11.setLocalDescription(offer))
         .then(() => {
             pc11.localDescription.sdp = pc11.localDescription.sdp.replace(/a=sendrecv/g, 'a=recvonly')
-            console.log(pc11.localDescription.sdp)
             pc22.setRemoteDescription(pc11.localDescription)
         })
         .then(() => pc22.createAnswer())
