@@ -34,9 +34,6 @@
 						<div class="line">
 							<button type="button" id="expand">展开/收起所有测试项</button>
 						</div>
-						<!-- <div class="line">
-							<button id="getusermedia">开始声音检测</button>
-						</div> -->
 					</div>
 
 					<p class="block-header">颜色标识说明</p>
@@ -48,6 +45,16 @@
 					</div>
 					<div class="part">
 						<div class="color-identification all-fail">测试项全部失败</div>
+					</div>
+					
+					<div id="part" class="mask">
+						<div>
+							<div class="mask-progress">
+								<div id="progress-content"></div>
+							</div>
+							<div style="width: 100%;" id="speed">测试进度</div>
+						</div>
+						
 					</div>
 				</div>
 
@@ -367,18 +374,18 @@
 					</div>
 					<p class="block-header" id="webSocket">webSocket </p>
 					<div class="part" id="other-part3">
-						<div class="line">
+						<!-- <div class="line">
 							<span>webSocket功能:</span>
-							<!-- <span class="support"></span> -->
+							<span class="support"></span>
 						</div>
 						<div class="line">
 							<span>webSocket重连:</span>
-							<!-- <span class="support"></span> -->
+							<span class="support"></span>
 						</div>
 						<div class="line">
 							<span>webSocket保活:</span>
-							<!-- <span class="support"></span> -->
-						</div>
+							<span class="support"></span>
+						</div> -->
 					</div>
 
 					<p class="block-header" id="WebAssembly">WebAssembly</p>
@@ -682,7 +689,7 @@
 						</div> -->
 					</div>
 
-					<p class="block-header">以下测试项请手动选择</p>
+					<p class="block-header1">以下测试项请手动选择</p>
 					<div class="part">
 						<div class="children"></div>
 						<div class="line">
@@ -717,16 +724,7 @@
 				</div>
 			</div>
 			<audio src="" id="myAudio"></audio>
-			
-		</div>
-		<div id="mask">
-			<div>
-				<div class="mask-progress">
-					<div id="progress-content"></div>
-				</div>
-				<div style="width: 100%;">测试中</div>
-			</div>
-			
+			<audio src="" id="myAudio1"></audio>
 		</div>
 		<script type="application/javascript" src="js/vconsole/vconsole.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
@@ -749,7 +747,7 @@
 				WebAssembly()
 				indexedDB()
 				
-				if (SoundMeter) {
+				if(SoundMeter) {
 				    window.soundDetection = new SoundMeter()
 				}
 				// network()

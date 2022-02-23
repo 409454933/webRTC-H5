@@ -23,7 +23,7 @@ let TestResult = {
 		weakNetworkAudio: {},
 		weakNetworkVideo: {}
 	},
-	// webSocket: {},
+	webSocket: {},
 	WebAssembly: {},
 	captureStream: {},
 	WebAudio: {},
@@ -42,15 +42,17 @@ let keepAliveWithoutResponse = 0
 let wsKeepAliveInterval = null
 let WS_KEEP_ALIVE_TIMEOUT_FLAG = 5
 let wsReconnectTime = 2
+let wsReconnectTimeoutEvent = null
+let wasWebsocketClosed = false
 var Offer
 var Answer
 let stream;
 let isMute;
 let audio = document.getElementById("myAudio")
 let progressContent = document.getElementById("progress-content")
+let speed = document.getElementById('speed')
 let mask = document.getElementById("mask")
-let quickScan = [
-	{
+let quickScan = [{
 		'label': '4K(UHD)',
 		'width': 3840,
 		'height': 2160,
@@ -299,6 +301,7 @@ function testingEnvironment() {
 		$("#part-env").append(data[i])
 	}
 	progressContent.style.width = '5%';
+	speed.textContent = '进度 5%';
 	devicePermissions()
 }
 
@@ -337,8 +340,10 @@ async function devicePermissions() {
 			TestResult.DevicePermissions.audio = false;
 		});
 	progressContent.style.width = '10%';
+	speed.textContent = '进度 10%';
 	document.getElementById('interface-part1').style.display = 'none';
-	document.getElementById('DevicePermissions').style.background = distinguishQuantity(TestResult['DevicePermissions']);
+	document.getElementById('DevicePermissions').style.background = distinguishQuantity(TestResult[
+		'DevicePermissions']);
 	await PeerConnection()
 }
 
@@ -373,7 +378,7 @@ async function PeerConnection() {
 			Offer = sdp
 			$("#interface-part3").append(
 				'<div class="line"><span>icecandidate():</span><span class="support"></span></div>');
-				TestResult.RTCPeerConnectionEvent.icecandidate = true;
+			TestResult.RTCPeerConnectionEvent.icecandidate = true;
 			try {
 				pc1.setRemoteDescription(sdp)
 				$("#interface-part2").append(
@@ -611,10 +616,13 @@ async function PeerConnection() {
 	// 	codes()
 	// },5000)
 	progressContent.style.width = '15%';
+	speed.textContent = '进度 15%';
 	document.getElementById('interface-part2').style.display = 'none';
 	document.getElementById('interface-part3').style.display = 'none';
-	document.getElementById('RTCPeerConnectionAPI').style.background = distinguishQuantity(TestResult['RTCPeerConnectionAPI']);
-	document.getElementById('RTCPeerConnectionEvent').style.background = distinguishQuantity(TestResult['RTCPeerConnectionEvent']);
+	document.getElementById('RTCPeerConnectionAPI').style.background = distinguishQuantity(TestResult[
+		'RTCPeerConnectionAPI']);
+	document.getElementById('RTCPeerConnectionEvent').style.background = distinguishQuantity(TestResult[
+		'RTCPeerConnectionEvent']);
 	Receiver()
 };
 
@@ -703,6 +711,7 @@ async function Receiver() {
 		tracks(stream)
 	});
 	progressContent.style.width = '20%';
+	speed.textContent = '进度 20%';
 	document.getElementById('interface-part4').style.display = 'none';
 	document.getElementById('RTCRtpSender').style.background = distinguishQuantity(TestResult['RTCRtpSender']);
 	enumerateDevices()
@@ -753,6 +762,7 @@ function enumerateDevices() {
 		TestResult.enumerateDevices.ondevicechange = true;
 	}
 	progressContent.style.width = '25%';
+	speed.textContent = '进度 25%';
 	document.getElementById('interface-part5').style.display = 'none';
 	document.getElementById('enumerateDevices').style.background = distinguishQuantity(TestResult['enumerateDevices']);
 	getDisplayMedia()
@@ -781,7 +791,8 @@ async function getDisplayMedia() {
 				video.onloadedmetadata = async function() {
 					$("#interface-part6").prepend('<div class="line"><span>支持的最大分辨率:</span><span>' +
 						video.videoWidth + " * " + video.videoHeight + '</span></div>');
-					TestResult.getDisplayMedia.maxResolvingPower = video.videoWidth + " * " + video.videoHeight;
+					TestResult.getDisplayMedia.maxResolvingPower = video.videoWidth + " * " + video
+						.videoHeight;
 					tracks(stream)
 				}
 			})
@@ -823,8 +834,10 @@ async function getDisplayMedia() {
 
 	}
 	progressContent.style.width = '30%';
+	speed.textContent = '进度 30%';
 	document.getElementById('interface-part6').style.display = 'none';
-	document.getElementById('getDisplayMedia').style.background = distinguishQuantity(TestResult['getDisplayMedia']);
+	document.getElementById('getDisplayMedia').style.background = distinguishQuantity(TestResult[
+	'getDisplayMedia']);
 	resolvingPower()
 };
 
@@ -921,7 +934,8 @@ async function resolvingPower() {
 						'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height +
 						" * " + 'frameRate:' + quickScan[j].frameRate +
 						':</span><span class="support"></span></div>');
-					TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height +" * " + 'frameRate:' + quickScan[j].frameRate] = true;
+					TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height + " * " +
+						'frameRate:' + quickScan[j].frameRate] = true;
 					tracks(stream)
 				})
 				.catch(err => {
@@ -930,11 +944,13 @@ async function resolvingPower() {
 						'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height +
 						" * " + 'frameRate:' + quickScan[j].frameRate +
 						':</span><span class="notSupport"></span></div>');
-					TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height +" * " + 'frameRate:' + quickScan[j].frameRate] = false;
+					TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height + " * " +
+						'frameRate:' + quickScan[j].frameRate] = false;
 				});
 		}
 	}
 	progressContent.style.width = '35%';
+	speed.textContent = '进度 35%';
 	document.getElementById('interface-part7').style.display = 'none';
 	document.getElementById('getUserMedia').style.background = distinguishQuantity(TestResult['getUserMedia']);
 	document.getElementById('interface-part8').style.display = 'none';
@@ -987,8 +1003,10 @@ async function MediaStreamTrack() {
 			tracks(mediaStream)
 		});
 	progressContent.style.width = '40%';
+	speed.textContent = '进度 40%';
 	document.getElementById('interface-part9').style.display = 'none';
-	document.getElementById('MediaStreamTrack').style.background = distinguishQuantity(TestResult['MediaStreamTrack']);
+	document.getElementById('MediaStreamTrack').style.background = distinguishQuantity(TestResult[
+		'MediaStreamTrack']);
 	codes();
 }
 
@@ -1103,102 +1121,134 @@ function codes() {
 		}
 	});
 	progressContent.style.width = '45%';
+	speed.textContent = '进度 45%';
 	document.getElementById('other-part1').style.display = 'none';
 	document.getElementById('CodecList').style.background = distinguishQuantity1(TestResult['CodecList']);
 	document.getElementById('other-part2').style.display = 'none';
-	document.getElementById('WeakNetworkConfrontation').style.background = distinguishQuantity1(TestResult['WeakNetworkConfrontation']);
+	document.getElementById('WeakNetworkConfrontation').style.background = distinguishQuantity1(TestResult[
+		'WeakNetworkConfrontation']);
 	document.getElementById('other-part4').style.display = 'none';
 	document.getElementById('WebAssembly').style.background = distinguishQuantity(TestResult['WebAssembly']);
-	captureStream()
+	websocket()
 }
 
 //websocket
 async function websocket() {
-	try {
-		ws = new window.WebSocket('wss://192.168.131.105:8089/ws', 'sip');
-		ws.onopen = function(event) {
-			console.log('连接成功')
-			// delete This.datas[0].content[0].content[2];
-			// This.datas[0].content[0].content[2] = {
-			// 	value: 'WebSocket重连',
-			// 	type: 'yes'
-			// }
-			keepAliveWithoutResponse = 0
-			isChannelOpen = true
-			ws.keepAlive()
+	document.getElementById('other-part3').style.display = 'block';
+	if ("WebSocket" in window) {
+		if(!TestResult.webSocket.webSocket){
+			$("#other-part3").append(
+				'<div class="line"><span>webSocket功能:</span><span class="support"></span></div>'
+			);
 		}
-
-		ws.onmessage = function(event) {
-			if (typeof(event.data) === 'string') {
-				if (event.data === 'pong' || event.data === 'ping' || event.data === '\r\n' ||
-					event
-					.data === '\r\n\r\n') {
-					// 保活消息不经过协议栈加工处理
-					if (event.data === 'pong') {
-						$("#other-part3").prepend(
-							'<div class="line"><span>webSocket保活:</span><span class="support"></span></div>'
-						);
-						keepAliveWithoutResponse = 0
-					}
-				}
-			}
-		}
-
-		ws.keepAlive = function(type) {
-			if (!isChannelOpen) {
-				//log.error('websocket is closed, stop keepAlive!')
-				return
-			}
-			wsKeepAliveInterval = setInterval(function() {
-				if (keepAliveWithoutResponse >= WS_KEEP_ALIVE_TIMEOUT_FLAG) {
-					//log.warn('Keep alive failed, close webSocket')
-					ws.close(4000)
-					clearInterval(wsKeepAliveInterval)
-					wsKeepAliveInterval = null
-					return
-				}
-				ws.send('ping')
-				keepAliveWithoutResponse += 1
-			}, 2000)
-		}
-
-		ws.onclose = function(event) {
-			// datas[0].content[0].content[2] = {
-			// 	value: 'WebSocket重连',
-			// 	type: 'no'
-			// }
-			// log.warn('websocket onclose code: ' + event.code + ", reason: " + event.reason)
-			isChannelOpen = false
-			wasWebsocketClosed = true
-
-			if (wsKeepAliveInterval) {
-				clearInterval(wsKeepAliveInterval)
-				wsKeepAliveInterval = null
-			}
-
-			// code 为1000是主动关闭的返回码
-			if (Number(event.code) === 1000) {
-				console.warn('websocket closed!')
-				keepAliveWithoutResponse = 0
-				wsReconnect(wsReconnectTime)
-			}
-		}
+		TestResult.webSocket.webSocket = true;
+	} else {
 		$("#other-part3").prepend(
-			'<div class="line"><span>webSocket功能:</span><span class="support"></span></div>'
-		);
-	} catch (e) {
-		console.log(e)
-		$("#other-part5").prepend(
-			'<div class="line"><span>webSocket功能::</span><span class="notSupport"></span></div>'
+			'<div class="line"><span>webSocket功能:</span><span class="notSupport"></span></div>'
 		);
 	}
+	ws = new window.WebSocket('wss://192.168.131.105:8089/ws', 'sip');
+	ws.onopen = function(event) {
+		console.log('连接成功')
+		keepAliveWithoutResponse = 0
+		isChannelOpen = true
+		ws.keepAlive()
+		if(wasWebsocketClosed){
+		    clearTimeout(wsReconnectTimeoutEvent)
+		    wsReconnectTimeoutEvent = null
+		    wsReconnectTime = 2
+		    wasWebsocketClosed = false
+			if(!TestResult.webSocket.webSocketReconnection){
+				$("#other-part3").append(
+					'<div class="line"><span>webSocket重连:</span><span class="support"></span></div>'
+				);
+				$("#public-part1").append(
+					'<div class="line"><span>webSocket断网重连:</span><span class="support"></span></div>');
+				document.getElementById('other-part3').style.display = 'none';
+				document.getElementById('webSocket').style.background = distinguishQuantity(TestResult['webSocket']);
+				captureStream();
+			}
+			TestResult.webSocket.webSocketReconnection = true;
+			TestResult.majorFunction.webSocketReconnection = true;
+		}
+	}
 
-	// this.ws = await this.createWebSocket('', 'sip');
+	ws.onmessage = function(event) {
+		if (typeof(event.data) === 'string') {
+			if (event.data === 'pong' || event.data === 'ping' || event.data === '\r\n' ||
+				event
+				.data === '\r\n\r\n') {
+				// 保活消息不经过协议栈加工处理
+				if (event.data === 'pong') {
+					if (!TestResult.webSocket.webSocketKeep) {
+						$("#other-part3").append(
+							'<div class="line"><span>webSocket保活:</span><span class="support"></span></div>'
+						);
+						$("#public-part1").append(
+							'<div class="line"><span>webSocket保活:</span><span class="support"></span></div>');
+						ws.close();
+					}
+					TestResult.webSocket.webSocketKeep = true;
+					TestResult.majorFunction.webSocketKeep = true;
+					keepAliveWithoutResponse = 0
+				}
+			}
+		}
+	}
+
+	ws.keepAlive = function(type) {
+		if (!isChannelOpen) {
+			//log.error('websocket is closed, stop keepAlive!')
+			return
+		}
+		wsKeepAliveInterval = setInterval(function() {
+			if (keepAliveWithoutResponse >= WS_KEEP_ALIVE_TIMEOUT_FLAG) {
+				//log.warn('Keep alive failed, close webSocket')
+				ws.close(4000)
+				clearInterval(wsKeepAliveInterval)
+				wsKeepAliveInterval = null
+				return
+			}
+			ws.send('ping')
+			keepAliveWithoutResponse += 1
+		}, 2000)
+	}
+
+	ws.onclose = function(event) {
+		isChannelOpen = false
+		wasWebsocketClosed = true
+
+		if (wsKeepAliveInterval) {
+			clearInterval(wsKeepAliveInterval)
+			wsKeepAliveInterval = null
+		}
+
+		// code 为1000是主动关闭的返回码
+		if (Number(event.code) === 1000 && !TestResult.webSocket.webSocketReconnection) {
+			console.warn('websocket closed!')
+			keepAliveWithoutResponse = 0
+			wsReconnect(wsReconnectTime)
+		}
+	}
+	
+	// captureStream()
 }
 
+function wsReconnect(timer) {
+	if (timer > 8) {
+		$("#other-part3").append(
+			'<div class="line"><span>webSocket重连:</span><span class="notSupport"></span></div>'
+		);
+		TestResult.wobsocket.webSocketReconnection = false;
+	} else {
+		wsReconnectTimeoutEvent = setTimeout(function() {
+			ws && ws.close()
+			websocket()
+		}, timer * 1000)
+	}
+}
 // captureStream
 function captureStream() {
-	document.getElementById('other-part5').style.display = 'none';
 	try {
 		var a = document.createElement("canvas");
 		var ctx = a.getContext("2d");
@@ -1232,6 +1282,7 @@ function captureStream() {
 		TestResult.captureStream.MediaElement = false;
 	}
 	progressContent.style.width = '50%';
+	speed.textContent = '进度 50%';
 	document.getElementById('other-part5').style.display = 'none';
 	document.getElementById('captureStream').style.background = distinguishQuantity(TestResult['captureStream']);
 	WebAudio()
@@ -1241,8 +1292,8 @@ function captureStream() {
 async function WebAudio() {
 	document.getElementById('other-part6').style.display = 'block';
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
-	const myAudio = document.querySelector('audio');
-	console.log(myAudio)
+	const myAudio = document.getElementById('myAudio1');
+	// console.log(myAudio)
 	var audioContext = new AudioContext()
 	var destination = audioContext.createMediaStreamDestination();
 	var source;
@@ -1283,7 +1334,7 @@ async function WebAudio() {
 	} else {
 		$("#other-part6").append(
 			'<div class="line"><span>createMediaStreamSource():</span><span class="support"></span></div>');
-			TestResult.WebAudio.createMediaStreamSource = false;
+		TestResult.WebAudio.createMediaStreamSource = false;
 	}
 
 	if (source1) {
@@ -1312,6 +1363,7 @@ async function WebAudio() {
 		TestResult.WebAudio.createScriptProcessor = false;
 	}
 	progressContent.style.width = '55%';
+	speed.textContent = '进度 55%';
 	document.getElementById('other-part6').style.display = 'none';
 	document.getElementById('WebAudio').style.background = distinguishQuantity(TestResult['WebAudio']);
 	MediaRecorders()
@@ -1355,6 +1407,7 @@ async function MediaRecorders() {
 			/* 处理error */
 		});
 	progressContent.style.width = '60%';
+	speed.textContent = '进度 60%';
 	document.getElementById('other-part7').style.display = 'none';
 	document.getElementById('MediaRecorder').style.background = distinguishQuantity(TestResult['MediaRecorder']);
 	await webcodec()
@@ -1477,6 +1530,7 @@ async function webcodec() {
 		TestResult.WebCodecs.ImageDecoder = false;
 	}
 	progressContent.style.width = '65%';
+	speed.textContent = '进度 65%';
 	document.getElementById('other-part8').style.display = 'none';
 	document.getElementById('WebCodecs').style.background = distinguishQuantity(TestResult['WebCodecs']);
 	storage()
@@ -1506,11 +1560,12 @@ async function storage() {
 		TestResult.LocalStorage.sessionStorage = false;
 	}
 	progressContent.style.width = '70%';
+	speed.textContent = '进度 70%';
 	document.getElementById('other-part9').style.display = 'none';
 	document.getElementById('LocalStorage').style.background = distinguishQuantity(TestResult['LocalStorage']);
 	document.getElementById('other-part10').style.display = 'none';
 	document.getElementById('IndexedDB').style.background = distinguishQuantity(TestResult['IndexedDB']);
-	
+
 	webtransport()
 }
 
@@ -1582,6 +1637,7 @@ function webtransport() {
 	}
 	console.log('start')
 	progressContent.style.width = '75%';
+	speed.textContent = '进度 75%';
 	document.getElementById('other-part11').style.display = 'none';
 	document.getElementById('other').style.background = distinguishQuantity(TestResult['other']);
 	public()
@@ -1610,6 +1666,7 @@ function public() {
 		TestResult.majorFunction.WebHID = false;
 	}
 	progressContent.style.width = '80%';
+	speed.textContent = '进度 80%';
 	getMedia()
 }
 
@@ -1645,6 +1702,7 @@ async function getMedia() {
 		}
 	}
 	progressContent.style.width = '85%';
+	speed.textContent = '进度 85%';
 	logExport()
 	network()
 }
@@ -1917,7 +1975,7 @@ function network() {
 				if (statsNow.hasOwnProperty('packetsSent') && statsNow
 					.hasOwnProperty('packetsLost')) {
 					packetsLossRate = (Number(statsNow.packetsLost) - Number(statsNow
-						.prevPacketsLost)) /
+							.prevPacketsLost)) /
 						Number(
 							Number(statsNow.packetsSent) - Number(statsNow.prevPacketsSent))
 
@@ -1985,8 +2043,6 @@ function network() {
 			'<div class="line"><span>网络延迟:</span><span class="support"></span></div>');
 		$("#public-part2").append(
 			'<div class="line"><span>网络抖动:</span><span class="support"></span></div>');
-		progressContent.style.width = '100%';
-		mask.style.display = 'none';
 		start()
 		start1()
 		console.log(TestResult)

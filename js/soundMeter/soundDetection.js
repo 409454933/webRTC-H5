@@ -206,6 +206,8 @@ SoundMeter.prototype.checkAudioOutputVolume = async function (data) {
 								'<div class="line"><span>音量检测:</span><span class="support"></span></div>');
 							document.getElementById('public-part1').style.display = 'none';
 							document.getElementById('majorFunction').style.background = distinguishQuantity(TestResult['majorFunction']);
+							progressContent.style.width = '100%';
+							speed.textContent = '测试完成';
                             data.callback({message:message, isSoundDetected: false})
                             // gsRTC.trigger("onMicStatusChange", {isSoundDetected: false})
                         }
