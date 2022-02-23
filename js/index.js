@@ -1023,6 +1023,7 @@ function MediaStreamTrack() {
 					);
 					TestResult.MediaStreamTrack.applyConstraints = false;
 				});
+				
 			tracks(mediaStream)
 		})
 		.catch(err => {
