@@ -221,6 +221,9 @@ SoundMeter.prototype.checkAudioOutputVolume = async function (data) {
 									document.getElementById('public-part1').style.display = 'none';
 									document.getElementById('majorFunction').style.background = distinguishQuantity(TestResult['majorFunction']);
 									document.getElementById('getStats').style.background = distinguishQuantity(TestResult['getStats']);
+									console.log('总体功能支持情况测试完成');
+									console.log('getStats 状态统计测试完成');
+									streamBackgroundTest()
 									progressContent.style.width = '100%';
 									speed.textContent = '测试完成';
 								})
@@ -232,6 +235,8 @@ SoundMeter.prototype.checkAudioOutputVolume = async function (data) {
 									document.getElementById('public-part1').style.display = 'none';
 									document.getElementById('majorFunction').style.background = distinguishQuantity(TestResult['majorFunction']);
 									document.getElementById('getStats').style.background = distinguishQuantity(TestResult['getStats']);
+									console.log('总体功能支持情况测试完成');
+									console.log('getStats 状态统计测试完成');
 									streamBackgroundTest()
 									progressContent.style.width = '100%';
 									speed.textContent = '测试完成';

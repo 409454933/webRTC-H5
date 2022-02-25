@@ -147,7 +147,6 @@ function distinguishQuantity1(res){
 			}
 		}
 	}
-	console.log(length)
 	if(length == support){
 		return '#52c41a'
 	}else if(length == err){

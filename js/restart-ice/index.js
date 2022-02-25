@@ -50,7 +50,7 @@ function getOtherPc1(pc) {
 }
 
 function gotStream(stream) {
-  console.log('Received local stream');
+  //console.log('Received local stream');
   localVideo.srcObject = stream;
   localStream = stream;
   call()
@@ -58,7 +58,7 @@ function gotStream(stream) {
 }
 
 function gotStream1(stream) {
-  console.log('Received local stream');
+  //console.log('Received local stream');
   // console.log(pc2.getRemoteStreams())
   // remoteVideo = pc2.getRemoteStreams()[0]
   // remoteVideo1 = pc2.getRemoteStreams()[1]
@@ -77,7 +77,7 @@ function gotStream1(stream) {
 }
 
 function start() {
-  console.log('Requesting local stream');
+  //console.log('Requesting local stream');
   localVideo = document.createElement('local');
   remoteVideo = document.createElement('remote');
   remoteVideo1 = document.createElement('remoteVideo1');
@@ -122,14 +122,14 @@ function restart() {
   // restartButton.disabled = true;
   offerOptions.iceRestart = true;
   iceRestart = true;
-  console.log('pc1 createOffer restart');
+  // console.log('pc1 createOffer restart');
   pc1.createOffer(offerOptions).then(onCreateOfferSuccess, onCreateSessionDescriptionError);
 }
 
 function call() {
   // callButton.disabled = true;
   // hangupButton.disabled = false;
-  console.log('Starting call');
+  // console.log('Starting call');
   startTime = window.performance.now();
   const videoTracks = localStream.getVideoTracks();
   const audioTracks = localStream.getAudioTracks();
@@ -141,10 +141,10 @@ function call() {
   }
   const servers = null;
   pc1 = window.pc1 = new RTCPeerConnection(servers);
-  console.log('Created local peer connection object pc1');
+  // console.log('Created local peer connection object pc1');
   pc1.onicecandidate = e => onIceCandidate(pc1, e);
   pc2 = window.pc2 = new RTCPeerConnection(servers);
-  console.log('Created remote peer connection object pc2');
+  // console.log('Created remote peer connection object pc2');
   pc2.onicecandidate = e => onIceCandidate(pc2, e);
   pc1.oniceconnectionstatechange = e => {
     onIceStateChange(pc1, e);
@@ -157,9 +157,9 @@ function call() {
 
   localStream.getTracks().forEach(track => pc1.addTrack(track, localStream)
   );
-  console.log('Added local stream to pc1');
+  // console.log('Added local stream to pc1');
 
-  console.log('pc1 createOffer start');
+  // console.log('pc1 createOffer start');
   pc1.createOffer(offerOptions).then(onCreateOfferSuccess, onCreateSessionDescriptionError);
 }
 
@@ -167,7 +167,7 @@ function call1(stream) {
     localStream1 = stream;
   // callButton.disabled = true;
   // hangupButton.disabled = false;
-  console.log('Starting call');
+  // console.log('Starting call');
   // startTime = window.performance.now();
   // const videoTracks = localStream.getVideoTracks();
   // const audioTracks = localStream.getAudioTracks();
@@ -199,9 +199,9 @@ function call1(stream) {
   senders = pc11.addTrack(track, localStream1);
   // localStream1.onremovetrack = removetrack
   // localStream1.getTracks().forEach(track => pc11.addTrack(track, localStream1));
-  console.log('Added local stream to pc1');
+  // console.log('Added local stream to pc1');
 
-  console.log('pc1 createOffer start');
+  // console.log('pc1 createOffer start');
   pc11.createOffer(offerOptions).then(onCreateOfferSuccess1, onCreateSessionDescriptionError);
 }
 
@@ -211,11 +211,11 @@ function onCreateSessionDescriptionError(error) {
 
 function onCreateOfferSuccess(desc) {
   // console.log(`Offer from pc1\n${desc.sdp}`);
-  console.log('pc1 setLocalDescription start');
+  // console.log('pc1 setLocalDescription start');
   pc1.setLocalDescription(desc).then(() => onSetLocalSuccess(pc1), onSetSessionDescriptionError);
-  console.log('pc2 setRemoteDescription start');
+  // console.log('pc2 setRemoteDescription start');
   pc2.setRemoteDescription(desc).then(() => onSetRemoteSuccess(pc2), onSetSessionDescriptionError);
-  console.log('pc2 createAnswer start');
+  // console.log('pc2 createAnswer start');
   // Since the 'remote' side has no media stream we need
   // to pass in the right constraints in order for it to
   // accept the incoming offer of audio and video.
@@ -236,15 +236,15 @@ function onCreateOfferSuccess1(desc) {
 }
 
 function onSetLocalSuccess(pc) {
-  console.log(`${getName(pc)} setLocalDescription complete`);
+  // console.log(`${getName(pc)} setLocalDescription complete`);
 }
 
 function onSetRemoteSuccess(pc) {
-  console.log(`${getName(pc)} setRemoteDescription complete`);
+  // console.log(`${getName(pc)} setRemoteDescription complete`);
 }
 
 function onSetSessionDescriptionError(error) {
-  console.log(`Failed to set session description: ${error.toString()}`);
+  // console.log(`Failed to set session description: ${error.toString()}`);
 }
 
 function gotRemoteStream(e) {
@@ -259,7 +259,7 @@ function gotRemoteStream(e) {
   if (remoteVideo.srcObject !== e.streams[0]) {
     console.log('有流')
     remoteVideo.srcObject = e.streams[0];
-    console.log(localStorage.getItem('audio'))
+    // console.log(localStorage.getItem('audio'))
     for(let i in localStream.getAudioTracks()){
         if(localStorage.getItem('audio') == 'true'){
             localStream.getAudioTracks()[i].enabled = true
@@ -270,8 +270,8 @@ function gotRemoteStream(e) {
             // localStream.getVideoTracks()[i].enabled = false
         }
     }
-    console.log(localStream.getAudioTracks())
-    console.log('pc2 received remote stream');
+    // console.log(localStream.getAudioTracks())
+    // console.log('pc2 received remote stream');
   }
 }
 
@@ -302,14 +302,14 @@ function gotRemoteStream1(e) {
 }
 
 function removetrack(e){
-    console.log('265' + e)
+    // console.log('265' + e)
 }
 
 function onCreateAnswerSuccess(desc) {
   //console.log(`Answer from pc2:\n${desc.sdp}`);
-  console.log('pc2 setLocalDescription start');
+  //console.log('pc2 setLocalDescription start');
   pc2.setLocalDescription(desc).then(() => onSetLocalSuccess(pc2), onSetSessionDescriptionError);
-  console.log('pc1 setRemoteDescription start');
+  // console.log('pc1 setRemoteDescription start');
   pc1.setRemoteDescription(desc).then(() => onSetRemoteSuccess(pc1), onSetSessionDescriptionError);
 }
 
@@ -351,7 +351,7 @@ function onAddIceCandidateError(pc, error) {
 
 function onIceStateChange(pc, event) {
   if (pc) {
-    console.log(`${getName(pc)} ICE state: ${pc.iceConnectionState}`);
+    //console.log(`${getName(pc)} ICE state: ${pc.iceConnectionState}`);
     //console.log('ICE state change event: ', event);
     // TODO: get rid of this in favor of http://w3c.github.io/webrtc-pc/#widl-RTCIceTransport-onselectedcandidatepairchange
     if (pc.iceConnectionState === 'connected' ||
@@ -457,13 +457,13 @@ function handleSuccess(stream) {
 	localStream = stream;
     localVideo = document.getElementById('local');
     localVideo.srcObject = localStream;
-    console.log(localStream.getVideoTracks())
+    //console.log(localStream.getVideoTracks())
     let videoTrack = localStream.getVideoTracks()[0];
     var sender = pc1.getSenders().find(function(s) {
-    	console.log(s)
+    	//console.log(s)
         return s.track.kind == videoTrack.kind;
     });
-    console.log('found sender:', sender);
+    //console.log('found sender:', sender);
     sender.replaceTrack(videoTrack);
 	// stream.getVideoTracks()[0].addEventListener('ended', () => {
  //        errorMsg('The user has ended sharing the screen');
@@ -471,7 +471,7 @@ function handleSuccess(stream) {
 }
 
 function handleError(error) {
-	console.log(`getDisplayMedia error: ${error.name}`, error);
+	//console.log(`getDisplayMedia error: ${error.name}`, error);
 }
 
 function upgrade(res) {

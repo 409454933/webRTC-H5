@@ -1345,7 +1345,7 @@ let SDPTools = {
                     if(media.payloads && media.payloads.split){
                         let payloads = media.payloads && media.payloads.split(' ')
                         if(payloads && payloads.length){
-                            console.info('find static payloads')
+                            //console.info('find static payloads')
                             payloads.forEach(function(pt){
                                 // get audio static coding: Only static payload a=fmtp can be defaulted width SIP compression head
                                 if(pt<96 && !capabilities.audioCodecs.includes(staticPayloads[pt])){

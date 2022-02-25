@@ -69,7 +69,7 @@ function logExport(){
 		log.info('print test index ' + index)
 		index++
 
-		if(index === 50){
+		if(index === 10){
 			log.warn('clear test Interval')
 			clearInterval(testInterval)
 			dbExport.getAllWidthIDBKeyRange(true)

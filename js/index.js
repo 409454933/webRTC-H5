@@ -307,6 +307,7 @@ function testingEnvironment() {
 	}
 	progressContent.style.width = '5%';
 	speed.textContent = '进度 5%';
+	console.log('测试环境检测完成')
 	devicePermissions()
 }
 
@@ -349,6 +350,7 @@ async function devicePermissions() {
 	document.getElementById('interface-part1').style.display = 'none';
 	document.getElementById('DevicePermissions').style.background = distinguishQuantity(TestResult[
 		'DevicePermissions']);
+	console.log('设备权限检测完成')
 	await PeerConnection()
 }
 
@@ -627,6 +629,7 @@ async function PeerConnection() {
 		'RTCPeerConnectionAPI']);
 	document.getElementById('RTCPeerConnectionEvent').style.background = distinguishQuantity(TestResult[
 		'RTCPeerConnectionEvent']);
+	console.log('RTCPeerConnection API检测完成')
 	Receiver()
 };
 
@@ -720,6 +723,8 @@ async function Receiver() {
 	speed.textContent = '进度 20%';
 	document.getElementById('interface-part4').style.display = 'none';
 	document.getElementById('RTCRtpSender').style.background = distinguishQuantity(TestResult['RTCRtpSender']);
+	console.log('RTCPeerConnection Event检测完成')
+	console.log('RTCRtpSender检测完成')
 	enumerateDevices()
 };
 
@@ -771,6 +776,7 @@ function enumerateDevices() {
 	speed.textContent = '进度 25%';
 	document.getElementById('interface-part5').style.display = 'none';
 	document.getElementById('enumerateDevices').style.background = distinguishQuantity(TestResult['enumerateDevices']);
+	console.log('MediaDevices.enumerateDevices检测完成')
 	getDisplayMedia()
 };
 
@@ -820,7 +826,6 @@ async function getDisplayMedia() {
 					frameRate: data[i]
 				}
 			};
-			console.log(data[i])
 			let datas = JSON.stringify(data[i]).split('"');
 			await navigator.mediaDevices.getDisplayMedia(constraints1)
 				.then(stream => {
@@ -844,6 +849,7 @@ async function getDisplayMedia() {
 	document.getElementById('interface-part6').style.display = 'none';
 	document.getElementById('getDisplayMedia').style.background = distinguishQuantity(TestResult[
 	'getDisplayMedia']);
+	console.log('MediaDevices.getDisplayMedia检测完成')
 	resolvingPower()
 };
 
@@ -947,7 +953,6 @@ async function resolvingPower() {
 							'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' + quickScan[j].frameRate + ':</span><span class="support"></span></div>');
 						TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' + quickScan[j].frameRate] = true;
 					}
-					cons
 					tracks(stream)
 				})
 				.catch(err => {
@@ -971,6 +976,7 @@ async function resolvingPower() {
 	document.getElementById('getUserMedia').style.background = distinguishQuantity(TestResult['getUserMedia']);
 	document.getElementById('MediaStream').style.background = distinguishQuantity(TestResult['MediaStream']);
 	document.getElementById('interface-part8').style.display = 'none';
+	console.log('MediaDevices.getUserMedia检测完成')
 	MediaStream()
 }
 
@@ -996,6 +1002,7 @@ function MediaStream(){
 		TestResult.MediaStream.removeTrack = false;
 	  }
 	}, function(){});
+	console.log('MediaStream检测完成')
 	MediaStreamTracks()
 }
 
@@ -1072,6 +1079,7 @@ function MediaStreamTracks() {
 	speed.textContent = '进度 40%';
 	document.getElementById('interface-part9').style.display = 'none';
 	document.getElementById('MediaStreamTrack').style.background = distinguishQuantity(TestResult['MediaStreamTrack']);
+	console.log('MediaStreamTrack检测完成')
 	codes();
 }
 
@@ -1173,7 +1181,6 @@ function codes() {
 		}
 	});
 	weakNetworkAudio.filter(function(n) {
-		console.log(n.toLowerCase())
 		if (data1.indexOf(n.toLowerCase()) != -1) {
 			$("#weakNetworkAudio").append(
 				'<div class="line"><span>' + n + ':</span><span class="support"></span></div>');
@@ -1204,6 +1211,8 @@ function codes() {
 	document.getElementById('WeakNetworkConfrontation').style.background = distinguishQuantity1(TestResult['WeakNetworkConfrontation']);
 	document.getElementById('other-part4').style.display = 'none';
 	document.getElementById('WebAssembly').style.background = distinguishQuantity(TestResult['WebAssembly']);
+	console.log('音视频编解码列表检测完成')
+	console.log('弱网对抗检测完成')
 	websocket()
 }
 
@@ -1241,6 +1250,8 @@ async function websocket() {
 					'<div class="line"><span>webSocket断网重连:</span><span class="support"></span></div>');
 				document.getElementById('other-part3').style.display = 'none';
 				document.getElementById('webSocket').style.background = distinguishQuantity(TestResult['webSocket']);
+				console.log('webSocket检测完成')
+				console.log('WebAssembly检测完成')
 				captureStream();
 			}
 			TestResult.webSocket.webSocketReconnection = true;
@@ -1360,6 +1371,7 @@ function captureStream() {
 	speed.textContent = '进度 50%';
 	document.getElementById('other-part5').style.display = 'none';
 	document.getElementById('captureStream').style.background = distinguishQuantity(TestResult['captureStream']);
+	console.log('captureStream测试完成')
 	WebAudio()
 }
 
@@ -1441,6 +1453,7 @@ async function WebAudio() {
 	speed.textContent = '进度 55%';
 	document.getElementById('other-part6').style.display = 'none';
 	document.getElementById('WebAudio').style.background = distinguishQuantity(TestResult['WebAudio']);
+	console.log('WebAudio测试完成')
 	MediaRecorders()
 }
 
@@ -1485,6 +1498,7 @@ async function MediaRecorders() {
 	speed.textContent = '进度 60%';
 	document.getElementById('other-part7').style.display = 'none';
 	document.getElementById('MediaRecorder').style.background = distinguishQuantity(TestResult['MediaRecorder']);
+	console.log('MediaRecorders测试完成')
 	await webcodec()
 	// await 
 }
@@ -1608,6 +1622,7 @@ async function webcodec() {
 	speed.textContent = '进度 65%';
 	document.getElementById('other-part8').style.display = 'none';
 	document.getElementById('WebCodecs').style.background = distinguishQuantity(TestResult['WebCodecs']);
+	console.log('WebCodecs测试完成')
 	storage()
 }
 
@@ -1640,7 +1655,8 @@ async function storage() {
 	document.getElementById('LocalStorage').style.background = distinguishQuantity(TestResult['LocalStorage']);
 	document.getElementById('other-part10').style.display = 'none';
 	document.getElementById('IndexedDB').style.background = distinguishQuantity(TestResult['IndexedDB']);
-
+	console.log('本地存储测试完成')
+	console.log('IndexedDB测试完成')
 	webtransport()
 }
 
@@ -1688,16 +1704,16 @@ function webtransport() {
 	let secretValue = 'aes'
 	//加密数据
 	let encJson = CryptoJS.AES.encrypt(JSON.stringify(cipherValue), secretValue).toString();
-	console.log('encJson:', encJson)
+	// console.log('encJson:', encJson)
 	//对加密数据进行base64处理, 原理：就是先将字符串转换为utf8字符数组，再转换为base64数据
 	let encData = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(encJson));
-	console.log('encData:', encData)
+	// console.log('encData:', encData)
 	//将数据先base64还原，再转为utf8数据
 	let decData = CryptoJS.enc.Base64.parse(encData).toString(CryptoJS.enc.Utf8);
-	console.log('decData:', decData)
+	// console.log('decData:', decData)
 	//解密数据
 	let decJson = CryptoJS.AES.decrypt(decData, 'aes').toString(CryptoJS.enc.Utf8);
-	console.warn('CryptoJS.AES.decrypt data:', decJson)
+	// console.warn('CryptoJS.AES.decrypt data:', decJson)
 
 	if (decJson === JSON.stringify(cipherValue)) {
 		console.warn('解密成功')
@@ -1710,11 +1726,11 @@ function webtransport() {
 		TestResult.other.CryptoJS = false;
 		console.warn('解密失败？')
 	}
-	console.log('start')
 	progressContent.style.width = '75%';
 	speed.textContent = '进度 75%';
 	document.getElementById('other-part11').style.display = 'none';
 	document.getElementById('other').style.background = distinguishQuantity(TestResult['other']);
+	console.log('其他测试完成')
 	public()
 	// start({audio: true, video: true})
 }
@@ -1751,7 +1767,6 @@ async function getMedia() {
 			audio: true
 		};
 		try {
-			console.log("constraints:", constraints)
 			if (navigator.mediaDevices.getUserMedia) {
 				stream = await navigator.mediaDevices.getUserMedia(constraints);
 			}

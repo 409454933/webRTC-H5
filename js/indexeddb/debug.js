@@ -323,11 +323,11 @@
 
                 request.onsuccess = function (e) {
                     this.currentDB = e.target.result;
-                    console.log(this.currentDB.name + ' database is already opened!');
+                    //console.log(this.currentDB.name + ' database is already opened!');
                     this.indexedDBOnOpen = true
 
                     if(this.currentDB.name !== 'DatabaseLists' && !this.isDataCleared){
-                        console.log('Clear data within 7 days')
+                        //console.log('Clear data within 7 days')
                         this.isDataCleared = true
                         this.deleteItems(7)
                     }
@@ -451,7 +451,7 @@
             deleteItems(time = 7) {
                 var store = this.getStoreByName(this.storeName);
                 if(store){
-                    console.log('delete ' + this.currentDB.name +' db data within ' + time + ' days')
+                    //console.log('delete ' + this.currentDB.name +' db data within ' + time + ' days')
                     var request = store.openCursor();
                     request.onsuccess = function (event) {
                         var cursor = event.target.result;
@@ -465,7 +465,7 @@
                             }
                             cursor.continue();
                         } else {
-                            console.log('Delete complete!');
+                            // console.log('Delete complete!');
                         }
                     };
                 }
