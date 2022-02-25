@@ -135,8 +135,10 @@ function distinguishQuantity(res){
 function distinguishQuantity1(res){
 	let support = 0;
 	let err = 0;
-	let length = Object.keys(res).length;
+	let length = 0;
+	
 	for(let i in res){
+		length += Object.keys(res[i]).length
 		for(let j in res[i]){
 			if(!res[i][j]){
 				err++
@@ -145,6 +147,7 @@ function distinguishQuantity1(res){
 			}
 		}
 	}
+	console.log(length)
 	if(length == support){
 		return '#52c41a'
 	}else if(length == err){

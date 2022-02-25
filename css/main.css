@@ -389,3 +389,6 @@ meter#instant {
 	background-color: #409eff;
 	transition: width .6s;
 }
+#video{
+	margin-top: 20px;
+}

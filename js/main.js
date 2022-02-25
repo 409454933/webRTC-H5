@@ -3,7 +3,7 @@
  * video虚拟背景测试
  */
 async function streamBackgroundTest(res){
-	let LocalVideo = document.getElementById('videw1')
+	let LocalVideo = document.getElementById('video')
 	if(!StreamBackgroundEffect){
 		LocalVideo.style.display = 'block'
 		return

@@ -192,41 +192,46 @@ let quickScan = [{
 		'height': 180,
 		'ratio': '16:9',
 		'frameRate': 15
-	},
-	{
-		'label': 'QCIF',
-		'width': 176,
-		'height': 144,
-		'ratio': '4:3',
-		'frameRate': 30
-	},
-	{
-		'label': 'QCIF',
-		'width': 176,
-		'height': 144,
-		'ratio': '4:3',
-		'frameRate': 15
-	},
-	{
-		'label': 'QQVGA',
-		'width': 160,
-		'height': 120,
-		'ratio': '4:3',
-		'frameRate': 30
-	},
-	{
-		'label': 'QQVGA',
-		'width': 160,
-		'height': 120,
-		'ratio': '4:3',
-		'frameRate': 15
 	}
+	// {
+	// 	'label': 'QCIF',
+	// 	'width': 176,
+	// 	'height': 144,
+	// 	'ratio': '4:3',
+	// 	'frameRate': 30
+	// },
+	// {
+	// 	'label': 'QCIF',
+	// 	'width': 176,
+	// 	'height': 144,
+	// 	'ratio': '4:3',
+	// 	'frameRate': 15
+	// },
+	// {
+	// 	'label': 'QQVGA',
+	// 	'width': 160,
+	// 	'height': 120,
+	// 	'ratio': '4:3',
+	// 	'frameRate': 30
+	// },
+	// {
+	// 	'label': 'QQVGA',
+	// 	'width': 160,
+	// 	'height': 120,
+	// 	'ratio': '4:3',
+	// 	'frameRate': 15
+	// }
 ]
+let BrowserDetail = getBrowserDetail();
 document.getElementById('toggleVConsole').onclick = function() {
 	if (!vconsole) {
 		vconsole = new VConsole();
 	}
 }
+document.getElementById('exportLog').onclick = function(){
+	console.log(TestResult)
+}
+
 document.getElementById('start').onclick = function() {
 	testingEnvironment()
 	// mask.style.display = 'flex';
@@ -285,7 +290,6 @@ function setBlockHeadersDisplay(displayStyle) {
 
 // 测试环境
 function testingEnvironment() {
-	let BrowserDetail = getBrowserDetail();
 	TestResult.environment.systemName = BrowserDetail.systemFriendlyName;
 	TestResult.environment.browser = BrowserDetail.browser + '/' + BrowserDetail.UIVersion;
 	TestResult.environment.resolvingPower = BrowserDetail.resolvingPower;
@@ -387,7 +391,7 @@ async function PeerConnection() {
 				);
 				TestResult.RTCPeerConnectionAPI.setRemoteDescription = true;
 			} catch (e) {
-				log.error(e);
+				console.log(e)
 				$("#interface-part2").append(
 					'<div class="line"><span>setRemoteDescription():</span><span class="notSupport"></span></div>'
 				);
@@ -402,7 +406,7 @@ async function PeerConnection() {
 				TestResult.RTCPeerConnectionAPI.createAnswer = true;
 				await pc1.setLocalDescription(answer)
 			} catch (e) {
-				log.error(e);
+				console.log(e)
 				$("#interface-part2").append(
 					'<div class="line"><span>createAnswer():</span><span class="notSupport"></span></div>'
 				);
@@ -416,7 +420,7 @@ async function PeerConnection() {
 				);
 				TestResult.RTCPeerConnectionAPI.getTransceivers = true;
 			} catch (e) {
-				log.error(e);
+				console.log(e)
 				$("#interface-part2").append(
 					'<div class="line"><span>getTransceivers():</span><span class="notSupport"></span></div>'
 				);
@@ -430,7 +434,7 @@ async function PeerConnection() {
 				);
 				TestResult.RTCPeerConnectionAPI.getSenders = true;
 			} catch (e) {
-				log.error(e);
+				console.log(e)
 				$("#interface-part2").append(
 					'<div class="line"><span>getSenders():</span><span class="notSupport"></span></div>'
 				);
@@ -445,7 +449,7 @@ async function PeerConnection() {
 				);
 				TestResult.RTCPeerConnectionAPI.getReceivers = true;
 			} catch (e) {
-				log.error(e);
+				console.log(e)
 				$("#interface-part2").append(
 					'<div class="line"><span>getReceivers():</span><span class="notSupport"></span></div>'
 				);
@@ -462,7 +466,7 @@ async function PeerConnection() {
 					'<div class="line"><span>getStats():</span><span class="support"></span></div>');
 				TestResult.RTCRtpSender.getStats = true;
 			} catch (e) {
-				log.error(e);
+				console.log(e)
 				$("#interface-part2").append(
 					'<div class="line"><span>getStats():</span><span class="notSupport"></span></div>'
 				);
@@ -544,7 +548,7 @@ async function PeerConnection() {
 					'<div class="line"><span>addTrack():</span><span class="support"></span></div>');
 				TestResult.MediaStream.addTrack = true;
 			} catch (e) {
-				log.error(e);
+				console.log(e)
 				$("#interface-part2").append(
 					'<div class="line"><span>addTrack():</span><span class="notSupport"></span></div>'
 				);
@@ -585,7 +589,7 @@ async function PeerConnection() {
 				);
 				TestResult.RTCPeerConnectionAPI.createOffer = true;
 			} catch (e) {
-				log.error(e);
+				console.log(e)
 				$("#interface-part2").append(
 					'<div class="line"><span>createOffer():</span><span class="notSupport"></span></div>'
 				);
@@ -599,7 +603,7 @@ async function PeerConnection() {
 				);
 				TestResult.RTCPeerConnectionAPI.setLocalDescription = true;
 			} catch (e) {
-				log.error(e);
+				console.log(e)
 				$("#interface-part2").append(
 					'<div class="line"><span>setLocalDescription():</span><span class="notSupport"></span></div>'
 				);
@@ -609,7 +613,7 @@ async function PeerConnection() {
 
 		})
 		.catch(err => {
-			log.error(e);
+			console.log(e)
 		});
 
 	// setTimeout(function(){
@@ -669,7 +673,7 @@ async function Receiver() {
 				'<div class="line"><span>setParameters():</span><span class="support"></span></div>');
 			TestResult.RTCRtpSender.setParameters = true;
 		} catch (e) {
-			// log.error(e);
+			// console.log(e)
 			$("#interface-part4").append(
 				'<div class="line"><span>setParameters():</span><span class="notSupport"></span></div>'
 			);
@@ -682,7 +686,7 @@ async function Receiver() {
 				'<div class="line"><span>replaceTrack():</span><span class="support"></span></div>');
 			TestResult.RTCRtpSender.replaceTrack = true;
 		} catch (e) {
-			// log.error(e);
+			// console.log(e)
 			console.log(e)
 			$("#interface-part4").append(
 				'<div class="line"><span>replaceTrack():</span><span class="notSupport"></span></div>'
@@ -750,7 +754,7 @@ function enumerateDevices() {
 				'<div class="line"><span>获取音视频设备列表:</span><span class="support"></span></div>');
 		})
 		.catch(function(err) {
-			// log.error(e);
+			// console.log(e)
 			console.log(err)
 			$("#interface-part5").append(
 				'<div class="line">enumerateDevices获取设备列表:</span><span class="notSupport"></span></div>');
@@ -929,25 +933,34 @@ async function resolvingPower() {
 					}
 				}
 			};
-
+			if(BrowserDetail.browser == 'firefox'){
+				delete constraints.video.frameRate
+			}
 			await navigator.mediaDevices.getUserMedia(constraints)
 				.then(stream => {
-					$("#video" + i).append(
-						'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height +
-						" * " + 'frameRate:' + quickScan[j].frameRate +
-						':</span><span class="support"></span></div>');
-					TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height + " * " +
-						'frameRate:' + quickScan[j].frameRate] = true;
+					if(BrowserDetail.browser == 'firefox'){
+						$("#video" + i).append(
+							'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height + ':</span><span class="support"></span></div>');
+						TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height] = true;
+					}else{
+						$("#video" + i).append(
+							'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' + quickScan[j].frameRate + ':</span><span class="support"></span></div>');
+						TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' + quickScan[j].frameRate] = true;
+					}
+					cons
 					tracks(stream)
 				})
 				.catch(err => {
 					/* 处理error */
-					$("#video" + i).append(
-						'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height +
-						" * " + 'frameRate:' + quickScan[j].frameRate +
-						':</span><span class="notSupport"></span></div>');
-					TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height + " * " +
-						'frameRate:' + quickScan[j].frameRate] = false;
+					if(BrowserDetail.browser == 'firefox'){
+						$("#video" + i).append(
+							'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height + ':</span><span class="notSupport"></span></div>');
+						TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height] = false;
+					}else{
+						$("#video" + i).append(
+							'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' + quickScan[j].frameRate + ':</span><span class="notSupport"></span></div>');
+						TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' + quickScan[j].frameRate] = false;
+					}
 				});
 		}
 	}
@@ -983,11 +996,11 @@ function MediaStream(){
 		TestResult.MediaStream.removeTrack = false;
 	  }
 	}, function(){});
-	MediaStreamTrack()
+	MediaStreamTracks()
 }
 
 // MediaStreamTrack
-function MediaStreamTrack() {
+function MediaStreamTracks() {
 	document.getElementById('interface-part9').style.display = 'block';
 	const constraints = {
 		audio: true,
@@ -1066,10 +1079,10 @@ function codes() {
 	document.getElementById('other-part1').style.display = 'block';
 	document.getElementById('other-part2').style.display = 'block';
 	document.getElementById('other-part4').style.display = 'block';
-	let AudioCodecs = ['opus', 'ISAC', 'G722', 'PCMU', 'PCMA', 'DTMF', 'red', 'telephone-event'];
+	let AudioCodecs = ['opus', 'ISAC', 'G722', 'PCMU', 'PCMA', 'red', 'telephone-event'];
 	let VideoCodecs = ['VP8', 'VP9', 'H264', 'H265', 'AV1', 'flexfec-03'];
-	let weakNetworkAudio = ['FEC', 'RED'];
-	let weakNetworkVideo = ['FEC', 'RED', 'RTCP', 'RTX', 'NACK', 'PLI', 'FIR', 'remb'];
+	let weakNetworkAudio = ['RED', 'transport-cc'];
+	let weakNetworkVideo = ['ULPFEC', 'RED', 'RTX', 'NACK', 'PLI', 'FIR', 'goog-remb', 'transport-cc'];
 	let parsedSdp = SDPTools.parseSDP(Offer.sdp);
 	let h264Codec = SDPTools.getRTCRtpCapabilities(Offer.sdp, ['add']);
 	let h264Codec1 = SDPTools.getRTCRtpCapabilities(Answer.sdp, ['add']);
@@ -1106,7 +1119,15 @@ function codes() {
 		})
 		check ? datas1.push(a) : ''
 	})
-
+	if (Offer.sdp.indexOf('a=rtcp-fb') !== -1) {
+		$("#weakNetworkVideo").append(
+			'<div class="line"><span>RTCP:</span><span class="support"></span></div>');
+		TestResult.WeakNetworkConfrontation.weakNetworkAudio['RTCP'] = true;
+	} else {
+		$("#weakNetworkVideo").append(
+			'<div class="line"><span>RTCP</span><span class="notSupport"></span></div>');
+		TestResult.WeakNetworkConfrontation.weakNetworkAudio['RTCP'] = false;
+	}
 	AudioCodecs.filter(function(n) {
 		if (h264Codec.audioCodecs.indexOf(n) != -1) {
 			$("#audioCodecs").append(
@@ -1176,11 +1197,11 @@ function codes() {
 	});
 	progressContent.style.width = '45%';
 	speed.textContent = '进度 45%';
+	
 	document.getElementById('other-part1').style.display = 'none';
 	document.getElementById('CodecList').style.background = distinguishQuantity1(TestResult['CodecList']);
 	document.getElementById('other-part2').style.display = 'none';
-	document.getElementById('WeakNetworkConfrontation').style.background = distinguishQuantity1(TestResult[
-		'WeakNetworkConfrontation']);
+	document.getElementById('WeakNetworkConfrontation').style.background = distinguishQuantity1(TestResult['WeakNetworkConfrontation']);
 	document.getElementById('other-part4').style.display = 'none';
 	document.getElementById('WebAssembly').style.background = distinguishQuantity(TestResult['WebAssembly']);
 	websocket()
@@ -1201,7 +1222,7 @@ async function websocket() {
 			'<div class="line"><span>webSocket功能:</span><span class="notSupport"></span></div>'
 		);
 	}
-	ws = new window.WebSocket('wss://192.168.131.105:8089/ws', 'sip');
+	ws = new window.WebSocket('wss://hzucm.a.gdms.work/ws', 'sip');
 	ws.onopen = function(event) {
 		console.log('连接成功')
 		keepAliveWithoutResponse = 0

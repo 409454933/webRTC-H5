@@ -232,6 +232,7 @@ SoundMeter.prototype.checkAudioOutputVolume = async function (data) {
 									document.getElementById('public-part1').style.display = 'none';
 									document.getElementById('majorFunction').style.background = distinguishQuantity(TestResult['majorFunction']);
 									document.getElementById('getStats').style.background = distinguishQuantity(TestResult['getStats']);
+									streamBackgroundTest()
 									progressContent.style.width = '100%';
 									speed.textContent = '测试完成';
 									

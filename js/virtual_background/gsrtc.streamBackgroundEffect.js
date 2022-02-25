@@ -46,7 +46,7 @@ StreamBackgroundEffect.prototype.loadTFLiteModel = async function(){
         throw new Error('JitsiStreamBackgroundEffect not supported!');
     }
     const models = {
-        model96: './static/js/virtual_background/segm_lite_v681.tflite',
+        model96: './js/virtual_background/segm_lite_v681.tflite',
     };
 
     const segmentationDimensions = {

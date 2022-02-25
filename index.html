@@ -719,6 +719,7 @@
 						<div class="line">
 							<span>本地虚拟背景设置:</span>
 							<label><input type="checkbox">支持</label>
+							<video playsinline autoplay id="video" height="200"></video>
 						</div>
 					</div>
 				</div>
@@ -737,6 +738,10 @@
 		<script type="text/javascript" src="js/restart-ice/index.js"></script>
 		<script type="text/javascript" src="js/soundMeter/soundDetection.js"></script>
 		<script type="text/javascript" src="js/main.js"></script>
+		<!--  虚拟背景  -->
+		<script src="js/virtual_background/tflite.js"></script>
+		<script src="js/virtual_background/timerWorker.js"></script>
+		<script src="js/virtual_background/gsrtc.streamBackgroundEffect.js"></script>
 		<script type="module">
 			
 			import * as ft from "./js/webtransport/wasm-feature-detect.js";

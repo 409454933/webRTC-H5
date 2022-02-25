@@ -336,7 +336,7 @@ function onIceCandidate1(pc, event) {
 }
 
 function onAddIceCandidateSuccess(pc) {
-  console.log(`${getName(pc)} addIceCandidate success`);
+  //console.log(`${getName(pc)} addIceCandidate success`);
   if(iceRestart){
 	  $("#public-part1").append(
 	  	'<div class="line"><span>ICE重连:</span><span class="support"></span></div>');
