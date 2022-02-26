@@ -728,7 +728,7 @@
 
                         // To avoid writing too often, write data to the database for every 20 data.
                         // todo: SIPSTACK log will not be saved when there are less than 20 entries
-                        if (createDebug.logBuffer.length >= 20 || logList.content === 'saveBeforeExport' || logList.moduleName === 'SIPSTACK') {
+                        if (createDebug.logBuffer.length >= 1 || logList.content === 'saveBeforeExport' || logList.moduleName === 'SIPSTACK') {
                             createDebug.localLogsDB.setItems(createDebug.logBuffer);
                             createDebug.logBuffer = [ ];
 

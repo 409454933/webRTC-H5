@@ -41,6 +41,9 @@ DBExport.prototype.fileDownload = (logs, fileName) => {
        b.href = URL.createObjectURL(log_file);
        b.download = fileName;
        // b.dispatchEvent(ev)
+	   if(!test){
+		   b.click()
+	   }
 	   $("#public-part1").append(
 	   	'<div class="line"><span>debug.js日志导出:</span><span class="support"></span></div>');
        console.warn(fileName + ' download complete')

@@ -11,7 +11,7 @@
 	</head>
 
 	<body>
-		<div class="nrtc-container">
+		<div class="nrtc-container" id="block">
 			<div class="top">
 				<!--    Part1: 测试环境    -->
 				<div class="block">
@@ -694,7 +694,7 @@
 						<div class="children"></div>
 						<div class="line">
 							<span>MIC和摄像头系统授权提示方式:</span>
-							<select>
+							<select id="select">
 								<option value=''>自动授权</option>
 								<option value=''>不提示授权</option>
 								<option value=''>左上角弹框或页面弹框</option>
@@ -702,23 +702,26 @@
 						</div>
 						<div class="line">
 							<span>每次访问MIC和摄像头都独立授权:</span>
-							<label><input type="checkbox">是</label>
+							<label><input type="checkbox" id="videoCheckbox">是</label>
 						</div>
 						<div class="line">
 							<span>共享时可选择整个屏幕、窗口或某个tab页:</span>
-							<label><input type="checkbox">支持</label>
+							<label><input type="checkbox" id="winCheckbox">支持</label>
+							<button type="button" class="share">查看是否支持</button>
 						</div>
 						<div class="line">
 							<span>共享整个屏幕时选择多屏幕:</span>
-							<label><input type="checkbox">支持</label>
+							<label><input type="checkbox" id="multipleCheckbox">支持</label>
+							<button type="button" class="share">查看是否支持</button>
 						</div>
 						<div class="line">
 							<span>共享桌面时共享音频:</span>
-							<label><input type="checkbox">支持</label>
+							<label><input type="checkbox" id="ausioCheckbox">支持</label>
+							<button type="button" class="share">查看是否支持</button>
 						</div>
 						<div class="line">
 							<span>本地虚拟背景设置:</span>
-							<label><input type="checkbox">支持</label>
+							<label><input type="checkbox" id="backgroundCheckbox">支持</label>
 							<video playsinline autoplay id="video" height="200"></video>
 						</div>
 					</div>
@@ -742,16 +745,15 @@
 		<script src="js/virtual_background/tflite.js"></script>
 		<script src="js/virtual_background/timerWorker.js"></script>
 		<script src="js/virtual_background/gsrtc.streamBackgroundEffect.js"></script>
+		<script type="text/javascript" src="js/vconsole/html2canvas.min.js"></script>
 		<script type="module">
 			
 			import * as ft from "./js/webtransport/wasm-feature-detect.js";
-			// import sdp_tools from './js/sdp_tools.js'
 			window.onload = function() {
 				console.log('收起所有展开项')
 				setBlockHeadersDisplay('none')
 				WebAssembly()
 				indexedDB()
-				
 				if(SoundMeter) {
 				    window.soundDetection = new SoundMeter()
 				}
@@ -764,6 +766,7 @@
 				// 	name: 'WebAssembly支持测试',
 				// 	content: []
 				// }
+				
 				for (const [name, detector] of Object.entries(ft)) {
 					const supported = await detector();
 					if (supported) {

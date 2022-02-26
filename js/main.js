@@ -57,24 +57,25 @@ function logExport(){
 		console.warn("Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available.")
 		return
 	}
-	let log = {}
-	log.debug = window.debug('indexedDB:DEBUG')
-	log.log = window.debug('indexedDB:LOG')
-	log.info = window.debug('indexedDB:INFO')
-	log.warn = window.debug('indexedDB:WARN')
-	log.error = window.debug('indexedDB:ERROR')
+	// let log = {}
+	
 	log.info('window onload ...')
+	// log.info(TestResult)
+	
+	setTimeout(function(){
+		
+	},100)
 	let index = 0
 	let testInterval = setInterval(function (){
-		log.info('print test index ' + index)
+		//log.info('print test index ' + index)
 		index++
 
-		if(index === 10){
+		if(index === 1){
 			log.warn('clear test Interval')
 			clearInterval(testInterval)
 			dbExport.getAllWidthIDBKeyRange(true)
 		}
-	}, 10)
+	}, 100)
 
 	window.dbExport = new DBExport(true)
 }

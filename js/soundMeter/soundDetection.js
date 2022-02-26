@@ -221,11 +221,18 @@ SoundMeter.prototype.checkAudioOutputVolume = async function (data) {
 									document.getElementById('public-part1').style.display = 'none';
 									document.getElementById('majorFunction').style.background = distinguishQuantity(TestResult['majorFunction']);
 									document.getElementById('getStats').style.background = distinguishQuantity(TestResult['getStats']);
-									console.log('总体功能支持情况测试完成');
-									console.log('getStats 状态统计测试完成');
+									log.info('总体功能支持情况测试');
+									for(let i in TestResult['majorFunction']){
+										log.info(i + '：' + TestResult['majorFunction'][i])
+									}
+									log.info('getStats 状态统计测试');
+									for(let n in TestResult['getStats']){
+										log.info(n + '：' + TestResult['getStats'][n])
+									}
 									streamBackgroundTest()
 									progressContent.style.width = '100%';
 									speed.textContent = '测试完成';
+									test = false
 								})
 								.catch(err => {
 									/* 处理error */
@@ -235,12 +242,18 @@ SoundMeter.prototype.checkAudioOutputVolume = async function (data) {
 									document.getElementById('public-part1').style.display = 'none';
 									document.getElementById('majorFunction').style.background = distinguishQuantity(TestResult['majorFunction']);
 									document.getElementById('getStats').style.background = distinguishQuantity(TestResult['getStats']);
-									console.log('总体功能支持情况测试完成');
-									console.log('getStats 状态统计测试完成');
+									log.info('总体功能支持情况测试');
+									for(let i in TestResult['majorFunction']){
+										log.info(i + '：' + TestResult['majorFunction'][i])
+									}
+									log.info('getStats 状态统计测试');
+									for(let n in TestResult['getStats']){
+										log.info(n + '：' + TestResult['getStats'][n])
+									}
 									streamBackgroundTest()
 									progressContent.style.width = '100%';
 									speed.textContent = '测试完成';
-									
+									test = false
 								});
                             data.callback({message:message, isSoundDetected: false})
                             // gsRTC.trigger("onMicStatusChange", {isSoundDetected: false})

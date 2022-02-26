@@ -33,8 +33,52 @@ let TestResult = {
 	IndexedDB: {},
 	other: {},
 	majorFunction: {},
-	getStats: {}
+	getStats: {},
+	Manualselection: {}
 }
+let share = document.getElementsByClassName('share')
+
+document.getElementById('videoCheckbox').addEventListener( 'change', function() {
+    if(this.checked) {
+    	TestResult.Manualselection.EveryVisit = true;
+    } else {
+    	TestResult.Manualselection.EveryVisit = false;
+    }
+})
+
+document.getElementById('winCheckbox').addEventListener( 'change', function() {
+    if(this.checked) {
+    	TestResult.Manualselection.MultipleWin = true;
+    } else {
+    	TestResult.Manualselection.MultipleWin = false;
+    }
+})
+
+document.getElementById('multipleCheckbox').addEventListener( 'change', function() {
+    if(this.checked) {
+    	TestResult.Manualselection.MultiplePages = true;
+    } else {
+    	TestResult.Manualselection.MultiplePages = false;
+    }
+});
+
+document.getElementById('ausioCheckbox').addEventListener( 'change', function() {
+    if(this.checked) {
+    	TestResult.Manualselection.ShareAudio = true;
+    } else {
+    	TestResult.Manualselection.ShareAudio = false;
+    }
+});
+
+document.getElementById('backgroundCheckbox').addEventListener( 'change', function() {
+    if(this.checked) {
+    	TestResult.Manualselection.VirtualBackground = true;
+    } else {
+    	TestResult.Manualselection.VirtualBackground = false;
+    }
+});
+let log = {}
+let test = false
 let vconsole = null
 let Videos = []
 let ws = null
@@ -222,18 +266,27 @@ let quickScan = [{
 	// 	'frameRate': 15
 	// }
 ]
+
+for (let i in share) {
+	share[i].onclick = function() {
+		navigator.mediaDevices.getDisplayMedia().then(stream => {})
+			.catch(function(err) {});
+	}
+}
 let BrowserDetail = getBrowserDetail();
 document.getElementById('toggleVConsole').onclick = function() {
 	if (!vconsole) {
 		vconsole = new VConsole();
 	}
 }
-document.getElementById('exportLog').onclick = function(){
-	console.log(TestResult)
+
+document.getElementById('exportLog').onclick = function() {
+	logExport()
 }
 
 document.getElementById('start').onclick = function() {
 	testingEnvironment()
+
 	// mask.style.display = 'flex';
 	// Switch1()
 }
@@ -257,6 +310,20 @@ function Switch1() {
 			}
 		}
 	}
+}
+
+function dataURLToBlob(dataurl) {
+	let arr = dataurl.split(',');
+	let mime = arr[0].match(/:(.*?);/)[1];
+	let bstr = atob(arr[1]);
+	let n = bstr.length;
+	let u8arr = new Uint8Array(n);
+	while (n--) {
+		u8arr[n] = bstr.charCodeAt(n);
+	}
+	return new Blob([u8arr], {
+		type: mime
+	});
 }
 
 if (blockHeaders && blockHeaders.length) {
@@ -288,31 +355,42 @@ function setBlockHeadersDisplay(displayStyle) {
 	}
 }
 
+
 // 测试环境
 function testingEnvironment() {
+	test = true
+	log.debug = window.debug('indexedDB:DEBUG')
+	log.log = window.debug('indexedDB:LOG')
+	log.info = window.debug('indexedDB:INFO')
+	log.warn = window.debug('indexedDB:WARN')
+	log.error = window.debug('indexedDB:ERROR')
+	log.info('测试环境检测')
 	TestResult.environment.systemName = BrowserDetail.systemFriendlyName;
 	TestResult.environment.browser = BrowserDetail.browser + '/' + BrowserDetail.UIVersion;
 	TestResult.environment.resolvingPower = BrowserDetail.resolvingPower;
 	TestResult.environment.UA = BrowserDetail.UA;
 	let systemFriendlyName = '<div class="line"><span>操作系统：</span><span>' + BrowserDetail.systemFriendlyName +
 		'</span></div>';
-	let browser = '<div class="line"><span>浏览器：</span><span>' + BrowserDetail.browser + '/' + BrowserDetail
-		.UIVersion + '</span></div>';
-	let UA = '<div class="line"><span>UA：</span><span>' + BrowserDetail.UA + '</span></div>';
-	let resolvingPower = '<div class="line"><span>屏幕分辨率：</span><span>' + BrowserDetail.resolvingPower +
+	log.info('操作系统：' + BrowserDetail.systemFriendlyName)
+	let browser = '<div class="line"><span>浏览器：</span><span>' + BrowserDetail.browser + '/' + BrowserDetail.UIVersion +
 		'</span></div>';
+	log.info('操作系统：' + BrowserDetail.browser + '/' + BrowserDetail.UIVersion)
+	let UA = '<div class="line"><span>UA：</span><span>' + BrowserDetail.UA + '</span></div>';
+	log.info('UA：' + BrowserDetail.UA)
+	let resolvingPower = '<div class="line"><span>屏幕分辨率：</span><span>' + BrowserDetail.resolvingPower + '</span></div>';
+	log.info('屏幕分辨率：' + BrowserDetail.resolvingPower)
 	let data = [systemFriendlyName, browser, UA, resolvingPower]
 	for (let i in data) {
 		$("#part-env").append(data[i])
 	}
 	progressContent.style.width = '5%';
 	speed.textContent = '进度 5%';
-	console.log('测试环境检测完成')
 	devicePermissions()
 }
 
 // 设备权限
 async function devicePermissions() {
+	log.info('设备权限检测')
 	document.getElementById('interface-part1').style.display = 'block';
 	await navigator.mediaDevices.getUserMedia({
 			audio: false,
@@ -322,11 +400,13 @@ async function devicePermissions() {
 			$("#interface-part1").append(
 				'<div class="line"><span>是否允许使用摄像头:</span><span class="support"></span></div>')
 			TestResult.DevicePermissions.video = true;
+			log.info('是否允许使用摄像头：true')
 			tracks(stream)
 		})
 		.catch(function(err) {
 			$("#interface-part1").append(
 				'<div class="line"><span>是否允许使用摄像头:</span><span class="notSupport"></span></div>')
+			log.info('是否允许使用摄像头：false')
 			TestResult.DevicePermissions.video = false;
 		});
 
@@ -338,24 +418,26 @@ async function devicePermissions() {
 			$("#interface-part1").append(
 				'<div class="line"><span>是否允许使用麦克风:</span><span class="support"></span></div>')
 			TestResult.DevicePermissions.audio = true;
+			log.info('是否允许使用麦克风：true')
 			tracks(stream)
 		})
 		.catch(function(err) {
 			$("#interface-part1").append(
 				'<div class="line"><span>是否允许使用麦克风:</span><span class="notSupport"></span></div>')
 			TestResult.DevicePermissions.audio = false;
+			log.info('是否允许使用麦克风：false')
 		});
 	progressContent.style.width = '10%';
 	speed.textContent = '进度 10%';
 	document.getElementById('interface-part1').style.display = 'none';
 	document.getElementById('DevicePermissions').style.background = distinguishQuantity(TestResult[
 		'DevicePermissions']);
-	console.log('设备权限检测完成')
 	await PeerConnection()
 }
 
 // RTCPeerConnection API
 async function PeerConnection() {
+	log.info('RTCPeerConnection API 检测')
 	document.getElementById('interface-part2').style.display = 'block';
 	document.getElementById('interface-part3').style.display = 'block';
 	let offer, answer, sdp, offerOptions = {
@@ -372,10 +454,12 @@ async function PeerConnection() {
 		$("#interface-part2").append(
 			'<div class="line"><span>RTCPeerConnection():</span><span class="support"></span></div>');
 		TestResult.RTCPeerConnectionAPI.RTCPeerConnection = true;
+		log.info('RTCPeerConnection()：true')
 	} else {
 		$("#interface-part2").append(
 			'<div class="line"><span>RTCPeerConnection():</span><span class="notSupport"></span></div>');
 		TestResult.RTCPeerConnectionAPI.RTCPeerConnection = false;
+		log.info('RTCPeerConnection()：false')
 	}
 
 	pc.onicecandidate = async event => {
@@ -386,18 +470,21 @@ async function PeerConnection() {
 			$("#interface-part3").append(
 				'<div class="line"><span>icecandidate():</span><span class="support"></span></div>');
 			TestResult.RTCPeerConnectionEvent.icecandidate = true;
+			log.info('icecandidate()：true')
 			try {
 				pc1.setRemoteDescription(sdp)
 				$("#interface-part2").append(
 					'<div class="line"><span>setRemoteDescription():</span><span class="support"></span></div>'
 				);
 				TestResult.RTCPeerConnectionAPI.setRemoteDescription = true;
+				log.info('setRemoteDescription()：true')
 			} catch (e) {
-				console.log(e)
+				log.info(e)
 				$("#interface-part2").append(
 					'<div class="line"><span>setRemoteDescription():</span><span class="notSupport"></span></div>'
 				);
 				TestResult.RTCPeerConnectionAPI.setRemoteDescription = false;
+				log.info('setRemoteDescription()：false')
 			}
 
 			try {
@@ -406,13 +493,15 @@ async function PeerConnection() {
 					'<div class="line"><span>createAnswer():</span><span class="support"></span></div>'
 				);
 				TestResult.RTCPeerConnectionAPI.createAnswer = true;
+				log.info('createAnswer()：true')
 				await pc1.setLocalDescription(answer)
 			} catch (e) {
-				console.log(e)
+				log.info(e)
 				$("#interface-part2").append(
 					'<div class="line"><span>createAnswer():</span><span class="notSupport"></span></div>'
 				);
 				TestResult.RTCPeerConnectionAPI.createAnswer = false;
+				log.info('createAnswer()：false')
 			}
 
 			try {
@@ -421,12 +510,14 @@ async function PeerConnection() {
 					'<div class="line"><span>getTransceivers():</span><span class="support"></span></div>'
 				);
 				TestResult.RTCPeerConnectionAPI.getTransceivers = true;
+				log.info('getTransceivers()：true')
 			} catch (e) {
-				console.log(e)
+				log.info(e)
 				$("#interface-part2").append(
 					'<div class="line"><span>getTransceivers():</span><span class="notSupport"></span></div>'
 				);
 				TestResult.RTCPeerConnectionAPI.getTransceivers = false;
+				log.info('getTransceivers()：false')
 			}
 
 			try {
@@ -435,12 +526,14 @@ async function PeerConnection() {
 					'<div class="line"><span>getSenders():</span><span class="support"></span></div>'
 				);
 				TestResult.RTCPeerConnectionAPI.getSenders = true;
+				log.info('getSenders()：true')
 			} catch (e) {
-				console.log(e)
+				log.info(e)
 				$("#interface-part2").append(
 					'<div class="line"><span>getSenders():</span><span class="notSupport"></span></div>'
 				);
 				TestResult.RTCPeerConnectionAPI.getSenders = false;
+				log.info('getSenders()：false')
 			}
 
 
@@ -450,12 +543,14 @@ async function PeerConnection() {
 					'<div class="line"><span>getReceivers():</span><span class="support"></span></div>'
 				);
 				TestResult.RTCPeerConnectionAPI.getReceivers = true;
+				log.info('getReceivers()：true')
 			} catch (e) {
-				console.log(e)
+				log.info(e)
 				$("#interface-part2").append(
 					'<div class="line"><span>getReceivers():</span><span class="notSupport"></span></div>'
 				);
 				TestResult.RTCPeerConnectionAPI.getReceivers = false;
+				log.info('getReceivers()：false')
 			}
 
 
@@ -464,15 +559,17 @@ async function PeerConnection() {
 				$("#interface-part2").append(
 					'<div class="line"><span>getStats():</span><span class="support"></span></div>');
 				TestResult.RTCPeerConnectionAPI.getStats = true;
+				log.info('getStats()：true')
 				$("#interface-part4").append(
 					'<div class="line"><span>getStats():</span><span class="support"></span></div>');
 				TestResult.RTCRtpSender.getStats = true;
 			} catch (e) {
-				console.log(e)
+				log.info(e)
 				$("#interface-part2").append(
 					'<div class="line"><span>getStats():</span><span class="notSupport"></span></div>'
 				);
 				TestResult.RTCPeerConnectionAPI.getStats = false;
+				log.info('getStats()：false')
 				$("#interface-part4").append(
 					'<div class="line"><span>getStats():</span><span class="notSupport"></span></div>'
 				);
@@ -492,11 +589,12 @@ async function PeerConnection() {
 	};
 
 	pc.addEventListener("iceconnectionstatechange", ev => {
-		// console.log(ev)
+		// log.info(ev)
 		$("#interface-part3").append(
 			'<div class="line"><span>iceconnectionstatechange:</span><span class="support"></span></div>'
 		);
 		TestResult.RTCPeerConnectionEvent.iceconnectionstatechange = true;
+		log.info('iceconnectionstatechange：true')
 	}, false);
 
 	pc.addEventListener("icegatheringstatechange", ev => {
@@ -512,23 +610,26 @@ async function PeerConnection() {
 					'<div class="line"><span>icegatheringstatechange:</span><span class="support"></span></div>'
 				);
 				TestResult.RTCPeerConnectionEvent.icegatheringstatechange = true;
+				log.info('icegatheringstatechange：true')
 				break;
 		}
 	}, false);
 
 	pc.addEventListener("negotiationneeded", ev => {
-		// console.log(ev)
+		// log.info(ev)
 		$("#interface-part3").append(
 			'<div class="line"><span>negotiationneeded:</span><span class="support"></span></div>');
 		TestResult.RTCPeerConnectionEvent.negotiationneeded = true;
+		log.info('negotiationneeded：true')
 	}, false);
 
 	pc.addEventListener("connectionstatechange", ev => {
-		// console.log(ev)
+		// log.info(ev)
 		$("#interface-part3").append(
 			'<div class="line"><span>connectionstatechange:</span><span class="support"></span></div>'
 		);
 		TestResult.RTCPeerConnectionEvent.connectionstatechange = true;
+		log.info('connectionstatechange：true')
 	}, false);
 
 	pc.addEventListener("signalingstatechange", ev => {
@@ -536,6 +637,7 @@ async function PeerConnection() {
 			'<div class="line"><span>signalingstatechange:</span><span class="support"></span></div>'
 		);
 		TestResult.RTCPeerConnectionEvent.signalingstatechange = true;
+		log.info('signalingstatechange：true')
 	}, false);
 
 	await navigator.mediaDevices.getUserMedia(constraints)
@@ -545,16 +647,18 @@ async function PeerConnection() {
 				stream.getTracks().forEach(track => pc.addTrack(track, stream));
 				$("#interface-part2").append(
 					'<div class="line"><span>addTrack():</span><span class="support"></span></div>');
+				log.info('addTrack()：true')
 				TestResult.RTCPeerConnectionAPI.addTrack = true;
 				$("#interface-part8").append(
 					'<div class="line"><span>addTrack():</span><span class="support"></span></div>');
 				TestResult.MediaStream.addTrack = true;
 			} catch (e) {
-				console.log(e)
+				log.info(e)
 				$("#interface-part2").append(
 					'<div class="line"><span>addTrack():</span><span class="notSupport"></span></div>'
 				);
 				TestResult.RTCPeerConnectionAPI.addTrack = false;
+				log.info('addTrack()：false')
 				$("#interface-part8").append(
 					'<div class="line"><span>addTrack():</span><span class="notSupport"></span></div>'
 				);
@@ -566,11 +670,14 @@ async function PeerConnection() {
 				$("#interface-part8").append(
 					'<div class="line"><span>getAudioTracks():</span><span class="support"></span></div>'
 				);
-				TestResult.MediaStream.icecandidate = true;
+				TestResult.MediaStream.getAudioTracks = true;
+				log.info('getAudioTracks()：true')
 			} catch (e) {
 				$("#interface-part8").append(
 					'<div class="line"><span>getAudioTracks():</span><span class="notSupport"></span></div>'
 				);
+				TestResult.MediaStream.getAudioTracks = false;
+				log.info('getAudioTracks()：false')
 			}
 
 			try {
@@ -578,10 +685,14 @@ async function PeerConnection() {
 				$("#interface-part8").append(
 					'<div class="line"><span>getVideoTracks():</span><span class="support"></span></div>'
 				);
+				TestResult.MediaStream.getVideoTracks = true;
+				log.info('getVideoTracks()：true')
 			} catch (e) {
 				$("#interface-part8").append(
 					'<div class="line"><span>getVideoTracks():</span><span class="notSupport"></span></div>'
 				);
+				TestResult.MediaStream.getVideoTracks = false;
+				log.info('getVideoTracks()：false')
 			}
 
 			try {
@@ -590,12 +701,14 @@ async function PeerConnection() {
 					'<div class="line"><span>createOffer():</span><span class="support"></span></div>'
 				);
 				TestResult.RTCPeerConnectionAPI.createOffer = true;
+				log.info('createOffer()：true')
 			} catch (e) {
-				console.log(e)
+				log.info(e)
 				$("#interface-part2").append(
 					'<div class="line"><span>createOffer():</span><span class="notSupport"></span></div>'
 				);
 				TestResult.RTCPeerConnectionAPI.createOffer = false;
+				log.info('createOffer()：false')
 			}
 
 			try {
@@ -604,18 +717,20 @@ async function PeerConnection() {
 					'<div class="line"><span>setLocalDescription():</span><span class="support"></span></div>'
 				);
 				TestResult.RTCPeerConnectionAPI.setLocalDescription = true;
+				log.info('setLocalDescription()：true')
 			} catch (e) {
-				console.log(e)
+				log.info(e)
 				$("#interface-part2").append(
 					'<div class="line"><span>setLocalDescription():</span><span class="notSupport"></span></div>'
 				);
 				TestResult.RTCPeerConnectionAPI.setLocalDescription = false;
+				log.info('setLocalDescription()：false')
 			}
 			tracks(stream)
 
 		})
 		.catch(err => {
-			console.log(e)
+			log.info(e)
 		});
 
 	// setTimeout(function(){
@@ -627,26 +742,27 @@ async function PeerConnection() {
 	document.getElementById('interface-part3').style.display = 'none';
 	document.getElementById('RTCPeerConnectionAPI').style.background = distinguishQuantity(TestResult[
 		'RTCPeerConnectionAPI']);
+
 	document.getElementById('RTCPeerConnectionEvent').style.background = distinguishQuantity(TestResult[
 		'RTCPeerConnectionEvent']);
-	console.log('RTCPeerConnection API检测完成')
 	Receiver()
 };
 
 // RTCRtpSender
 async function Receiver() {
+	log.info('RTCRtpSender检测')
 	document.getElementById('interface-part4').style.display = 'block';
 	let pc = new RTCPeerConnection();
 	await navigator.mediaDevices.getUserMedia({
-	        video: true,
-	        audio: true
-	    }).then(stream => {
-	        stream.getTracks().forEach(track => pc.addTrack(track, stream));
+			video: true,
+			audio: true
+		}).then(stream => {
+			stream.getTracks().forEach(track => pc.addTrack(track, stream));
 			tracks(stream)
-	    })
-	    .catch(err => {
-	        // console.log(err)
-	    });
+		})
+		.catch(err => {
+			// log.info(err)
+		});
 	await navigator.mediaDevices.getUserMedia({
 		video: true,
 		audio: true
@@ -660,12 +776,14 @@ async function Receiver() {
 			$("#interface-part4").append(
 				'<div class="line"><span>getParameters():</span><span class="support"></span></div>');
 			TestResult.RTCRtpSender.getParameters = true;
+			log.info('getParameters()：true')
 		} catch (e) {
-			console.log(e)
+			log.info(e)
 			$("#interface-part4").append(
 				'<div class="line"><span>getParameters():</span><span class="notSupport"></span></div>'
 			);
 			TestResult.RTCRtpSender.getParameters = false;
+			log.info('getParameters()：false')
 		}
 
 		try {
@@ -675,12 +793,14 @@ async function Receiver() {
 			$("#interface-part4").append(
 				'<div class="line"><span>setParameters():</span><span class="support"></span></div>');
 			TestResult.RTCRtpSender.setParameters = true;
+			log.info('setParameters()：true')
 		} catch (e) {
-			// console.log(e)
+			// log.info(e)
 			$("#interface-part4").append(
 				'<div class="line"><span>setParameters():</span><span class="notSupport"></span></div>'
 			);
 			TestResult.RTCRtpSender.setParameters = false;
+			log.info('setParameters()：false')
 		}
 
 		try {
@@ -688,13 +808,15 @@ async function Receiver() {
 			$("#interface-part4").append(
 				'<div class="line"><span>replaceTrack():</span><span class="support"></span></div>');
 			TestResult.RTCRtpSender.replaceTrack = true;
+			log.info('replaceTrack()：true')
 		} catch (e) {
-			// console.log(e)
-			console.log(e)
+			// log.info(e)
+			log.info(e)
 			$("#interface-part4").append(
 				'<div class="line"><span>replaceTrack():</span><span class="notSupport"></span></div>'
 			);
 			TestResult.RTCRtpSender.replaceTrack = false;
+			log.info('replaceTrack()：false')
 		}
 
 		try {
@@ -703,15 +825,17 @@ async function Receiver() {
 				'<div class="line"><span>getCapabilities():</span><span class="support"></span></div>'
 			);
 			TestResult.RTCRtpSender.getCapabilities = true;
+			log.info('getCapabilities()：true')
 			$("#interface-part9").append(
 				'<div class="line"><span>getCapabilities():</span><span class="support"></span></div>'
 			);
 		} catch (e) {
-			console.log(e)
+			log.info(e)
 			$("#interface-part4").append(
 				'<div class="line"><span>getCapabilities():</span><span class="notSupport"></span></div>'
 			);
 			TestResult.RTCRtpSender.getCapabilities = false;
+			log.info('getCapabilities()：false')
 			$("#interface-part9").append(
 				'<div class="line"><span>getCapabilities():</span><span class="notSupport"></span></div>'
 			);
@@ -723,13 +847,14 @@ async function Receiver() {
 	speed.textContent = '进度 20%';
 	document.getElementById('interface-part4').style.display = 'none';
 	document.getElementById('RTCRtpSender').style.background = distinguishQuantity(TestResult['RTCRtpSender']);
-	console.log('RTCPeerConnection Event检测完成')
-	console.log('RTCRtpSender检测完成')
+	// log.info('RTCPeerConnection Event检测完成')
+	// log.info('RTCRtpSender检测完成')
 	enumerateDevices()
 };
 
 // MediaDevices.enumerateDevices
 function enumerateDevices() {
+	log.info('MediaDevices.enumerateDevices检测')
 	document.getElementById('interface-part5').style.display = 'block';
 	navigator.mediaDevices.enumerateDevices()
 		.then(devices => {
@@ -738,9 +863,11 @@ function enumerateDevices() {
 					if (devices[i].kind == 'audioinput') {
 						$("#audio-input").append('<li>' + devices[i].label + '</li>');
 						TestResult.enumerateDevices.audioinput.push(devices[i].label);
+						log.info('audioinput：' + devices[i].label)
 					} else if (devices[i].kind == 'audiooutput') {
 						$("#audio-output").append('<li>' + devices[i].label + '</li>');
 						TestResult.enumerateDevices.audiooutput.push(devices[i].label);
+						log.info('audiooutput：' + devices[i].label)
 					} else if (devices[i].kind == 'videoinput') {
 						let datas = {
 							label: devices[i].label,
@@ -748,6 +875,7 @@ function enumerateDevices() {
 						}
 						Videos.push(datas)
 						TestResult.enumerateDevices.videoinput.push(devices[i].label);
+						log.info('videoinput：' + devices[i].label)
 						$("#video-input").append('<li>' + devices[i].label + '</li>');
 					}
 				}
@@ -755,33 +883,39 @@ function enumerateDevices() {
 			$("#interface-part5").prepend(
 				'<div class="line"><span>enumerateDevices获取设备列表:</span><span class="support"></span></div>');
 			TestResult.enumerateDevices.enumerateDevices = true;
+			log.info('enumerateDevices获取设备列表：true')
+			log.info('获取音视频设备列表：true')
 			$("#public-part1").append(
 				'<div class="line"><span>获取音视频设备列表:</span><span class="support"></span></div>');
+
 		})
 		.catch(function(err) {
-			// console.log(e)
-			console.log(err)
+			// log.info(e)
+			log.info(err)
 			$("#interface-part5").append(
 				'<div class="line">enumerateDevices获取设备列表:</span><span class="notSupport"></span></div>');
 			TestResult.enumerateDevices.enumerateDevices = false;
 			$("#public-part1").append(
 				'<div class="line"><span>获取音视频设备列表:</span><span class="support"></span></div>');
+			log.info('enumerateDevices获取设备列表：false')
+			log.info('获取音视频设备列表：false')
 		});
 	navigator.mediaDevices.ondevicechange = event => {
 		$("#interface-part5").append(
 			'<div class="line"><span>ondevicechange 事件:</span><span class="support"></span></div>');
 		TestResult.enumerateDevices.ondevicechange = true;
+		log.info('ondevicechange 事件：true')
 	}
 	progressContent.style.width = '25%';
 	speed.textContent = '进度 25%';
 	document.getElementById('interface-part5').style.display = 'none';
 	document.getElementById('enumerateDevices').style.background = distinguishQuantity(TestResult['enumerateDevices']);
-	console.log('MediaDevices.enumerateDevices检测完成')
 	getDisplayMedia()
 };
 
 // MediaDevices.getDisplayMedia
 async function getDisplayMedia() {
+	log.info('MediaDevices.getDisplayMedia检测')
 	document.getElementById('interface-part6').style.display = 'block';
 	let constraints = {
 		audio: true,
@@ -795,6 +929,7 @@ async function getDisplayMedia() {
 		$("#interface-part6").prepend(
 			'<div class="line"><span>getDisplayMedia 事件:</span><span class="notSupport"></span></div>');
 		TestResult.getDisplayMedia.getDisplayMedia = false;
+		log.info('getDisplayMedia 事件：false')
 	} else {
 		await navigator.mediaDevices.getDisplayMedia(constraints)
 			.then(stream => {
@@ -805,11 +940,12 @@ async function getDisplayMedia() {
 						video.videoWidth + " * " + video.videoHeight + '</span></div>');
 					TestResult.getDisplayMedia.maxResolvingPower = video.videoWidth + " * " + video
 						.videoHeight;
+					log.info('支持的最大分辨率：' + video.videoWidth + " * " + video.videoHeight)
 					tracks(stream)
 				}
 			})
 			.catch(function(err) {
-				console.log(err)
+				log.info(err)
 			});
 
 		let data = ['5', '15', '30']
@@ -833,13 +969,15 @@ async function getDisplayMedia() {
 					$("#interface-part6").append('<div class="line"><span>' + data[i] +
 						'fps:</span><span class="support"></span></div>');
 					TestResult.getDisplayMedia[data[i] + 'fps'] = true;
+					log.info(data[i] + 'fps' + '：true')
 					tracks(stream)
 				})
 				.catch(function(err) {
-					console.log(err)
+					log.info(err)
 					$("#interface-part6").append('<div class="line"><span>' + data[i] +
 						'fps:</span><span class="notSupport"></span></div>');
 					TestResult.getDisplayMedia[data[i] + 'fps'] = false
+					log.info(data[i] + 'fps' + '：false')
 				});
 		}
 
@@ -849,14 +987,14 @@ async function getDisplayMedia() {
 	document.getElementById('interface-part6').style.display = 'none';
 	document.getElementById('getDisplayMedia').style.background = distinguishQuantity(TestResult[
 	'getDisplayMedia']);
-	console.log('MediaDevices.getDisplayMedia检测完成')
 	resolvingPower()
 };
 
 // MediaDevices.getUserMedia
 async function resolvingPower() {
+	log.info('MediaDevices.getUserMedia检测')
 	document.getElementById('interface-part7').style.display = 'block';
-	
+
 	'max',
 	'ideal',
 	'exact'
@@ -907,6 +1045,7 @@ async function resolvingPower() {
 					'<div class="line"><span>' + data[n].name +
 					':</span><span class="support"></span></div>');
 				TestResult.getUserMedia[data[n].name] = true;
+				log.info(data[n].name + '：true')
 				tracks(stream)
 			})
 			.catch(err => {
@@ -916,6 +1055,7 @@ async function resolvingPower() {
 					':</span><span class="notSupport"></span></div>'
 				);
 				TestResult.getUserMedia[data[n].name] = false;
+				log.info(data[n].name + '：false')
 			});
 	}
 	for (let i in Videos) {
@@ -939,32 +1079,46 @@ async function resolvingPower() {
 					}
 				}
 			};
-			if(BrowserDetail.browser == 'firefox'){
+			if (BrowserDetail.browser == 'firefox') {
 				delete constraints.video.frameRate
 			}
 			await navigator.mediaDevices.getUserMedia(constraints)
 				.then(stream => {
-					if(BrowserDetail.browser == 'firefox'){
+					if (BrowserDetail.browser == 'firefox') {
 						$("#video" + i).append(
-							'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height + ':</span><span class="support"></span></div>');
+							'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height +
+							':</span><span class="support"></span></div>');
 						TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height] = true;
-					}else{
+						log.info(quickScan[j].width + " * " + quickScan[j].height + '：true')
+					} else {
 						$("#video" + i).append(
-							'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' + quickScan[j].frameRate + ':</span><span class="support"></span></div>');
-						TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' + quickScan[j].frameRate] = true;
+							'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height +
+							" * " + 'frameRate:' + quickScan[j].frameRate +
+							':</span><span class="support"></span></div>');
+						TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height + " * " +
+							'frameRate:' + quickScan[j].frameRate] = true;
+						log.info(quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' +
+							quickScan[j].frameRate + '：true')
 					}
 					tracks(stream)
 				})
 				.catch(err => {
 					/* 处理error */
-					if(BrowserDetail.browser == 'firefox'){
+					if (BrowserDetail.browser == 'firefox') {
 						$("#video" + i).append(
-							'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height + ':</span><span class="notSupport"></span></div>');
+							'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height +
+							':</span><span class="notSupport"></span></div>');
 						TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height] = false;
-					}else{
+						log.info(quickScan[j].width + " * " + quickScan[j].height + '：false')
+					} else {
 						$("#video" + i).append(
-							'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' + quickScan[j].frameRate + ':</span><span class="notSupport"></span></div>');
-						TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' + quickScan[j].frameRate] = false;
+							'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height +
+							" * " + 'frameRate:' + quickScan[j].frameRate +
+							':</span><span class="notSupport"></span></div>');
+						TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height + " * " +
+							'frameRate:' + quickScan[j].frameRate] = false;
+						log.info(quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' +
+							quickScan[j].frameRate + '：false')
 					}
 				});
 		}
@@ -976,38 +1130,43 @@ async function resolvingPower() {
 	document.getElementById('getUserMedia').style.background = distinguishQuantity(TestResult['getUserMedia']);
 	document.getElementById('MediaStream').style.background = distinguishQuantity(TestResult['MediaStream']);
 	document.getElementById('interface-part8').style.display = 'none';
-	console.log('MediaDevices.getUserMedia检测完成')
+
 	MediaStream()
 }
 
-function MediaStream(){
+function MediaStream() {
+	log.info('MediaStream检测')
 	var pc, sender, stream;
 	pc = new RTCPeerConnection();
-	navigator.mediaDevices.getUserMedia({video: true}, function(stream) {
-	  // stream.onaddtrack = function(){
-		 //  console.log('addtrack')
-	  // }
-	  var track = stream.getVideoTracks()[0];
-	  // stream.addTrack(track)
-	  sender = pc.addTrack(track, stream);
-	  try{
-	  	pc.removeTrack(sender);
-	  	$("#interface-part8").append(
-	  		'<div class="line"><span>removeTrack():</span><span class="support"></span></div>');
-		TestResult.MediaStream.removeTrack = true;
-	  }catch(e){
-	  	console.log(e)
-	  	$("#interface-part8").append(
-	  		'<div class="line"><span>removeTrack():</span><span class="notSupport"></span></div>');
-		TestResult.MediaStream.removeTrack = false;
-	  }
-	}, function(){});
-	console.log('MediaStream检测完成')
+	navigator.mediaDevices.getUserMedia({
+		video: true
+	}, function(stream) {
+		// stream.onaddtrack = function(){
+		//  log.info('addtrack')
+		// }
+		var track = stream.getVideoTracks()[0];
+		// stream.addTrack(track)
+		sender = pc.addTrack(track, stream);
+		try {
+			pc.removeTrack(sender);
+			$("#interface-part8").append(
+				'<div class="line"><span>removeTrack():</span><span class="support"></span></div>');
+			TestResult.MediaStream.removeTrack = true;
+			log.info('removeTrack()：true')
+		} catch (e) {
+			log.info(e)
+			$("#interface-part8").append(
+				'<div class="line"><span>removeTrack():</span><span class="notSupport"></span></div>');
+			TestResult.MediaStream.removeTrack = false;
+			log.info('removeTrack()：false')
+		}
+	}, function() {});
 	MediaStreamTracks()
 }
 
 // MediaStreamTrack
 function MediaStreamTracks() {
+	log.info('MediaStreamTrack检测')
 	document.getElementById('interface-part9').style.display = 'block';
 	const constraints = {
 		audio: true,
@@ -1026,64 +1185,71 @@ function MediaStreamTracks() {
 	navigator.mediaDevices.getUserMedia(constraints1)
 		.then(mediaStream => {
 			const track = mediaStream.getVideoTracks()[0];
-			
-			try{
+
+			try {
 				track.getConstraints()
 				$("#interface-part9").prepend(
 					'<div class="line"><span>getConstraints():</span><span class="support"></span></div>'
 				);
 				TestResult.MediaStreamTrack.getConstraints = true;
-			}catch(e){
-				console.log(e)
+				log.info('getConstraints()：true')
+			} catch (e) {
+				log.info(e)
 				$("#interface-part9").prepend(
 					'<div class="line"><span>getConstraints():</span><span class="notSupport"></span></div>'
 				);
 				TestResult.MediaStreamTrack.getConstraints = false;
+				log.info('getConstraints()：false')
 			}
-			
-			try{
+
+			try {
 				track.getSettings()
 				$("#interface-part9").prepend(
 					'<div class="line"><span>getSettings():</span><span class="support"></span></div>'
 				);
 				TestResult.MediaStreamTrack.getSettings = true;
-			}catch(e){
-				console.log(e)
+				log.info('getSettings()：true')
+			} catch (e) {
+				log.info(e)
 				$("#interface-part9").prepend(
 					'<div class="line"><span>getSettings():</span><span class="notSupport"></span></div>'
 				);
 				TestResult.MediaStreamTrack.getSettings = false;
+				log.info('getSettings()：false')
 			}
-			
+
 			track.applyConstraints(constraints)
 				.then(res => {
 					$("#interface-part9").prepend(
 						'<div class="line"><span>applyConstraints():</span><span class="support"></span></div>'
 					);
 					TestResult.MediaStreamTrack.applyConstraints = true;
+					log.info('applyConstraints()：true')
 				})
 				.catch(e => {
-					console.log(e)
+					log.info(e)
 					$("#interface-part9").prepend(
 						'<div class="line"><span>applyConstraints():</span><span class="notSupport"></span></div>'
 					);
 					TestResult.MediaStreamTrack.applyConstraints = false;
+					log.info('applyConstraints()：false')
 				});
-				
+
 			tracks(mediaStream)
 		})
 		.catch(err => {
-			console.log(err)
+			log.info(err)
 		})
 	progressContent.style.width = '40%';
 	speed.textContent = '进度 40%';
 	document.getElementById('interface-part9').style.display = 'none';
 	document.getElementById('MediaStreamTrack').style.background = distinguishQuantity(TestResult['MediaStreamTrack']);
-	console.log('MediaStreamTrack检测完成')
+
 	codes();
 }
 
 function codes() {
+	log.info('音视频编解码列表检测')
 	document.getElementById('other-part1').style.display = 'block';
 	document.getElementById('other-part2').style.display = 'block';
 	document.getElementById('other-part4').style.display = 'block';
@@ -1094,7 +1260,7 @@ function codes() {
 	let parsedSdp = SDPTools.parseSDP(Offer.sdp);
 	let h264Codec = SDPTools.getRTCRtpCapabilities(Offer.sdp, ['add']);
 	let h264Codec1 = SDPTools.getRTCRtpCapabilities(Answer.sdp, ['add']);
-	// console.log(h264Codec)
+	// log.info(h264Codec)
 	let data = parsedSdp.media[0].rtcpFb;
 	let data0 = [];
 	let data1 = [];
@@ -1131,20 +1297,24 @@ function codes() {
 		$("#weakNetworkVideo").append(
 			'<div class="line"><span>RTCP:</span><span class="support"></span></div>');
 		TestResult.WeakNetworkConfrontation.weakNetworkAudio['RTCP'] = true;
+		log.info('RTCP:：true')
 	} else {
 		$("#weakNetworkVideo").append(
 			'<div class="line"><span>RTCP</span><span class="notSupport"></span></div>');
 		TestResult.WeakNetworkConfrontation.weakNetworkAudio['RTCP'] = false;
+		log.info('RTCP:：false')
 	}
 	AudioCodecs.filter(function(n) {
 		if (h264Codec.audioCodecs.indexOf(n) != -1) {
 			$("#audioCodecs").append(
 				'<div class="line"><span>' + n + ':</span><span class="support"></span></div>');
 			TestResult.CodecList.audioCodecs[n] = true;
+			log.info(n + '：true')
 		} else {
 			$("#audioCodecs").append(
 				'<div class="line"><span>' + n + ':</span><span class="notSupport"></span></div>');
 			TestResult.CodecList.audioCodecs[n] = false;
+			log.info(n + '：false')
 		}
 	});
 	AudioCodecs.filter(function(n) {
@@ -1152,10 +1322,12 @@ function codes() {
 			$("#audioDecoding").append(
 				'<div class="line"><span>' + n + ':</span><span class="support"></span></div>');
 			TestResult.CodecList.audioDecoding[n] = true;
+			log.info(n + '：true')
 		} else {
 			$("#audioDecoding").append(
 				'<div class="line"><span>' + n + ':</span><span class="notSupport"></span></div>');
 			TestResult.CodecList.audioDecoding[n] = false;
+			log.info(n + '：false')
 		}
 	});
 	VideoCodecs.filter(function(n) {
@@ -1163,10 +1335,12 @@ function codes() {
 			$("#videoCodecs").append(
 				'<div class="line"><span>' + n + ':</span><span class="support"></span></div>');
 			TestResult.CodecList.videoCodecs[n] = true;
+			log.info(n + '：true')
 		} else {
 			$("#videoCodecs").append(
 				'<div class="line"><span>' + n + ':</span><span class="notSupport"></span></div>');
 			TestResult.CodecList.videoCodecs[n] = false;
+			log.info(n + '：false')
 		}
 	});
 	VideoCodecs.filter(function(n) {
@@ -1174,21 +1348,26 @@ function codes() {
 			$("#videoDecoding").append(
 				'<div class="line"><span>' + n + ':</span><span class="support"></span></div>');
 			TestResult.CodecList.videoDecoding[n] = true;
+			log.info(n + '：true')
 		} else {
 			$("#videoDecoding").append(
 				'<div class="line"><span>' + n + ':</span><span class="notSupport"></span></div>');
 			TestResult.CodecList.videoDecoding[n] = false;
+			log.info(n + '：false')
 		}
 	});
+	log.info('弱网对抗检测')
 	weakNetworkAudio.filter(function(n) {
 		if (data1.indexOf(n.toLowerCase()) != -1) {
 			$("#weakNetworkAudio").append(
 				'<div class="line"><span>' + n + ':</span><span class="support"></span></div>');
 			TestResult.WeakNetworkConfrontation.weakNetworkAudio[n] = true;
+			log.info(n + '：true')
 		} else {
 			$("#weakNetworkAudio").append(
 				'<div class="line"><span>' + n + ':</span><span class="notSupport"></span></div>');
 			TestResult.WeakNetworkConfrontation.weakNetworkAudio[n] = false;
+			log.info(n + '：false')
 		}
 	});
 	weakNetworkVideo.filter(function(n) {
@@ -1196,62 +1375,71 @@ function codes() {
 			$("#weakNetworkVideo").append(
 				'<div class="line"><span>' + n + ':</span><span class="support"></span></div>');
 			TestResult.WeakNetworkConfrontation.weakNetworkVideo[n] = true;
+			log.info(n + '：true')
 		} else {
 			$("#weakNetworkVideo").append(
 				'<div class="line"><span>' + n + ':</span><span class="notSupport"></span></div>');
 			TestResult.WeakNetworkConfrontation.weakNetworkVideo[n] = false;
+			log.info(n + '：false')
 		}
 	});
 	progressContent.style.width = '45%';
 	speed.textContent = '进度 45%';
-	
+
 	document.getElementById('other-part1').style.display = 'none';
 	document.getElementById('CodecList').style.background = distinguishQuantity1(TestResult['CodecList']);
 	document.getElementById('other-part2').style.display = 'none';
-	document.getElementById('WeakNetworkConfrontation').style.background = distinguishQuantity1(TestResult['WeakNetworkConfrontation']);
+	document.getElementById('WeakNetworkConfrontation').style.background = distinguishQuantity1(TestResult[
+		'WeakNetworkConfrontation']);
 	document.getElementById('other-part4').style.display = 'none';
 	document.getElementById('WebAssembly').style.background = distinguishQuantity(TestResult['WebAssembly']);
-	console.log('音视频编解码列表检测完成')
-	console.log('弱网对抗检测完成')
 	websocket()
 }
 
 //websocket
 async function websocket() {
+	log.info('webSocket检测')
 	document.getElementById('other-part3').style.display = 'block';
 	if ("WebSocket" in window) {
-		if(!TestResult.webSocket.webSocket){
+		if (!TestResult.webSocket.webSocket) {
 			$("#other-part3").append(
 				'<div class="line"><span>webSocket功能:</span><span class="support"></span></div>'
 			);
 		}
 		TestResult.webSocket.webSocket = true;
+		log.info('webSocket功能：true')
 	} else {
 		$("#other-part3").prepend(
 			'<div class="line"><span>webSocket功能:</span><span class="notSupport"></span></div>'
 		);
+		TestResult.webSocket.webSocket = false;
+		log.info('webSocket功能：false')
 	}
 	ws = new window.WebSocket('wss://hzucm.a.gdms.work/ws', 'sip');
 	ws.onopen = function(event) {
-		console.log('连接成功')
+		log.info('连接成功')
 		keepAliveWithoutResponse = 0
 		isChannelOpen = true
 		ws.keepAlive()
-		if(wasWebsocketClosed){
-		    clearTimeout(wsReconnectTimeoutEvent)
-		    wsReconnectTimeoutEvent = null
-		    wsReconnectTime = 2
-		    wasWebsocketClosed = false
-			if(!TestResult.webSocket.webSocketReconnection){
+		if (wasWebsocketClosed) {
+			clearTimeout(wsReconnectTimeoutEvent)
+			wsReconnectTimeoutEvent = null
+			wsReconnectTime = 2
+			wasWebsocketClosed = false
+			if (!TestResult.webSocket.webSocketReconnection) {
 				$("#other-part3").append(
 					'<div class="line"><span>webSocket重连:</span><span class="support"></span></div>'
 				);
 				$("#public-part1").append(
 					'<div class="line"><span>webSocket断网重连:</span><span class="support"></span></div>');
 				document.getElementById('other-part3').style.display = 'none';
-				document.getElementById('webSocket').style.background = distinguishQuantity(TestResult['webSocket']);
-				console.log('webSocket检测完成')
-				console.log('WebAssembly检测完成')
+				document.getElementById('webSocket').style.background = distinguishQuantity(TestResult[
+					'webSocket']);
+				log.info('webSocket重连：true')
+				log.info('WebAssembly检测')
+				for (let i in TestResult['WebAssembly']) {
+					log.info(i + '：' + TestResult['WebAssembly'][i])
+				}
 				captureStream();
 			}
 			TestResult.webSocket.webSocketReconnection = true;
@@ -1271,7 +1459,9 @@ async function websocket() {
 							'<div class="line"><span>webSocket保活:</span><span class="support"></span></div>'
 						);
 						$("#public-part1").append(
-							'<div class="line"><span>webSocket保活:</span><span class="support"></span></div>');
+							'<div class="line"><span>webSocket保活:</span><span class="support"></span></div>'
+						);
+						log.info('webSocket保活：true')
 						ws.close();
 					}
 					TestResult.webSocket.webSocketKeep = true;
@@ -1316,7 +1506,7 @@ async function websocket() {
 			wsReconnect(wsReconnectTime)
 		}
 	}
-	
+
 	// captureStream()
 }
 
@@ -1336,6 +1526,7 @@ function wsReconnect(timer) {
 // captureStream
 function captureStream() {
 	try {
+		log.info('captureStream测试')
 		var a = document.createElement("canvas");
 		var ctx = a.getContext("2d");
 		ctx.fillStyle = "#FF0000";
@@ -1345,12 +1536,14 @@ function captureStream() {
 			'<div class="line"><span>CanvasElement.captureStream():</span><span class="support"></span></div>'
 		);
 		TestResult.captureStream.CanvasElement = true;
+		log.info('CanvasElement.captureStream()：true')
 	} catch (e) {
-		console.log(e)
+		log.info(e)
 		$("#other-part5").prepend(
 			'<div class="line"><span>CanvasElement.captureStream():</span><span class="notSupport"></span></div>'
 		);
 		TestResult.captureStream.CanvasElement = false;
+		log.info('CanvasElement.captureStream()：false')
 	}
 
 	try {
@@ -1360,27 +1553,29 @@ function captureStream() {
 			'<div class="line"><span>MediaElement.captureStream():</span><span class="support"></span></div>'
 		);
 		TestResult.captureStream.MediaElement = true;
+		log.info('MediaElement.captureStream()：true')
 	} catch (e) {
-		console.log(e)
+		log.info(e)
 		$("#other-part5").prepend(
 			'<div class="line"><span>MediaElement.captureStream():</span><span class="notSupport"></span></div>'
 		);
 		TestResult.captureStream.MediaElement = false;
+		log.info('MediaElement.captureStream()：false')
 	}
 	progressContent.style.width = '50%';
 	speed.textContent = '进度 50%';
 	document.getElementById('other-part5').style.display = 'none';
 	document.getElementById('captureStream').style.background = distinguishQuantity(TestResult['captureStream']);
-	console.log('captureStream测试完成')
 	WebAudio()
 }
 
 // WebAudio
 async function WebAudio() {
+	log.info('WebAudio测试')
 	document.getElementById('other-part6').style.display = 'block';
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	const myAudio = document.getElementById('myAudio1');
-	// console.log(myAudio)
+	// log.info(myAudio)
 	var audioContext = new AudioContext()
 	var destination = audioContext.createMediaStreamDestination();
 	var source;
@@ -1397,11 +1592,13 @@ async function WebAudio() {
 		$("#other-part6").append(
 			'<div class="line"><span>createMediaStreamDestination():</span><span class="support"></span></div>');
 		TestResult.WebAudio.createMediaStreamDestination = true;
+		log.info('createMediaStreamDestination()：true')
 	} else {
 		$("#other-part6").append(
 			'<div class="line"><span>createMediaStreamDestination():</span><span class="notSupport"></span></div>'
 		);
 		TestResult.WebAudio.createMediaStreamDestination = false;
+		log.info('createMediaStreamDestination()：false')
 	}
 	await navigator.mediaDevices.getUserMedia({
 			audio: true,
@@ -1412,53 +1609,60 @@ async function WebAudio() {
 			tracks(stream)
 		})
 		.catch(function(err) {
-			console.log('The following gUM error occured: ' + err);
+			log.info('The following gUM error occured: ' + err);
 		});
 	if (source) {
 		$("#other-part6").append(
 			'<div class="line"><span>createMediaStreamSource():</span><span class="support"></span></div>');
 		TestResult.WebAudio.createMediaStreamSource = true;
+		log.info('createMediaStreamSource()：true')
 	} else {
 		$("#other-part6").append(
 			'<div class="line"><span>createMediaStreamSource():</span><span class="support"></span></div>');
 		TestResult.WebAudio.createMediaStreamSource = false;
+		log.info('createMediaStreamSource()：false')
 	}
 
 	if (source1) {
 		$("#other-part6").append(
 			'<div class="line"><span>createMediaElementSource():</span><span class="support"></span></div>');
 		TestResult.WebAudio.createMediaElementSource = true;
+		log.info('createMediaElementSource()：true')
 	} else {
 		$("#other-part6").append(
 			'<div class="line"><span>createMediaElementSource():</span><span class="notSupport"></span></div>');
-		TestResult.WebAudio.createMediaElementSource = true;
+		TestResult.WebAudio.createMediaElementSource = false;
+		log.info('createMediaElementSource()：false')
 	}
 
 	audioContext.resume().then(function() {
 		$("#other-part6").append(
 			'<div class="line"><span>resume():</span><span class="support"></span></div>');
 		TestResult.WebAudio.resume = true;
+		log.info('resume()：true')
 	});
 
 	if (scriptNode) {
 		$("#other-part6").append(
 			'<div class="line"><span>createScriptProcessor():</span><span class="support"></span></div>');
 		TestResult.WebAudio.createScriptProcessor = true;
+		log.info('createScriptProcessor()：true')
 	} else {
 		$("#other-part6").append(
 			'<div class="line"><span>createScriptProcessor():</span><span class="notSupport"></span></div>');
 		TestResult.WebAudio.createScriptProcessor = false;
+		log.info('createScriptProcessor()：false')
 	}
 	progressContent.style.width = '55%';
 	speed.textContent = '进度 55%';
 	document.getElementById('other-part6').style.display = 'none';
 	document.getElementById('WebAudio').style.background = distinguishQuantity(TestResult['WebAudio']);
-	console.log('WebAudio测试完成')
 	MediaRecorders()
 }
 
 // MediaRecorder
 async function MediaRecorders() {
+	log.info('MediaRecorders测试')
 	document.getElementById('other-part7').style.display = 'block';
 	await navigator.mediaDevices.getUserMedia({
 			audio: false,
@@ -1478,33 +1682,35 @@ async function MediaRecorders() {
 							'<div class="line"><span>' + types[i] +
 							':</span><span class="support"></span></div>');
 						TestResult.MediaRecorder[types[i]] = false;
+						log.info(types[i] + '：false')
 					} else {
 						$("#other-part7").append(
 							'<div class="line"><span>' + types[i] +
 							':</span><span class="notSupport"></span></div>');
 						TestResult.MediaRecorder[types[i]] = true;
+						log.info(types[i] + '：true')
 					}
 				}
 			} else {
-				console.log('MediaRecorder, no')
+				log.info('MediaRecorder, no')
 			}
 			tracks(stream)
 		})
 		.catch(function(err) {
-			console.log(err)
+			log.info(err)
 			/* 处理error */
 		});
 	progressContent.style.width = '60%';
 	speed.textContent = '进度 60%';
 	document.getElementById('other-part7').style.display = 'none';
 	document.getElementById('MediaRecorder').style.background = distinguishQuantity(TestResult['MediaRecorder']);
-	console.log('MediaRecorders测试完成')
 	await webcodec()
 	// await 
 }
 
 // WebCodecs
 async function webcodec() {
+	log.info('WebCodecs测试')
 	document.getElementById('other-part8').style.display = 'block';
 	const buffer = new ArrayBuffer(8);
 	const view = new Int32Array(buffer);
@@ -1521,11 +1727,13 @@ async function webcodec() {
 		$("#other-part8").append(
 			'<div class="line"><span>AudioData():</span><span class="support"></span></div>');
 		TestResult.WebCodecs.AudioData = true;
+		log.info('AudioData()：true')
 	} catch (e) {
-		console.log(e)
+		log.info(e)
 		$("#other-part8").append(
 			'<div class="line"><span>AudioData():</span><span class="notSupport"></span></div>');
 		TestResult.WebCodecs.AudioData = false;
+		log.info('AudioData()：false')
 	}
 
 	try {
@@ -1536,11 +1744,13 @@ async function webcodec() {
 		$("#other-part8").append(
 			'<div class="line"><span>AudioDecoder():</span><span class="support"></span></div>');
 		TestResult.WebCodecs.AudioDecoder = true;
+		log.info('AudioDecoder()：true')
 	} catch (e) {
-		console.log(e)
+		log.info(e)
 		$("#other-part8").append(
 			'<div class="line"><span>AudioDecoder():</span><span class="notSupport"></span></div>');
 		TestResult.WebCodecs.AudioDecoder = false;
+		log.info('AudioDecoder()：false')
 	}
 
 	try {
@@ -1551,11 +1761,13 @@ async function webcodec() {
 		$("#other-part8").append(
 			'<div class="line"><span>AudioEncoder():</span><span class="support"></span></div>');
 		TestResult.WebCodecs.AudioEncoder = true;
+		log.info('AudioEncoder()：true')
 	} catch (e) {
-		console.log(e)
+		log.info(e)
 		$("#other-part8").append(
 			'<div class="line"><span>AudioEncoder():</span><span class="notSupport"></span></div>');
 		TestResult.WebCodecs.AudioEncoder = false;
+		log.info('AudioEncoder()：false')
 	}
 
 	try {
@@ -1566,11 +1778,13 @@ async function webcodec() {
 		$("#other-part8").append(
 			'<div class="line"><span>VideoDecoder():</span><span class="support"></span></div>');
 		TestResult.WebCodecs.VideoDecoder = true;
+		log.info('VideoDecoder()：true')
 	} catch (e) {
-		console.log(e)
+		log.info(e)
 		$("#other-part8").append(
 			'<div class="line"><span>VideoDecoder():</span><span class="notSupport"></span></div>');
 		TestResult.WebCodecs.VideoDecoder = false;
+		log.info('VideoDecoder()：false')
 	}
 
 	try {
@@ -1581,11 +1795,13 @@ async function webcodec() {
 		$("#other-part8").append(
 			'<div class="line"><span>VideoEncoder():</span><span class="support"></span></div>');
 		TestResult.WebCodecs.VideoEncoder = true;
+		log.info('VideoEncoder()：true')
 	} catch (e) {
-		console.log(e)
+		log.info(e)
 		$("#other-part8").append(
 			'<div class="line"><span>VideoEncoder():</span><span class="notSupport"></span></div>');
 		TestResult.WebCodecs.VideoEncoder = false;
+		log.info('VideoEncoder()：false')
 	}
 
 	try {
@@ -1596,11 +1812,13 @@ async function webcodec() {
 		$("#other-part8").append(
 			'<div class="line"><span>VideoFrame():</span><span class="support"></span></div>');
 		TestResult.WebCodecs.VideoFrame = true;
+		log.info('VideoFrame()：true')
 	} catch (e) {
-		console.log(e)
+		log.info(e)
 		$("#other-part8").append(
 			'<div class="line"><span>VideoFrame():</span><span class="notSupport"></span></div>');
 		TestResult.WebCodecs.VideoFrame = false;
+		log.info('VideoFrame()：false')
 	}
 
 	try {
@@ -1612,42 +1830,48 @@ async function webcodec() {
 		$("#other-part8").append(
 			'<div class="line"><span>ImageDecoder():</span><span class="support"></span></div>');
 		TestResult.WebCodecs.ImageDecoder = true;
+		log.info('ImageDecoder()：true')
 	} catch (e) {
-		console.log(e)
+		log.info(e)
 		$("#other-part8").append(
 			'<div class="line"><span>ImageDecoder():</span><span class="notSupport"></span></div>');
 		TestResult.WebCodecs.ImageDecoder = false;
+		log.info('ImageDecoder()：false')
 	}
 	progressContent.style.width = '65%';
 	speed.textContent = '进度 65%';
 	document.getElementById('other-part8').style.display = 'none';
 	document.getElementById('WebCodecs').style.background = distinguishQuantity(TestResult['WebCodecs']);
-	console.log('WebCodecs测试完成')
 	storage()
 }
 
 // 本地存储
 async function storage() {
+	log.info('本地存储测试')
 	document.getElementById('other-part9').style.display = 'block';
 	document.getElementById('other-part10').style.display = 'block';
 	if (typeof window.localStorage !== 'undefined') {
 		$("#other-part9").append(
 			'<div class="line"><span>localStorage:</span><span class="support"></span></div>');
 		TestResult.LocalStorage.localStorage = true;
+		log.info('localStorage：true')
 	} else {
 		$("#other-part9").append(
 			'<div class="line"><span>localStorage:</span><span class="notSupport"></span></div>');
 		TestResult.LocalStorage.localStorage = false;
+		log.info('localStorage：false')
 	}
 
 	if (typeof window.sessionStorage !== 'undefined') {
 		$("#other-part9").append(
 			'<div class="line"><span>sessionStorage:</span><span class="support"></span></div>');
 		TestResult.LocalStorage.sessionStorage = true;
+		log.info('sessionStorage：true')
 	} else {
 		$("#other-part9").append(
 			'<div class="line"><span>sessionStorage:</span><span class="notSupport"></span></div>');
 		TestResult.LocalStorage.sessionStorage = false;
+		log.info('sessionStorage：false')
 	}
 	progressContent.style.width = '70%';
 	speed.textContent = '进度 70%';
@@ -1655,23 +1879,29 @@ async function storage() {
 	document.getElementById('LocalStorage').style.background = distinguishQuantity(TestResult['LocalStorage']);
 	document.getElementById('other-part10').style.display = 'none';
 	document.getElementById('IndexedDB').style.background = distinguishQuantity(TestResult['IndexedDB']);
-	console.log('本地存储测试完成')
-	console.log('IndexedDB测试完成')
+
+	log.info('IndexedDB测试')
+	for (let i in TestResult['IndexedDB']) {
+		log.info(i + '：' + TestResult['IndexedDB'][i])
+	}
 	webtransport()
 }
 
 // IndexedDB
 
 function webtransport() {
+	log.info('其他测试')
 	document.getElementById('other-part11').style.display = 'block';
 	if (typeof window.WebTransport !== 'undefined') {
 		$("#other-part11").append(
 			'<div class="line"><span>WebTransport:</span><span class="support"></span></div>');
 		TestResult.other.WebTransport = true;
+		log.info('WebTransport：true')
 	} else {
 		$("#other-part11").append(
 			'<div class="line"><span>WebTransport:</span><span class="notSupport"></span></div>');
 		TestResult.other.WebTransport = false;
+		log.info('WebTransport：false')
 	}
 
 	if (window.Worker) {
@@ -1679,21 +1909,24 @@ function webtransport() {
 			var myWorker = new Worker('./js/webtransport/worker.js');
 			myWorker.postMessage([1, 2]);
 			myWorker.onmessage = function(e) {
-				console.log('Message received from worker' + e.data);
+				log.info('Message received from worker' + e.data);
 			}
 			$("#other-part11").append(
 				'<div class="line"><span>Web Worker:</span><span class="support"></span></div>');
 			TestResult.other.WebWorker = true;
+			log.info('Web Worker：true')
 		} catch (e) {
-			console.log(e)
+			log.info(e)
 			$("#other-part11").append(
 				'<div class="line"><span>Web Worker:</span><span class="notSupport"></span></div>');
 			TestResult.other.WebWorker = false;
+			log.info('Web Worker：false')
 		}
 	} else {
 		$("#other-part11").append(
 			'<div class="line"><span>Web Worker:</span><span class="notSupport"></span></div>');
 		TestResult.other.WebWorker = false;
+		log.info('Web Worker：false')
 	}
 
 	if (!window.crypto && !window.msCrypto) {
@@ -1704,13 +1937,13 @@ function webtransport() {
 	let secretValue = 'aes'
 	//加密数据
 	let encJson = CryptoJS.AES.encrypt(JSON.stringify(cipherValue), secretValue).toString();
-	// console.log('encJson:', encJson)
+	// log.info('encJson:', encJson)
 	//对加密数据进行base64处理, 原理：就是先将字符串转换为utf8字符数组，再转换为base64数据
 	let encData = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(encJson));
-	// console.log('encData:', encData)
+	// log.info('encData:', encData)
 	//将数据先base64还原，再转为utf8数据
 	let decData = CryptoJS.enc.Base64.parse(encData).toString(CryptoJS.enc.Utf8);
-	// console.log('decData:', decData)
+	// log.info('decData:', decData)
 	//解密数据
 	let decJson = CryptoJS.AES.decrypt(decData, 'aes').toString(CryptoJS.enc.Utf8);
 	// console.warn('CryptoJS.AES.decrypt data:', decJson)
@@ -1720,17 +1953,18 @@ function webtransport() {
 		$("#other-part11").append(
 			'<div class="line"><span>CryptoJS加解密:</span><span class="support"></span></div>');
 		TestResult.other.CryptoJS = true;
+		log.info('CryptoJS加解密：true')
 	} else {
 		$("#other-part11").append(
 			'<div class="line"><span>CryptoJS加解密:</span><span class="notSupport"></span></div>');
 		TestResult.other.CryptoJS = false;
+		log.info('CryptoJS加解密：false')
 		console.warn('解密失败？')
 	}
 	progressContent.style.width = '75%';
 	speed.textContent = '进度 75%';
 	document.getElementById('other-part11').style.display = 'none';
 	document.getElementById('other').style.background = distinguishQuantity(TestResult['other']);
-	console.log('其他测试完成')
 	public()
 	// start({audio: true, video: true})
 }
@@ -1775,7 +2009,7 @@ async function getMedia() {
 			audio.play()
 
 			function callback(event) {
-				console.log(event.message)
+				log.info(event.message)
 			}
 			window.soundDetection.streamMuteSwitch({
 				stream: stream,
@@ -1793,7 +2027,7 @@ async function getMedia() {
 	}
 	progressContent.style.width = '85%';
 	speed.textContent = '进度 85%';
-	logExport()
+	// logExport()
 	network()
 }
 
@@ -1938,7 +2172,7 @@ function network() {
 			report.forEach(item => {
 				statsData[item.id] = deepCopy(item)
 			})
-			// console.log(statsData)
+			// log.info(statsData)
 			let candidate = [];
 			let transport = [];
 			for (let key in statsData) {
@@ -2023,12 +2257,12 @@ function network() {
 
 			stats1 = deepCopy(statsNeed)
 
-			// console.log(transport)
-			// console.log(candidate)
+			// log.info(transport)
+			// log.info(candidate)
 			for (let a in transport) {
 				for (let b in candidate) {
 					if (transport[a].selectedCandidatePairId == candidate[b].id) {
-						// console.log(candidate[b])
+						// log.info(candidate[b])
 					}
 				}
 			}
@@ -2107,7 +2341,7 @@ function network() {
 				lossRates[key] = lossRate
 			}
 
-			// console.log(lossRates)
+			// log.info(lossRates)
 			for (let j in lossRates) {
 				if (lossRates[j].codecName === 'video' && lossRates[j]
 					.lossRate !== 'negative') {
@@ -2127,7 +2361,7 @@ function network() {
 		} else {
 			type = '好'
 		}
-		console.log((roundTripTime / 2).toFixed() + 'ms', jitter)
+		log.info((roundTripTime / 2).toFixed() + 'ms', jitter)
 		clearTimeout(time)
 		$("#public-part2").append(
 			'<div class="line"><span>网络延迟:</span><span class="support"></span></div>');
