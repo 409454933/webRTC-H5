@@ -207,48 +207,48 @@ let quickScan = [{
 		'ratio': '16:9',
 		'frameRate': 15
 	},
-	{
-		'label': 'CIF',
-		'width': 352,
-		'height': 288,
-		'ratio': '4:3',
-		'frameRate': 30
-	},
-	{
-		'label': 'CIF',
-		'width': 352,
-		'height': 288,
-		'ratio': '4:3',
-		'frameRate': 15
-	},
-	{
-		'label': 'QVGA',
-		'width': 320,
-		'height': 240,
-		'ratio': '4:3',
-		'frameRate': 30
-	},
-	{
-		'label': 'QVGA',
-		'width': 320,
-		'height': 240,
-		'ratio': '4:3',
-		'frameRate': 15
-	},
-	{
-		'label': '180p?',
-		'width': 320,
-		'height': 180,
-		'ratio': '16:9',
-		'frameRate': 30
-	},
-	{
-		'label': '180p?',
-		'width': 320,
-		'height': 180,
-		'ratio': '16:9',
-		'frameRate': 15
-	}
+	// {
+	// 	'label': 'CIF',
+	// 	'width': 352,
+	// 	'height': 288,
+	// 	'ratio': '4:3',
+	// 	'frameRate': 30
+	// },
+	// {
+	// 	'label': 'CIF',
+	// 	'width': 352,
+	// 	'height': 288,
+	// 	'ratio': '4:3',
+	// 	'frameRate': 15
+	// },
+	// {
+	// 	'label': 'QVGA',
+	// 	'width': 320,
+	// 	'height': 240,
+	// 	'ratio': '4:3',
+	// 	'frameRate': 30
+	// },
+	// {
+	// 	'label': 'QVGA',
+	// 	'width': 320,
+	// 	'height': 240,
+	// 	'ratio': '4:3',
+	// 	'frameRate': 15
+	// },
+	// {
+	// 	'label': '180p?',
+	// 	'width': 320,
+	// 	'height': 180,
+	// 	'ratio': '16:9',
+	// 	'frameRate': 30
+	// },
+	// {
+	// 	'label': '180p?',
+	// 	'width': 320,
+	// 	'height': 180,
+	// 	'ratio': '16:9',
+	// 	'frameRate': 15
+	// }
 	// {
 	// 	'label': 'QCIF',
 	// 	'width': 176,
