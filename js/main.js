@@ -2,7 +2,7 @@
 /**
  * video虚拟背景测试
  */
-async function streamBackgroundTest(res){
+async function streamBackgroundTest(){
 	let LocalVideo = document.getElementById('video')
 	if(!StreamBackgroundEffect){
 		LocalVideo.style.display = 'block'
@@ -12,30 +12,16 @@ async function streamBackgroundTest(res){
 		console.log('current res: '+ LocalVideo.videoWidth + '*' + LocalVideo.videoHeight)
 		if(LocalVideo.videoWidth && LocalVideo.videoHeight){
 			console.log('如果video成功显示视频并带有虚拟背景的效果，说明支持虚拟背景设置，否则不支持')
-            return 'ok'
 		}else{
-            return 'no'
         }
 	}
 
 	let backgroundEffect = await new StreamBackgroundEffect()
-    let constraints
-    if(res){
-        constraints = {
-            audio: false,
-            video: {
-                facingMode: {
-                    exact: "environment"
-                }
-            }
-        };
-    }else{
-       constraints = {
-           audio: false,
-           video: true
-       };
-    }
-	let localStream = await navigator.mediaDevices.getUserMedia(constraints)
+    let constraints = {
+        audio: false,
+        video: true
+    };
+	virtualBackgroundStream = await navigator.mediaDevices.getUserMedia(constraints)
 
 	let virtualBackgroundOption =  {
 		"backgroundType": "image",
@@ -44,7 +30,7 @@ async function streamBackgroundTest(res){
 		"virtualSource": "./js/images/background-1.jpg"
 	}
 	backgroundEffect.setVirtualBackground(virtualBackgroundOption)
-	LocalVideo.srcObject = await backgroundEffect.startEffect(localStream)
+	LocalVideo.srcObject = await backgroundEffect.startEffect(virtualBackgroundStream)
 	LocalVideo.style.display = 'block'
 }
 

@@ -36,7 +36,14 @@ let TestResult = {
 	getStats: {},
 	Manualselection: {}
 }
+let virtualBackgroundStream = null
 let share = document.getElementsByClassName('share')
+
+// document.getElementById('select').addEventListener( 'change', function(e) {
+//    let res = $('#select').children('option:selected').val()
+//    console.log(r)
+// })
+// let res = $('#select').children('option:selected').val()
 
 document.getElementById('videoCheckbox').addEventListener( 'change', function() {
     if(this.checked) {
@@ -77,6 +84,11 @@ document.getElementById('backgroundCheckbox').addEventListener( 'change', functi
     	TestResult.Manualselection.VirtualBackground = false;
     }
 });
+
+document.getElementById('shareAudio').onclick = function(){
+	navigator.mediaDevices.getDisplayMedia({video: true, audio: true}).then(stream => {})
+		.catch(function(err) {});
+}
 let log = {}
 let test = false
 let vconsole = null
@@ -285,8 +297,13 @@ document.getElementById('exportLog').onclick = function() {
 }
 
 document.getElementById('start').onclick = function() {
+	//
+	//tracks(virtualBackgroundStream)
+	var tracks = document.getElementById('video').srcObject.getTracks();
+	for(var i = 0 ; i< tracks.length ; i++){
+	    tracks[i].stop();
+	}
 	testingEnvironment()
-
 	// mask.style.display = 'flex';
 	// Switch1()
 }
@@ -359,6 +376,7 @@ function setBlockHeadersDisplay(displayStyle) {
 // 测试环境
 function testingEnvironment() {
 	test = true
+	tracks(virtualBackgroundStream)
 	log.debug = window.debug('indexedDB:DEBUG')
 	log.log = window.debug('indexedDB:LOG')
 	log.info = window.debug('indexedDB:INFO')

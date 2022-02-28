@@ -229,7 +229,6 @@ SoundMeter.prototype.checkAudioOutputVolume = async function (data) {
 									for(let n in TestResult['getStats']){
 										log.info(n + '：' + TestResult['getStats'][n])
 									}
-									streamBackgroundTest()
 									progressContent.style.width = '100%';
 									speed.textContent = '测试完成';
 									test = false
@@ -250,7 +249,6 @@ SoundMeter.prototype.checkAudioOutputVolume = async function (data) {
 									for(let n in TestResult['getStats']){
 										log.info(n + '：' + TestResult['getStats'][n])
 									}
-									streamBackgroundTest()
 									progressContent.style.width = '100%';
 									speed.textContent = '测试完成';
 									test = false

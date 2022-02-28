@@ -717,7 +717,7 @@
 						<div class="line">
 							<span>共享桌面时共享音频:</span>
 							<label><input type="checkbox" id="ausioCheckbox">支持</label>
-							<button type="button" class="share">查看是否支持</button>
+							<button type="button" id="shareAudio">查看是否支持</button>
 						</div>
 						<div class="line">
 							<span>本地虚拟背景设置:</span>
@@ -754,6 +754,7 @@
 				setBlockHeadersDisplay('none')
 				WebAssembly()
 				indexedDB()
+				streamBackgroundTest()
 				if(SoundMeter) {
 				    window.soundDetection = new SoundMeter()
 				}
