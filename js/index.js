@@ -1249,27 +1249,7 @@ function MediaStreamTracks() {
 function MediaTrackSettings(){
 	log.info('MediaTrackSettings检测')
 	document.getElementById('interface-part10').style.display = 'block';
-	let constraints = {
-	  video : {
-	    // 宽度在300 - 640之间进行自适应
-	    width : {
-	    	min: 300,
-	      max: 640,
-	    },
-	    height: 480
-	    
-	  },
-	  audio : {
-		// 设置回音消除
-	    noiseSuppression: true,
-	    // 设置降噪
-	    echoCancellation: true,
-		// 设置增加音量
-		autoGainControl: true
-	  },
-	 
-	};
-	navigator.mediaDevices.getUserMedia(constraints)
+	navigator.mediaDevices.getUserMedia({video: true, audio: true})
 	  	.then(stream => {
 			console.log(stream.getTracks()[0].getSettings())
 			let mediaTrackSettings = JSON.stringify(stream.getTracks()[0].getSettings())
