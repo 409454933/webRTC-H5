@@ -17,7 +17,7 @@ function getBrowserDetail() {
 	result.systemFriendlyName = null
 	result.UA = navigator.userAgent
 	result.resolvingPower = window.screen.width + ' * ' + window.screen.height
-	console.log(navigator.userAgent.match(/Windows/))
+
 	if (navigator.userAgent.match(/Windows/)) {
 		result.systemFriendlyName = 'windows'
 	} else if (navigator.userAgent.match(/Mac/)) {

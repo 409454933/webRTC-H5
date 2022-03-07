@@ -13,7 +13,6 @@ let TestResult = {
 	getUserMedia: {},
 	MediaStream: {},
 	MediaStreamTrack: {},
-	MediaTrackSettings: {},
 	CodecList: {
 		audioCodecs: {},
 		audioDecoding: {},
@@ -991,6 +990,41 @@ async function getDisplayMedia() {
 async function resolvingPower() {
 	log.info('MediaDevices.getUserMedia检测')
 	document.getElementById('interface-part7').style.display = 'block';
+	await navigator.mediaDevices.getUserMedia({video: true, audio: true})
+	  	.then(stream => {
+			console.log(stream.getTracks()[0].getSettings())
+			let mediaTrackSettings = JSON.stringify(stream.getTracks()[0].getSettings())
+			let data = [
+				{
+					name: 'AGC',
+					type: 'autoGainControl'
+				},
+				{
+					name: 'EC',
+					type: 'echoCancellation'
+				},
+				{
+					name: 'NS',
+					type: 'noiseSuppression'
+				},
+			]
+			for(let i in data){
+				if(mediaTrackSettings.indexOf(data[i].type) !== -1){
+					$("#interface-part7").append(
+						'<div class="line"><span>' + data[i].type + '(' + data[i].name + ')' + '</span><span class="support"></span></div>'
+					);
+					TestResult.getUserMedia[data[i].type] = true;
+					log.info(data[i].type + '(' + data[i].name + ')' + '：true')
+				}else{
+					$("#interface-part7").append(
+						'<div class="line"><span>' + data[i].type + '(' + data[i].name + ')' + '</span><span class="notSupport"></span></div>'
+					);
+					TestResult.getUserMedia[data[i].type] = false;
+					log.info(data[i].type + '(' + data[i].name + ')' + '：false')
+				}
+			}
+			tracks(stream)
+		})
 	let data = [{
 		name: 'max',
 		value: {
@@ -1238,58 +1272,12 @@ function MediaStreamTracks() {
 		.catch(err => {
 			log.info(err)
 		})
-	progressContent.style.width = '38%';
-	speed.textContent = '进度 38%';
+	progressContent.style.width = '40%';
+	speed.textContent = '进度 40%';
 	document.getElementById('interface-part9').style.display = 'none';
 	document.getElementById('MediaStreamTrack').style.background = distinguishQuantity(TestResult['MediaStreamTrack']);
 
-	MediaTrackSettings();
-}
-
-function MediaTrackSettings(){
-	log.info('MediaTrackSettings检测')
-	document.getElementById('interface-part10').style.display = 'block';
-	navigator.mediaDevices.getUserMedia({video: true, audio: true})
-	  	.then(stream => {
-			console.log(stream.getTracks()[0].getSettings())
-			let mediaTrackSettings = JSON.stringify(stream.getTracks()[0].getSettings())
-			let data = [
-				{
-					name: 'AGC',
-					type: 'autoGainControl'
-				},
-				{
-					name: 'EC',
-					type: 'echoCancellation'
-				},
-				{
-					name: 'NS',
-					type: 'noiseSuppression'
-				},
-			]
-			for(let i in data){
-				if(mediaTrackSettings.indexOf(data[i].type) !== -1){
-					$("#interface-part10").append(
-						'<div class="line"><span>' + data[i].type + '(' + data[i].name + ')' + '</span><span class="support"></span></div>'
-					);
-					TestResult.MediaTrackSettings[data[i].type] = true;
-					log.info(data[i].type + '(' + data[i].name + ')' + '：true')
-				}else{
-					$("#interface-part10").append(
-						'<div class="line"><span>' + data[i].type + '(' + data[i].name + ')' + '</span><span class="notSupport"></span></div>'
-					);
-					TestResult.MediaTrackSettings[data[i].type] = false;
-					log.info(data[i].type + '(' + data[i].name + ')' + '：false')
-				}
-			}
-			tracks(stream)
-		})
-		
-	progressContent.style.width = '40%';
-	speed.textContent = '进度 40%';
-	document.getElementById('interface-part10').style.display = 'none';
-	document.getElementById('MediaTrackSettings').style.background = distinguishQuantity(TestResult['MediaTrackSettings']);
-	codes()
+	codes();
 }
 
 function codes() {
