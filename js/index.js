@@ -1010,13 +1010,13 @@ async function resolvingPower() {
 			]
 			for(let i in data){
 				if(mediaTrackSettings.indexOf(data[i].type) !== -1){
-					$("#interface-part7").append(
+					$("#limit").append(
 						'<div class="line"><span>' + data[i].type + '(' + data[i].name + ')' + '</span><span class="support"></span></div>'
 					);
 					TestResult.getUserMedia[data[i].type] = true;
 					log.info(data[i].type + '(' + data[i].name + ')' + '：true')
 				}else{
-					$("#interface-part7").append(
+					$("#limit").append(
 						'<div class="line"><span>' + data[i].type + '(' + data[i].name + ')' + '</span><span class="notSupport"></span></div>'
 					);
 					TestResult.getUserMedia[data[i].type] = false;
@@ -1077,7 +1077,7 @@ async function resolvingPower() {
 			})
 			.catch(err => {
 				/* 处理error */
-				$("#video" + i).append(
+				$("#limit").append(
 					'<div class="line"><span>' + data[n].name +
 					':</span><span class="notSupport"></span></div>'
 				);
