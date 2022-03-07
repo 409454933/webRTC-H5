@@ -13,6 +13,7 @@ let TestResult = {
 	getUserMedia: {},
 	MediaStream: {},
 	MediaStreamTrack: {},
+	MediaTrackSettings: {},
 	CodecList: {
 		audioCodecs: {},
 		audioDecoding: {},
@@ -45,48 +46,51 @@ let share = document.getElementsByClassName('share')
 // })
 // let res = $('#select').children('option:selected').val()
 
-document.getElementById('videoCheckbox').addEventListener( 'change', function() {
-    if(this.checked) {
-    	TestResult.Manualselection.EveryVisit = true;
-    } else {
-    	TestResult.Manualselection.EveryVisit = false;
-    }
+document.getElementById('videoCheckbox').addEventListener('change', function() {
+	if (this.checked) {
+		TestResult.Manualselection.EveryVisit = true;
+	} else {
+		TestResult.Manualselection.EveryVisit = false;
+	}
 })
 
-document.getElementById('winCheckbox').addEventListener( 'change', function() {
-    if(this.checked) {
-    	TestResult.Manualselection.MultipleWin = true;
-    } else {
-    	TestResult.Manualselection.MultipleWin = false;
-    }
+document.getElementById('winCheckbox').addEventListener('change', function() {
+	if (this.checked) {
+		TestResult.Manualselection.MultipleWin = true;
+	} else {
+		TestResult.Manualselection.MultipleWin = false;
+	}
 })
 
-document.getElementById('multipleCheckbox').addEventListener( 'change', function() {
-    if(this.checked) {
-    	TestResult.Manualselection.MultiplePages = true;
-    } else {
-    	TestResult.Manualselection.MultiplePages = false;
-    }
+document.getElementById('multipleCheckbox').addEventListener('change', function() {
+	if (this.checked) {
+		TestResult.Manualselection.MultiplePages = true;
+	} else {
+		TestResult.Manualselection.MultiplePages = false;
+	}
 });
 
-document.getElementById('ausioCheckbox').addEventListener( 'change', function() {
-    if(this.checked) {
-    	TestResult.Manualselection.ShareAudio = true;
-    } else {
-    	TestResult.Manualselection.ShareAudio = false;
-    }
+document.getElementById('ausioCheckbox').addEventListener('change', function() {
+	if (this.checked) {
+		TestResult.Manualselection.ShareAudio = true;
+	} else {
+		TestResult.Manualselection.ShareAudio = false;
+	}
 });
 
-document.getElementById('backgroundCheckbox').addEventListener( 'change', function() {
-    if(this.checked) {
-    	TestResult.Manualselection.VirtualBackground = true;
-    } else {
-    	TestResult.Manualselection.VirtualBackground = false;
-    }
+document.getElementById('backgroundCheckbox').addEventListener('change', function() {
+	if (this.checked) {
+		TestResult.Manualselection.VirtualBackground = true;
+	} else {
+		TestResult.Manualselection.VirtualBackground = false;
+	}
 });
 
-document.getElementById('shareAudio').onclick = function(){
-	navigator.mediaDevices.getDisplayMedia({video: true, audio: true}).then(stream => {})
+document.getElementById('shareAudio').onclick = function() {
+	navigator.mediaDevices.getDisplayMedia({
+			video: true,
+			audio: true
+		}).then(stream => {})
 		.catch(function(err) {});
 }
 let log = {}
@@ -206,77 +210,51 @@ let quickScan = [{
 		'height': 360,
 		'ratio': '16:9',
 		'frameRate': 15
+	}
+]
+
+let quickScan1 = [{
+		'label': '4K(UHD)',
+		'width': 3840,
+		'height': 2160,
+		'ratio': '16:9'
 	},
-	// {
-	// 	'label': 'CIF',
-	// 	'width': 352,
-	// 	'height': 288,
-	// 	'ratio': '4:3',
-	// 	'frameRate': 30
-	// },
-	// {
-	// 	'label': 'CIF',
-	// 	'width': 352,
-	// 	'height': 288,
-	// 	'ratio': '4:3',
-	// 	'frameRate': 15
-	// },
-	// {
-	// 	'label': 'QVGA',
-	// 	'width': 320,
-	// 	'height': 240,
-	// 	'ratio': '4:3',
-	// 	'frameRate': 30
-	// },
-	// {
-	// 	'label': 'QVGA',
-	// 	'width': 320,
-	// 	'height': 240,
-	// 	'ratio': '4:3',
-	// 	'frameRate': 15
-	// },
-	// {
-	// 	'label': '180p?',
-	// 	'width': 320,
-	// 	'height': 180,
-	// 	'ratio': '16:9',
-	// 	'frameRate': 30
-	// },
-	// {
-	// 	'label': '180p?',
-	// 	'width': 320,
-	// 	'height': 180,
-	// 	'ratio': '16:9',
-	// 	'frameRate': 15
-	// }
-	// {
-	// 	'label': 'QCIF',
-	// 	'width': 176,
-	// 	'height': 144,
-	// 	'ratio': '4:3',
-	// 	'frameRate': 30
-	// },
-	// {
-	// 	'label': 'QCIF',
-	// 	'width': 176,
-	// 	'height': 144,
-	// 	'ratio': '4:3',
-	// 	'frameRate': 15
-	// },
-	// {
-	// 	'label': 'QQVGA',
-	// 	'width': 160,
-	// 	'height': 120,
-	// 	'ratio': '4:3',
-	// 	'frameRate': 30
-	// },
-	// {
-	// 	'label': 'QQVGA',
-	// 	'width': 160,
-	// 	'height': 120,
-	// 	'ratio': '4:3',
-	// 	'frameRate': 15
-	// }
+	{
+		'label': '1080p(FHD)',
+		'width': 1920,
+		'height': 1080,
+		'ratio': '16:9'
+	},
+	{
+		'label': 'UXGA',
+		'width': 1600,
+		'height': 1200,
+		'ratio': '4:3'
+	},
+	{
+		'label': '720p(HD)',
+		'width': 1280,
+		'height': 720,
+		'ratio': '16:9'
+	},
+	{
+		'label': 'SVGA',
+		'width': 800,
+		'height': 600,
+		'ratio': '4:3'
+	},
+	{
+		'label': 'VGA',
+		'width': 640,
+		'height': 480,
+		'ratio': '4:3'
+	},
+	{
+		'label': '360p(nHD)',
+		'width': 640,
+		'height': 360,
+		'ratio': '16:9'
+	}
 ]
 
 for (let i in share) {
@@ -297,15 +275,11 @@ document.getElementById('exportLog').onclick = function() {
 }
 
 document.getElementById('start').onclick = function() {
-	//
-	//tracks(virtualBackgroundStream)
 	var tracks = document.getElementById('video').srcObject.getTracks();
-	for(var i = 0 ; i< tracks.length ; i++){
-	    tracks[i].stop();
+	for (var i = 0; i < tracks.length; i++) {
+		tracks[i].stop();
 	}
 	testingEnvironment()
-	// mask.style.display = 'flex';
-	// Switch1()
 }
 
 let blockHeaders = document.getElementsByClassName('block-header')
@@ -949,6 +923,7 @@ async function getDisplayMedia() {
 		TestResult.getDisplayMedia.getDisplayMedia = false;
 		log.info('getDisplayMedia 事件：false')
 	} else {
+		console.log('共享')
 		await navigator.mediaDevices.getDisplayMedia(constraints)
 			.then(stream => {
 				let video = document.createElement('video');
@@ -966,6 +941,10 @@ async function getDisplayMedia() {
 				log.info(err)
 			});
 
+		if (BrowserDetail.browser == 'firefox') {
+			// resolvingPower()
+			return
+		}
 		let data = ['5', '15', '30']
 		for (let i in data) {
 			let constraints1 = {
@@ -1004,7 +983,7 @@ async function getDisplayMedia() {
 	speed.textContent = '进度 30%';
 	document.getElementById('interface-part6').style.display = 'none';
 	document.getElementById('getDisplayMedia').style.background = distinguishQuantity(TestResult[
-	'getDisplayMedia']);
+		'getDisplayMedia']);
 	resolvingPower()
 };
 
@@ -1012,10 +991,6 @@ async function getDisplayMedia() {
 async function resolvingPower() {
 	log.info('MediaDevices.getUserMedia检测')
 	document.getElementById('interface-part7').style.display = 'block';
-
-	'max',
-	'ideal',
-	'exact'
 	let data = [{
 		name: 'max',
 		value: {
@@ -1079,67 +1054,72 @@ async function resolvingPower() {
 	for (let i in Videos) {
 		$("#interface-part7").append(
 			'<div class="line" id="video' + i + '"><span>' + Videos[i].label + '支持的分辨率和帧率:</span></div>');
-		for (let j in quickScan) {
-			let constraints = {
-				audio: false,
-				video: {
-					deviceId: Videos[i].devices ? {
-						exact: Videos[i].devices
-					} : undefined,
-					width: {
-						exact: quickScan[j].width
-					},
-					height: {
-						exact: quickScan[j].height
-					},
-					frameRate: {
-						exact: quickScan[j].frameRate
+		if (BrowserDetail.browser == 'firefox') {
+			for (let j in quickScan1) {
+				let constraints = {
+					audio: false,
+					video: {
+						deviceId: Videos[i].devices ? {
+							exact: Videos[i].devices
+						} : undefined,
+						width: {
+							exact: quickScan1[j].width
+						},
+						height: {
+							exact: quickScan1[j].height
+						}
 					}
-				}
-			};
-			if (BrowserDetail.browser == 'firefox') {
-				delete constraints.video.frameRate
-			}
-			await navigator.mediaDevices.getUserMedia(constraints)
-				.then(stream => {
-					if (BrowserDetail.browser == 'firefox') {
-						$("#video" + i).append(
-							'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height +
-							':</span><span class="support"></span></div>');
-						TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height] = true;
-						log.info(quickScan[j].width + " * " + quickScan[j].height + '：true')
-					} else {
-						$("#video" + i).append(
-							'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height +
-							" * " + 'frameRate:' + quickScan[j].frameRate +
-							':</span><span class="support"></span></div>');
-						TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height + " * " +
-							'frameRate:' + quickScan[j].frameRate] = true;
-						log.info(quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' +
-							quickScan[j].frameRate + '：true')
-					}
-					tracks(stream)
-				})
-				.catch(err => {
-					/* 处理error */
-					if (BrowserDetail.browser == 'firefox') {
-						$("#video" + i).append(
-							'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height +
-							':</span><span class="notSupport"></span></div>');
+				};
+				await navigator.mediaDevices.getUserMedia(constraints)
+					.then(stream => {
+						$("#video" + i).append('<div class="line"><span>' + quickScan1[j].width + " * " + quickScan1[j].height + ':</span><span class="support"></span></div>');
+						TestResult.getUserMedia[quickScan1[j].width + " * " + quickScan1[j].height] = true;
+						log.info(quickScan1[j].width + " * " + quickScan1[j].height + '：true')
+						tracks(stream)
+					})
+					.catch(err => {
+						/* 处理error */
+						$("#video" + i).append('<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height + ':</span><span class="notSupport"></span></div>');
 						TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height] = false;
 						log.info(quickScan[j].width + " * " + quickScan[j].height + '：false')
-					} else {
-						$("#video" + i).append(
-							'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height +
-							" * " + 'frameRate:' + quickScan[j].frameRate +
-							':</span><span class="notSupport"></span></div>');
-						TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height + " * " +
-							'frameRate:' + quickScan[j].frameRate] = false;
-						log.info(quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' +
-							quickScan[j].frameRate + '：false')
+					});
+			}
+		} else {
+			for (let j in quickScan) {
+				let constraints = {
+					audio: false,
+					video: {
+						deviceId: Videos[i].devices ? {
+							exact: Videos[i].devices
+						} : undefined,
+						width: {
+							exact: quickScan[j].width
+						},
+						height: {
+							exact: quickScan[j].height
+						},
+						frameRate: {
+							exact: quickScan[j].frameRate
+						}
 					}
-				});
+				};
+				await navigator.mediaDevices.getUserMedia(constraints)
+					.then(stream => {
+						$("#video" + i).append('<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' + quickScan[j].frameRate + ':</span><span class="support"></span></div>');
+						TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' + quickScan[j].frameRate] = true;
+						log.info(quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' + quickScan[j].frameRate + '：true')
+						tracks(stream)
+					})
+					.catch(err => {
+						/* 处理error */
+						$("#video" + i).append(
+							'<div class="line"><span>' + quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' + quickScan[j].frameRate + ':</span><span class="notSupport"></span></div>');
+						TestResult.getUserMedia[quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' + quickScan[j].frameRate] = false;
+						log.info(quickScan[j].width + " * " + quickScan[j].height + " * " + 'frameRate:' + quickScan[j].frameRate + '：false')
+					});
+			}
 		}
+
 	}
 	progressContent.style.width = '35%';
 	speed.textContent = '进度 35%';
@@ -1258,12 +1238,58 @@ function MediaStreamTracks() {
 		.catch(err => {
 			log.info(err)
 		})
-	progressContent.style.width = '40%';
-	speed.textContent = '进度 40%';
+	progressContent.style.width = '38%';
+	speed.textContent = '进度 38%';
 	document.getElementById('interface-part9').style.display = 'none';
 	document.getElementById('MediaStreamTrack').style.background = distinguishQuantity(TestResult['MediaStreamTrack']);
 
-	codes();
+	MediaTrackSettings();
+}
+
+function MediaTrackSettings(){
+	log.info('MediaTrackSettings检测')
+	document.getElementById('interface-part10').style.display = 'block';
+	navigator.mediaDevices.getUserMedia({video: true, audio: true})
+	  	.then(stream => {
+			console.log(stream.getTracks()[0].getSettings())
+			let mediaTrackSettings = JSON.stringify(stream.getTracks()[0].getSettings())
+			let data = [
+				{
+					name: 'AGC',
+					type: 'autoGainControl'
+				},
+				{
+					name: 'EC',
+					type: 'echoCancellation'
+				},
+				{
+					name: 'NS',
+					type: 'noiseSuppression'
+				},
+			]
+			for(let i in data){
+				if(mediaTrackSettings.indexOf(data[i].type) !== -1){
+					$("#interface-part10").append(
+						'<div class="line"><span>' + data[i].type + '(' + data[i].name + ')' + '</span><span class="support"></span></div>'
+					);
+					TestResult.MediaTrackSettings[data[i].type] = true;
+					log.info(data[i].type + '(' + data[i].name + ')' + '：true')
+				}else{
+					$("#interface-part9").append(
+						'<div class="line"><span>' + data[i] + '</span><span class="notSupport"></span></div>'
+					);
+					TestResult.MediaTrackSettings[data[i].type] = false;
+					log.info(data[i].type + '(' + data[i].name + ')' + '：false')
+				}
+			}
+			tracks(stream)
+		})
+		
+	progressContent.style.width = '40%';
+	speed.textContent = '进度 40%';
+	document.getElementById('interface-part10').style.display = 'none';
+	document.getElementById('MediaTrackSettings').style.background = distinguishQuantity(TestResult['MediaTrackSettings']);
+	codes()
 }
 
 function codes() {
