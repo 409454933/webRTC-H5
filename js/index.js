@@ -847,50 +847,52 @@ async function Receiver() {
 function enumerateDevices() {
 	log.info('MediaDevices.enumerateDevices检测')
 	document.getElementById('interface-part5').style.display = 'block';
-	navigator.mediaDevices.enumerateDevices()
-		.then(devices => {
-			for (let i in devices) {
-				if (devices[i].deviceId !== 'default' && devices[i].deviceId !== 'communications') {
-					if (devices[i].kind == 'audioinput') {
-						$("#audio-input").append('<li>' + devices[i].label + '</li>');
-						TestResult.enumerateDevices.audioinput.push(devices[i].label);
-						log.info('audioinput：' + devices[i].label)
-					} else if (devices[i].kind == 'audiooutput') {
-						$("#audio-output").append('<li>' + devices[i].label + '</li>');
-						TestResult.enumerateDevices.audiooutput.push(devices[i].label);
-						log.info('audiooutput：' + devices[i].label)
-					} else if (devices[i].kind == 'videoinput') {
-						let datas = {
-							label: devices[i].label,
-							devices: devices[i].deviceId
-						}
-						Videos.push(datas)
-						TestResult.enumerateDevices.videoinput.push(devices[i].label);
-						log.info('videoinput：' + devices[i].label)
-						$("#video-input").append('<li>' + devices[i].label + '</li>');
+	let Stream = stream;
+	navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(stream => {
+		Stream = stream
+		return navigator.mediaDevices.enumerateDevices();
+	}).then(devices => {
+		tracks(Stream)
+		for (let i in devices) {
+			if (devices[i].deviceId !== 'default' && devices[i].deviceId !== 'communications') {
+				if (devices[i].kind == 'audioinput') {
+					$("#audio-input").append('<li>' + devices[i].label + '</li>');
+					TestResult.enumerateDevices.audioinput.push(devices[i].label);
+					log.info('audioinput：' + devices[i].label)
+				} else if (devices[i].kind == 'audiooutput') {
+					$("#audio-output").append('<li>' + devices[i].label + '</li>');
+					TestResult.enumerateDevices.audiooutput.push(devices[i].label);
+					log.info('audiooutput：' + devices[i].label)
+				} else if (devices[i].kind == 'videoinput') {
+					let datas = {
+						label: devices[i].label,
+						devices: devices[i].deviceId
 					}
+					Videos.push(datas)
+					TestResult.enumerateDevices.videoinput.push(devices[i].label);
+					log.info('videoinput：' + devices[i].label)
+					$("#video-input").append('<li>' + devices[i].label + '</li>');
 				}
 			}
-			$("#interface-part5").prepend(
-				'<div class="line"><span>enumerateDevices获取设备列表:</span><span class="support"></span></div>');
-			TestResult.enumerateDevices.enumerateDevices = true;
-			log.info('enumerateDevices获取设备列表：true')
-			log.info('获取音视频设备列表：true')
-			$("#public-part1").append(
-				'<div class="line"><span>获取音视频设备列表:</span><span class="support"></span></div>');
-
-		})
-		.catch(function(err) {
-			// log.info(e)
-			log.info(err)
-			$("#interface-part5").append(
-				'<div class="line">enumerateDevices获取设备列表:</span><span class="notSupport"></span></div>');
-			TestResult.enumerateDevices.enumerateDevices = false;
-			$("#public-part1").append(
-				'<div class="line"><span>获取音视频设备列表:</span><span class="support"></span></div>');
-			log.info('enumerateDevices获取设备列表：false')
-			log.info('获取音视频设备列表：false')
-		});
+		}
+		$("#interface-part5").prepend(
+			'<div class="line"><span>enumerateDevices获取设备列表:</span><span class="support"></span></div>');
+		TestResult.enumerateDevices.enumerateDevices = true;
+		log.info('enumerateDevices获取设备列表：true')
+		log.info('获取音视频设备列表：true')
+		$("#public-part1").append(
+			'<div class="line"><span>获取音视频设备列表:</span><span class="support"></span></div>');
+	}).catch(err => {
+		log.info(err)
+		$("#interface-part5").append(
+			'<div class="line">enumerateDevices获取设备列表:</span><span class="notSupport"></span></div>');
+		TestResult.enumerateDevices.enumerateDevices = false;
+		$("#public-part1").append(
+			'<div class="line"><span>获取音视频设备列表:</span><span class="support"></span></div>');
+		log.info('enumerateDevices获取设备列表：false')
+		log.info('获取音视频设备列表：false')
+	});
+	
 	navigator.mediaDevices.ondevicechange = event => {
 		$("#interface-part5").append(
 			'<div class="line"><span>ondevicechange 事件:</span><span class="support"></span></div>');
@@ -941,9 +943,11 @@ async function getDisplayMedia() {
 			});
 
 		if (BrowserDetail.browser == 'firefox') {
-			// resolvingPower()
+			resolvingPower()
 			return
 		}
+		$("#interface-part6").prepend(
+			'<div class="line"><span>enumerateDevices获取设备列表:</span><span class="support"></span></div>');
 		let data = ['5', '15', '30']
 		for (let i in data) {
 			let constraints1 = {
@@ -1086,8 +1090,14 @@ async function resolvingPower() {
 			});
 	}
 	for (let i in Videos) {
-		$("#interface-part7").append(
-			'<div class="line" id="video' + i + '"><span>' + Videos[i].label + '支持的分辨率和帧率:</span></div>');
+		if(BrowserDetail.browser == 'firefox'){
+			$("#interface-part7").append(
+				'<div class="line" id="video' + i + '"><span>' + Videos[i].label + '支持的分辨率:</span></div>');
+		}else{
+			$("#interface-part7").append(
+				'<div class="line" id="video' + i + '"><span>' + Videos[i].label + '支持的分辨率和帧率:</span></div>');
+		}
+		
 		if (BrowserDetail.browser == 'firefox') {
 			for (let j in quickScan1) {
 				let constraints = {
