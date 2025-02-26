@@ -1,0 +1,27 @@
+{
+    "name": "周报生成",
+    "description": "Atlassian Connect app",
+    "key": "com.example.myapp",
+    "baseUrl": "https://192.168.120.100/jira",
+    "authentication": {
+        "type": "none"
+    },
+    "scopes": [
+        "READ"
+    ],
+    "apiMigrations":{
+        "signed-install": true
+    },
+    "modules": {
+        "generalPages": [
+            {
+                "url": "/",
+                "key": "hello-world",
+                "location": "system.top.navigation.bar",
+                "name": {
+                    "value": "Generate"
+                }
+            }
+        ]
+    }
+}
