@@ -19,7 +19,7 @@
                 "key": "hello-world",
                 "location": "system.top.navigation.bar",
                 "name": {
-                    "value": "Generate"
+                    "value": "周报生成"
                 }
             }
         ]
