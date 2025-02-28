@@ -2,7 +2,7 @@
     "name": "周报生成",
     "description": "Atlassian Connect app",
     "key": "com.example.myapp",
-    "baseUrl": "https://192.168.120.100/jira",
+    "baseUrl": "http://192.168.131.32:8080",
     "authentication": {
         "type": "none"
     },
