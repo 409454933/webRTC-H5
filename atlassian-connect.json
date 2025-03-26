@@ -2,19 +2,16 @@
     "name": "周报生成",
     "description": "Atlassian Connect app",
     "key": "com.example.myapp",
-    "baseUrl": "https://jira.ipvideotalk.com",
+    "baseUrl": "https://192.168.131.32",
     "authentication": {
         "type": "jwt"
     },
     "lifecycle": {
-        "installed": "/"
+        "installed": "/app-installed-callback"
     },
     "scopes": [
         "read", "write"
     ],
-    "apiMigrations":{
-        "signed-install": true
-    },
     "modules": {
         "generalPages": [
             {
