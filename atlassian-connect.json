@@ -4,14 +4,14 @@
     "key": "com.example.myapp",
     "baseUrl": "https://192.168.131.32:8080",
     "authentication": {
-        "type": "none"
+        "type": "jwt"
     },
-    "scopes": [
-        "jwt"
-    ],
     "lifecycle": {
         "installed": "/app-installed-callback"
     },
+    "scopes": [
+        "read", "write"
+    ],
     "apiMigrations":{
         "signed-install": true
     },
