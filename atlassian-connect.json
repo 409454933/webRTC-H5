@@ -7,7 +7,7 @@
         "type": "jwt"
     },
     "lifecycle": {
-        "installed": "/app-installed-callback"
+        "installed": "https://connect-inspector.services.atlassian.com/resources/47c1f6e8-8b33-4f26-aaaa-d69e0f389e44/log-save/installed"
     },
     "scopes": [
         "read", "write"
